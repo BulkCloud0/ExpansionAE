@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ILE"
+  ],
+  "key": {
+    "I": {
+      "item": "appliedenergistics2:import_bus"
+    },
+    "L": {
+      "item": "appliedenergistics2:logic_processor"
+    },
+    "E": {
+      "item": "appliedenergistics2:export_bus"
+    }
+  },
+  "result": {
+    "item": "expansionae:import_export_bus",
+    "count": 1
+  }
+}
