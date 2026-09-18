@@ -84,5 +84,6 @@
   "gui.expansionae.ex_assembler.page": "Process %s/%s",
   "block.expansionae.ex_io_port": "Extended IO Port",
   "item.expansionae.throughput_monitor": "Throughput Monitor",
-  "item.expansionae.throughput_monitor_configurator": "Throughput Monitor Configurator"
+  "item.expansionae.throughput_monitor_configurator": "Throughput Monitor Configurator",
+  "block.expansionae.reaction_chamber": "Reaction Chamber"
 }
