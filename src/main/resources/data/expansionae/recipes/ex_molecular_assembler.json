@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    "EME",
+    " E "
+  ],
+  "key": {
+    "E": { "item": "appliedenergistics2:engineering_processor" },
+    "M": { "item": "appliedenergistics2:molecular_assembler" }
+  },
+  "result": {
+    "item": "expansionae:ex_molecular_assembler",
+    "count": 1
+  }
+}
