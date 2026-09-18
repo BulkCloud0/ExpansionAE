@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["SES", "AUT", "SES"],
+  "key": {
+    "S": { "item": "appliedenergistics2:singularity" },
+    "E": { "item": "expansionae:shattered_singularity" },
+    "U": { "item": "expansionae:quantum_unit" },
+    "A": { "item": "expansionae:quantum_accelerator" },
+    "T": { "item": "expansionae:quantum_storage_256" }
+  },
+  "result": { "item": "expansionae:quantum_core" }
+}

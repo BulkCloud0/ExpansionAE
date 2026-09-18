@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["QSQ", "S S", "QSQ"],
+  "key": {
+    "Q": { "item": "appliedenergistics2:quartz_glass" },
+    "S": { "item": "appliedenergistics2:sky_stone_block" }
+  },
+  "result": { "item": "expansionae:quantum_structure", "count": 4 }
+}

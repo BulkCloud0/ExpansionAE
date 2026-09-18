@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["QQQ", "SUS", "SCS"],
+  "key": {
+    "U": { "item": "expansionae:quantum_unit" },
+    "C": { "item": "expansionae:quantum_core" },
+    "S": { "item": "expansionae:shattered_singularity" },
+    "Q": { "item": "expansionae:quantum_storage_256" }
+  },
+  "result": { "item": "expansionae:data_entangler" }
+}

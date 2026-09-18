@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["ECE", "CUC", "ECE"],
+  "key": {
+    "E": { "item": "expansionae:shattered_singularity" },
+    "C": { "item": "expansionae:quantum_storage_component" },
+    "U": { "item": "expansionae:quantum_unit" }
+  },
+  "result": { "item": "expansionae:quantum_storage_128" }
+}

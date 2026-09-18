@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["QQQ", "AUA", "ACA"],
+  "key": {
+    "U": { "item": "expansionae:quantum_unit" },
+    "C": { "item": "expansionae:quantum_core" },
+    "Q": { "item": "expansionae:quantum_processor" },
+    "A": { "item": "expansionae:quantum_accelerator" }
+  },
+  "result": { "item": "expansionae:quantum_multi_threader" }
+}
