@@ -5,6 +5,7 @@ import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.AdvancedIOBusContainer;
 import dev.bulkcloud.expansionae.ThresholdExportBusContainer;
+import dev.bulkcloud.expansionae.PreciseExportBusContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.ExpandedDriveContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
@@ -53,6 +54,11 @@ public final class ClientSetup {
             try {
                 return new ThresholdExportBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load threshold export bus screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<PreciseExportBusContainer, PreciseExportBusScreen>registerFactory(PreciseExportBusContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new PreciseExportBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load precise export bus screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedDriveContainer, ExpandedDriveScreen>registerFactory(ExpandedDriveContainer.TYPE, (container, inventory, title) -> {
             try {
