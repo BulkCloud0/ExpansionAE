@@ -52,5 +52,9 @@
   "gui.expansionae.advanced_io.regulate_off": "Regulate stock: OFF",
   "item.expansionae.threshold_export_bus": "Threshold Export Bus",
   "gui.expansionae.threshold.greater": "Threshold: ≥",
-  "gui.expansionae.threshold.lower": "Threshold: ≤"
+  "gui.expansionae.threshold.lower": "Threshold: ≤",
+  "block.expansionae.ex_drive": "Extended ME Drive",
+  "item.expansionae.ex_drive": "Extended ME Drive",
+  "item.expansionae.drive_upgrade": "Drive Upgrade",
+  "gui.expansionae.drive": "20-Cell ME Drive"
 }
