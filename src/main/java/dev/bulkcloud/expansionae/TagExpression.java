@@ -112,7 +112,9 @@ final class TagExpression {
                     throw new IllegalArgumentException("Unexpected operator");
                 }
             } else {
-                if (!expectingOperand) throw new IllegalArgumentException("Missing operator");
+                if (!expectingOperand && tag.length() == 0) {
+                    throw new IllegalArgumentException("Missing operator");
+                }
                 tag.append(c);
                 expectingOperand = false;
             }
