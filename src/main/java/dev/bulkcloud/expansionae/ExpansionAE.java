@@ -57,6 +57,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), AdvancedIOBus::new));
     public static final RegistryObject<Item> THRESHOLD_EXPORT_BUS = ITEMS.register("threshold_export_bus", () ->
             new PartItem<>(props(), ThresholdExportBus::new));
+    public static final RegistryObject<Item> PRECISE_EXPORT_BUS = ITEMS.register("precise_export_bus", () ->
+            new PartItem<>(props(), PreciseExportBus::new));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -138,6 +140,7 @@ public final class ExpansionAE {
         event.getRegistry().register(StockExportBusContainer.TYPE);
         event.getRegistry().register(AdvancedIOBusContainer.TYPE);
         event.getRegistry().register(ThresholdExportBusContainer.TYPE);
+        event.getRegistry().register(PreciseExportBusContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -164,7 +167,7 @@ public final class ExpansionAE {
             Upgrades.REDSTONE.registerItem(STOCK_EXPORT_BUS.get(), 1);
             Upgrades.FUZZY.registerItem(STOCK_EXPORT_BUS.get(), 1);
             Upgrades.CRAFTING.registerItem(STOCK_EXPORT_BUS.get(), 1);
-            for (Item item : new Item[]{ADVANCED_IO_BUS.get(), THRESHOLD_EXPORT_BUS.get()}) {
+            for (Item item : new Item[]{ADVANCED_IO_BUS.get(), THRESHOLD_EXPORT_BUS.get(), PRECISE_EXPORT_BUS.get()}) {
                 Upgrades.SPEED.registerItem(item, 4);
                 Upgrades.CAPACITY.registerItem(item, 2);
                 Upgrades.REDSTONE.registerItem(item, 1);
