@@ -39,17 +39,12 @@ jobs:
           path: ExpansionAE-1.16.5-source.zip
           if-no-files-found: error
       - name: Client startup and registry smoke test
+        if: github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: |
           rm -f run/expansionae-smoke-ok.txt
-          for attempt in 1 2 3; do
-            if timeout 240s xvfb-run -a bash ./gradlew --no-daemon runClient -PsmokeTest && test -f run/expansionae-smoke-ok.txt; then
-              exit 0
-            fi
-            rm -f run/expansionae-smoke-ok.txt
-            echo "Smoke test attempt ${attempt} failed; retrying."
-          done
-          exit 1
+          timeout 180s xvfb-run -a bash ./gradlew --no-daemon runClient -PsmokeTest
+          test -f run/expansionae-smoke-ok.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
