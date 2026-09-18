@@ -64,7 +64,7 @@ public final class TagStorageBusScreen extends UpgradeableScreen<TagStorageBusCo
     @Override
     protected void updateBeforeRender() {
         super.updateBeforeRender();
-        access.set(container.getAccess());
+        access.set(container.getReadWriteMode());
         storageFilter.set(container.getStorageFilter());
         if (whitelist != null && !whitelist.isFocused() && !whitelist.getText().equals(container.whitelist)) {
             whitelist.setText(container.whitelist == null ? "" : container.whitelist);
