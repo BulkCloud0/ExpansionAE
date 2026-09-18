@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
@@ -142,9 +143,13 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
         }
 
         cachedRecipe = null;
-        for (net.minecraft.item.crafting.IRecipe<?> recipe :
-                world.getRecipeManager().getRecipes(ReactionChamberRecipe.TYPE).values()) {
-            ReactionChamberRecipe candidate = (ReactionChamberRecipe) recipe;
+        Inventory probe = new Inventory(INPUT_SLOTS);
+        for (int slot = 0; slot < INPUT_SLOTS; slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            probe.setInventorySlotContents(slot, stack.isEmpty() ? ItemStack.EMPTY : stack.copy());
+        }
+        for (ReactionChamberRecipe candidate :
+                world.getRecipeManager().getRecipes(ReactionChamberRecipe.TYPE, probe, world)) {
             if (candidate.matchesMachine(inventory, inputTank.getFluid()) && canAccept(candidate)) {
                 cachedRecipe = candidate;
                 break;
