@@ -89,6 +89,15 @@ public final class ExpansionAE {
             () -> TileEntityType.Builder.create(ExpansionAE::newExpandedCharger, EX_CHARGER.get()).build(null));
     public static final RegistryObject<Item> EX_CHARGER_ITEM = ITEMS.register("ex_charger",
             () -> new BlockItem(EX_CHARGER.get(), props()));
+    public static final RegistryObject<ExpandedInscriberBlock> EX_INSCRIBER = BLOCKS.register("ex_inscriber", () -> {
+        ExpandedInscriberBlock block = new ExpandedInscriberBlock();
+        block.setTileEntity(ExpandedInscriberTile.class, ExpansionAE::newExpandedInscriber);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedInscriberTile>> EX_INSCRIBER_TILE = TILES.register("ex_inscriber",
+            () -> TileEntityType.Builder.create(ExpansionAE::newExpandedInscriber, EX_INSCRIBER.get()).build(null));
+    public static final RegistryObject<Item> EX_INSCRIBER_ITEM = ITEMS.register("ex_inscriber",
+            () -> new BlockItem(EX_INSCRIBER.get(), props()));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -142,6 +151,7 @@ public final class ExpansionAE {
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
     private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
+    private static ExpandedInscriberTile newExpandedInscriber() { return new ExpandedInscriberTile(EX_INSCRIBER_TILE.get()); }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -169,6 +179,7 @@ public final class ExpansionAE {
         event.getRegistry().register(TagStorageBusContainer.TYPE);
         event.getRegistry().register(PreciseStorageBusContainer.TYPE);
         event.getRegistry().register(ThresholdLevelEmitterContainer.TYPE);
+        event.getRegistry().register(ExpandedInscriberContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -220,6 +231,7 @@ public final class ExpansionAE {
             Upgrades.INVERTER.registerItem(PRECISE_STORAGE_BUS.get(), 1);
             Upgrades.FUZZY.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
             Upgrades.CRAFTING.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
+            Upgrades.SPEED.registerItem(EX_INSCRIBER_ITEM.get(), 4);
         });
     }
 }
