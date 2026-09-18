@@ -71,6 +71,10 @@ public final class ExpansionAE {
             new PartItem<>(props(), PreciseStorageBus::new));
     public static final RegistryObject<Item> THRESHOLD_LEVEL_EMITTER = ITEMS.register("threshold_level_emitter", () ->
             new PartItem<>(props(), ThresholdLevelEmitter::new));
+    public static final RegistryObject<Item> THROUGHPUT_MONITOR = ITEMS.register("throughput_monitor", () ->
+            new PartItem<>(props(), ThroughputMonitorPart::new));
+    public static final RegistryObject<Item> THROUGHPUT_MONITOR_CONFIGURATOR = ITEMS.register(
+            "throughput_monitor_configurator", () -> new Item(props().maxStackSize(1)));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -184,6 +188,8 @@ public final class ExpansionAE {
         ExpansionNetwork.init();
         Api.instance().registries().partModels().registerModels(
                 appeng.items.parts.PartModelsHelper.createModels(ExpandedInterfacePart.class));
+        Api.instance().registries().partModels().registerModels(
+                appeng.items.parts.PartModelsHelper.createModels(ThroughputMonitorPart.class));
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCKS.register(bus);
         ITEMS.register(bus);
