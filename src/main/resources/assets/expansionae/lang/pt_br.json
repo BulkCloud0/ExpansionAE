@@ -49,5 +49,8 @@
   "item.expansionae.stock_export_bus": "Barramento de Exportação com Estoque",
   "item.expansionae.advanced_io_bus": "Barramento de E/S Avançado",
   "gui.expansionae.advanced_io.regulate_on": "Regular estoque: LIGADO",
-  "gui.expansionae.advanced_io.regulate_off": "Regular estoque: DESLIGADO"
+  "gui.expansionae.advanced_io.regulate_off": "Regular estoque: DESLIGADO",
+  "item.expansionae.threshold_export_bus": "Barramento de Exportação por Limiar",
+  "gui.expansionae.threshold.greater": "Limiar: ≥",
+  "gui.expansionae.threshold.lower": "Limiar: ≤"
 }
