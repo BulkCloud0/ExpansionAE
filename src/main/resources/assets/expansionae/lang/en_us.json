@@ -81,5 +81,6 @@
   "block.expansionae.ex_inscriber": "Extended Inscriber",
   "gui.expansionae.ex_inscriber.page": "Process %s/%s",
   "block.expansionae.ex_molecular_assembler": "Extended Molecular Assembler",
-  "gui.expansionae.ex_assembler.page": "Process %s/%s"
+  "gui.expansionae.ex_assembler.page": "Process %s/%s",
+  "block.expansionae.ex_io_port": "Extended IO Port"
 }
