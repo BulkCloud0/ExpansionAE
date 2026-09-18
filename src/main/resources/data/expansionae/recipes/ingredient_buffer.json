@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["GGG","GCG","GGG"],"key":{"G":{"item":"minecraft:glass"},"C":{"item":"minecraft:chest"}},"result":{"item":"expansionae:ingredient_buffer","count":1}}

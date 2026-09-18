@@ -76,5 +76,8 @@
   "gui.expansionae.precise_storage.less_equal": "Mode: ≤",
   "item.expansionae.threshold_level_emitter": "Threshold Level Emitter",
   "gui.expansionae.threshold_level.upper": "Upper",
-  "gui.expansionae.threshold_level.lower": "Lower"
+  "gui.expansionae.threshold_level.lower": "Lower",
+  "block.expansionae.ingredient_buffer": "Ingredient Buffer",
+  "gui.expansionae.ingredient_buffer": "Ingredient Buffer",
+  "gui.expansionae.ingredient_buffer.fluid": "Fluid tank: 64,000 mB"
 }

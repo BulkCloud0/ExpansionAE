@@ -135,12 +135,22 @@ public final class ExpansionAE {
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_TERMINAL));
     public static final RegistryObject<Item> DRIVE_UPGRADE = ITEMS.register("drive_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.DRIVE));
+    public static final RegistryObject<IngredientBufferBlock> INGREDIENT_BUFFER = BLOCKS.register("ingredient_buffer", () -> {
+        IngredientBufferBlock block = new IngredientBufferBlock();
+        block.setTileEntity(IngredientBufferTile.class, ExpansionAE::newIngredientBuffer);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<IngredientBufferTile>> INGREDIENT_BUFFER_TILE = TILES.register("ingredient_buffer",
+            () -> TileEntityType.Builder.create(ExpansionAE::newIngredientBuffer, INGREDIENT_BUFFER.get()).build(null));
+    public static final RegistryObject<Item> INGREDIENT_BUFFER_ITEM = ITEMS.register("ingredient_buffer",
+            () -> new BlockItem(INGREDIENT_BUFFER.get(), props()));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
     private static ExpandedInterfaceTile newAdvancedProvider() { return new ExpandedInterfaceTile(ADV_PROVIDER_TILE.get(), 9, 36, true); }
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
+    private static IngredientBufferTile newIngredientBuffer() { return new IngredientBufferTile(INGREDIENT_BUFFER_TILE.get()); }
     private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
@@ -170,6 +180,7 @@ public final class ExpansionAE {
         event.getRegistry().register(PreciseStorageBusContainer.TYPE);
         event.getRegistry().register(ThresholdLevelEmitterContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
+        event.getRegistry().register(IngredientBufferContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {

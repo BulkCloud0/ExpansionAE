@@ -14,6 +14,7 @@ import dev.bulkcloud.expansionae.PreciseStorageBusContainer;
 import dev.bulkcloud.expansionae.ThresholdLevelEmitterContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.ExpandedDriveContainer;
+import dev.bulkcloud.expansionae.IngredientBufferContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.StockExportBusContainer;
@@ -95,6 +96,11 @@ public final class ClientSetup {
             try {
                 return new ThresholdLevelEmitterScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/level_emitter.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load threshold level emitter screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<IngredientBufferContainer, IngredientBufferScreen>registerFactory(IngredientBufferContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new IngredientBufferScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_ingredient_buffer.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load ingredient buffer screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedDriveContainer, ExpandedDriveScreen>registerFactory(ExpandedDriveContainer.TYPE, (container, inventory, title) -> {
             try {
