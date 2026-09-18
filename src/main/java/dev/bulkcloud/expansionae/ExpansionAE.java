@@ -144,6 +144,17 @@ public final class ExpansionAE {
             () -> TileEntityType.Builder.create(ExpansionAE::newIngredientBuffer, INGREDIENT_BUFFER.get()).build(null));
     public static final RegistryObject<Item> INGREDIENT_BUFFER_ITEM = ITEMS.register("ingredient_buffer",
             () -> new BlockItem(INGREDIENT_BUFFER.get(), props()));
+    public static final RegistryObject<WirelessConnectorBlock> WIRELESS_CONNECTOR = BLOCKS.register("wireless_connector", () -> {
+        WirelessConnectorBlock block = new WirelessConnectorBlock();
+        block.setTileEntity(WirelessConnectorTile.class, ExpansionAE::newWirelessConnector);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<WirelessConnectorTile>> WIRELESS_CONNECTOR_TILE = TILES.register("wireless_connector",
+            () -> TileEntityType.Builder.create(ExpansionAE::newWirelessConnector, WIRELESS_CONNECTOR.get()).build(null));
+    public static final RegistryObject<Item> WIRELESS_CONNECTOR_ITEM = ITEMS.register("wireless_connector",
+            () -> new BlockItem(WIRELESS_CONNECTOR.get(), props()));
+    public static final RegistryObject<Item> WIRELESS_CONNECT_TOOL = ITEMS.register("wireless_connect_tool",
+            () -> new WirelessConnectToolItem(props().maxStackSize(1)));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
@@ -151,6 +162,7 @@ public final class ExpansionAE {
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
     private static IngredientBufferTile newIngredientBuffer() { return new IngredientBufferTile(INGREDIENT_BUFFER_TILE.get()); }
+    private static WirelessConnectorTile newWirelessConnector() { return new WirelessConnectorTile(WIRELESS_CONNECTOR_TILE.get()); }
     private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
