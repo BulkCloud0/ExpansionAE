@@ -89,6 +89,7 @@ import appeng.me.storage.ITickingMonitor;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.me.storage.MEMonitorIInventory;
 import appeng.parts.PartModel;
+import appeng.parts.misc.ItemHandlerAdapter;
 import appeng.parts.automation.UpgradeablePart;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.util.Platform;
