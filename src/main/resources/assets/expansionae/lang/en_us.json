@@ -61,5 +61,8 @@
   "gui.expansionae.precise.exact": "Batch: EXACT",
   "gui.expansionae.precise.multiple": "Batch: MULTIPLE",
   "item.expansionae.mod_export_bus": "Mod Export Bus",
-  "gui.expansionae.mod_export_bus.filter": "Mod ids/names, separated by commas"
+  "gui.expansionae.mod_export_bus.filter": "Mod ids/names, separated by commas",
+  "item.expansionae.tag_export_bus": "Tag Export Bus",
+  "gui.expansionae.tag_export_bus.whitelist": "Whitelist expression",
+  "gui.expansionae.tag_export_bus.blacklist": "Blacklist expression"
 }
