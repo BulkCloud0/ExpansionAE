@@ -66,5 +66,12 @@
   "gui.expansionae.tag_export_bus.whitelist": "Whitelist expression",
   "gui.expansionae.tag_export_bus.blacklist": "Blacklist expression",
   "item.expansionae.mod_storage_bus": "Mod Storage Bus",
-  "item.expansionae.tag_storage_bus": "Tag Storage Bus"
+  "item.expansionae.tag_storage_bus": "Tag Storage Bus",
+  "item.expansionae.precise_storage_bus": "Precise Storage Bus",
+  "gui.expansionae.precise_storage.default": "Mode: Default",
+  "gui.expansionae.precise_storage.greater_equal": "Mode: ≥",
+  "gui.expansionae.precise_storage.greater": "Mode: >",
+  "gui.expansionae.precise_storage.equal": "Mode: =",
+  "gui.expansionae.precise_storage.less": "Mode: <",
+  "gui.expansionae.precise_storage.less_equal": "Mode: ≤"
 }
