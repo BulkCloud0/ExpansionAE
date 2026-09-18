@@ -69,6 +69,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), TagStorageBus::new));
     public static final RegistryObject<Item> PRECISE_STORAGE_BUS = ITEMS.register("precise_storage_bus", () ->
             new PartItem<>(props(), PreciseStorageBus::new));
+    public static final RegistryObject<Item> THRESHOLD_LEVEL_EMITTER = ITEMS.register("threshold_level_emitter", () ->
+            new PartItem<>(props(), ThresholdLevelEmitter::new));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -156,6 +158,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ModStorageBusContainer.TYPE);
         event.getRegistry().register(TagStorageBusContainer.TYPE);
         event.getRegistry().register(PreciseStorageBusContainer.TYPE);
+        event.getRegistry().register(ThresholdLevelEmitterContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -205,6 +208,8 @@ public final class ExpansionAE {
             Upgrades.CAPACITY.registerItem(PRECISE_STORAGE_BUS.get(), 5);
             Upgrades.FUZZY.registerItem(PRECISE_STORAGE_BUS.get(), 1);
             Upgrades.INVERTER.registerItem(PRECISE_STORAGE_BUS.get(), 1);
+            Upgrades.FUZZY.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
+            Upgrades.CRAFTING.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
         });
     }
 }
