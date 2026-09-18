@@ -70,6 +70,8 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> ADV_PROVIDER_ITEM = ITEMS.register("advanced_pattern_provider", () -> new BlockItem(ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> SMALL_ADV_PROVIDER_ITEM = ITEMS.register("small_advanced_pattern_provider", () -> new BlockItem(SMALL_ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> PATTERN_ENCODER = ITEMS.register("advanced_pattern_encoder", () -> new PatternEncoderItem(props()));
+    public static final RegistryObject<Item> PATTERN_MODIFIER = ITEMS.register("pattern_modifier", () ->
+            new PatternModifierItem(props()));
     public static final RegistryObject<Item> PACKING_TAPE = ITEMS.register("me_packing_tape", () ->
             new PackingTapeItem(props().maxDamage(64)));
     public static final RegistryObject<Item> PACKED_DEVICE = ITEMS.register("package", () ->
@@ -114,6 +116,7 @@ public final class ExpansionAE {
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().register(ExpandedContainer.TYPE);
         event.getRegistry().register(PatternEncoderContainer.TYPE);
+        event.getRegistry().register(PatternModifierContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {
