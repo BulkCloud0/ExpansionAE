@@ -27,5 +27,6 @@
   "item.expansionae.interface_upgrade": "Interface Upgrade",
   "item.expansionae.pattern_provider_upgrade": "Pattern Provider Upgrade",
   "item.expansionae.io_bus_upgrade": "Import/Export Bus Upgrade",
-  "item.expansionae.pattern_terminal_upgrade": "Pattern Access Terminal Upgrade"
+  "item.expansionae.pattern_terminal_upgrade": "Pattern Access Terminal Upgrade",
+  "item.expansionae.import_export_bus": "Import Export Bus"
 }
