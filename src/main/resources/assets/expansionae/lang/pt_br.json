@@ -56,5 +56,8 @@
   "block.expansionae.ex_drive": "Drive ME Estendido",
   "item.expansionae.ex_drive": "Drive ME Estendido",
   "item.expansionae.drive_upgrade": "Melhoria de Drive",
-  "gui.expansionae.drive": "Drive ME de 20 Células"
+  "gui.expansionae.drive": "Drive ME de 20 Células",
+  "item.expansionae.precise_export_bus": "Barramento de Exportação Precisa",
+  "gui.expansionae.precise.exact": "Lote: EXATO",
+  "gui.expansionae.precise.multiple": "Lote: MÚLTIPLOS"
 }
