@@ -80,6 +80,15 @@ public final class ExpansionAE {
             () -> TileEntityType.Builder.create(ExpansionAE::newExpandedDrive, EX_DRIVE.get()).build(null));
     public static final RegistryObject<Item> EX_DRIVE_ITEM = ITEMS.register("ex_drive",
             () -> new BlockItem(EX_DRIVE.get(), props()));
+    public static final RegistryObject<ExpandedChargerBlock> EX_CHARGER = BLOCKS.register("ex_charger", () -> {
+        ExpandedChargerBlock block = new ExpandedChargerBlock();
+        block.setTileEntity(ExpandedChargerTile.class, ExpansionAE::newExpandedCharger);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedChargerTile>> EX_CHARGER_TILE = TILES.register("ex_charger",
+            () -> TileEntityType.Builder.create(ExpansionAE::newExpandedCharger, EX_CHARGER.get()).build(null));
+    public static final RegistryObject<Item> EX_CHARGER_ITEM = ITEMS.register("ex_charger",
+            () -> new BlockItem(EX_CHARGER.get(), props()));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -132,6 +141,7 @@ public final class ExpansionAE {
     private static ExpandedInterfaceTile newAdvancedProvider() { return new ExpandedInterfaceTile(ADV_PROVIDER_TILE.get(), 9, 36, true); }
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
+    private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
