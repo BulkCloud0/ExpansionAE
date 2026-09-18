@@ -68,6 +68,10 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> ADV_PROVIDER_ITEM = ITEMS.register("advanced_pattern_provider", () -> new BlockItem(ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> SMALL_ADV_PROVIDER_ITEM = ITEMS.register("small_advanced_pattern_provider", () -> new BlockItem(SMALL_ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> PATTERN_ENCODER = ITEMS.register("advanced_pattern_encoder", () -> new PatternEncoderItem(props()));
+    public static final RegistryObject<Item> PACKING_TAPE = ITEMS.register("me_packing_tape", () ->
+            new PackingTapeItem(props().maxDamage(64)));
+    public static final RegistryObject<Item> PACKED_DEVICE = ITEMS.register("package", () ->
+            new PackedDeviceItem(new Item.Properties().maxStackSize(1)));
     public static final RegistryObject<Item> PROVIDER_PART = ITEMS.register("ex_pattern_provider_part", () ->
             new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 36, false, "ex_pattern_provider")));
     public static final RegistryObject<Item> INTERFACE_PART = ITEMS.register("ex_interface_part", () ->
