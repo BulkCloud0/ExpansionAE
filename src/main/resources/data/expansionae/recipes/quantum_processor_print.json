@@ -1,0 +1,9 @@
+{
+  "type": "appliedenergistics2:inscriber",
+  "mode": "inscribe",
+  "result": { "item": "expansionae:printed_quantum_processor" },
+  "ingredients": {
+    "top": { "item": "expansionae:quantum_processor_press" },
+    "middle": { "item": "expansionae:quantum_alloy" }
+  }
+}
