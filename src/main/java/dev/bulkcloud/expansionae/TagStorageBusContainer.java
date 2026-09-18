@@ -1,6 +1,9 @@
 package dev.bulkcloud.expansionae;
 
+import appeng.api.config.AccessRestriction;
 import appeng.api.config.SecurityPermissions;
+import appeng.api.config.Settings;
+import appeng.api.config.StorageFilter;
 import appeng.container.guisync.GuiSync;
 import appeng.container.implementations.ContainerTypeBuilder;
 import appeng.container.implementations.UpgradeableContainer;
@@ -21,6 +24,12 @@ public final class TagStorageBusContainer extends UpgradeableContainer implement
     @GuiSync(15)
     public String blacklist = "";
 
+    @GuiSync(16)
+    public AccessRestriction access = AccessRestriction.READ_WRITE;
+
+    @GuiSync(17)
+    public StorageFilter storageFilter = StorageFilter.EXTRACTABLE_ONLY;
+
     public TagStorageBusContainer(int id, PlayerInventory player, TagStorageBus host) {
         super(TYPE, id, player, host);
         this.host = host;
@@ -31,11 +40,21 @@ public final class TagStorageBusContainer extends UpgradeableContainer implement
         setupUpgrades();
     }
 
+    public AccessRestriction getReadWriteMode() {
+        return access;
+    }
+
+    public StorageFilter getStorageFilter() {
+        return storageFilter;
+    }
+
     @Override
     public void detectAndSendChanges() {
         if (isServer()) {
             whitelist = host.getWhitelist();
             blacklist = host.getBlacklist();
+            access = (AccessRestriction) host.getConfigManager().getSetting(Settings.ACCESS);
+            storageFilter = (StorageFilter) host.getConfigManager().getSetting(Settings.STORAGE_FILTER);
         }
         super.detectAndSendChanges();
     }
