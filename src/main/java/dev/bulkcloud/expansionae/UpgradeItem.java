@@ -10,6 +10,7 @@ import appeng.parts.misc.InterfacePart;
 import appeng.parts.reporting.InterfaceTerminalPart;
 import appeng.tile.misc.InterfaceTileEntity;
 import appeng.tile.networking.CableBusTileEntity;
+import appeng.tile.storage.DriveTileEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
@@ -35,7 +36,8 @@ public final class UpgradeItem extends Item {
         INTERFACE,
         PATTERN_PROVIDER,
         IO_BUS,
-        PATTERN_TERMINAL
+        PATTERN_TERMINAL,
+        DRIVE
     }
 
     private final Target target;
@@ -125,6 +127,8 @@ public final class UpgradeItem extends Item {
                 return ExpansionAE.INTERFACE.get();
             case PATTERN_PROVIDER:
                 return ExpansionAE.PROVIDER.get();
+            case DRIVE:
+                return tile.getClass() == DriveTileEntity.class ? ExpansionAE.EX_DRIVE.get() : null;
             default:
                 return null;
         }
