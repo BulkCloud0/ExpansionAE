@@ -218,8 +218,12 @@ public final class PreciseExportBus extends ExportBusPart {
         if (key == null || amount <= 0) {
             return false;
         }
-        return craftingTracker.handleCrafting(slot, amount, key, destination,
-                getTile().getWorld(), getProxy().getGrid(), crafting, source);
+        try {
+            return craftingTracker.handleCrafting(slot, amount, key, destination,
+                    getTile().getWorld(), getProxy().getGrid(), crafting, source);
+        } catch (GridAccessException e) {
+            return false;
+        }
     }
 
     private boolean useExactAmount() {
