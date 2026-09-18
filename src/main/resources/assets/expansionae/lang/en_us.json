@@ -73,5 +73,8 @@
   "gui.expansionae.precise_storage.greater": "Mode: >",
   "gui.expansionae.precise_storage.equal": "Mode: =",
   "gui.expansionae.precise_storage.less": "Mode: <",
-  "gui.expansionae.precise_storage.less_equal": "Mode: ≤"
+  "gui.expansionae.precise_storage.less_equal": "Mode: ≤",
+  "item.expansionae.threshold_level_emitter": "Threshold Level Emitter",
+  "gui.expansionae.threshold_level.upper": "Upper",
+  "gui.expansionae.threshold_level.lower": "Lower"
 }
