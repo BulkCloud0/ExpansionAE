@@ -13,7 +13,7 @@ description='''Development backport of selected ExtendedAE and AdvancedAE featur
 [[dependencies.expansionae]]
 modId="forge"
 mandatory=true
-versionRange="[36.2.42,37)"
+versionRange="[36.1.10,37)"
 ordering="NONE"
 side="BOTH"
 [[dependencies.expansionae]]
