@@ -76,5 +76,6 @@
   "gui.expansionae.precise_storage.less_equal": "Modo: ≤",
   "item.expansionae.threshold_level_emitter": "Emissor de Nível por Limiar",
   "gui.expansionae.threshold_level.upper": "Superior",
-  "gui.expansionae.threshold_level.lower": "Inferior"
+  "gui.expansionae.threshold_level.lower": "Inferior",
+  "block.expansionae.ex_charger": "Carregador Estendido"
 }
