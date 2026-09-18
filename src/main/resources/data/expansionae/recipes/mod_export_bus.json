@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["MEL"],
+  "key": {
+    "M": { "item": "appliedenergistics2:memory_card" },
+    "E": { "item": "appliedenergistics2:export_bus" },
+    "L": { "item": "appliedenergistics2:logic_processor" }
+  },
+  "result": { "item": "expansionae:mod_export_bus", "count": 1 }
+}
