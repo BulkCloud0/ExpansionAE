@@ -16,6 +16,7 @@ import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.ExpandedDriveContainer;
 import dev.bulkcloud.expansionae.ExpandedInscriberContainer;
 import dev.bulkcloud.expansionae.ExpandedMolecularAssemblerContainer;
+import dev.bulkcloud.expansionae.ExpandedIOPortContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.StockExportBusContainer;
@@ -112,6 +113,11 @@ public final class ClientSetup {
             try {
                 return new ExpandedMolecularAssemblerScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/molecular_assembler.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load expanded molecular assembler screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<ExpandedIOPortContainer, ExpandedIOPortScreen>registerFactory(ExpandedIOPortContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ExpandedIOPortScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/io_port.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load expanded IO port screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
