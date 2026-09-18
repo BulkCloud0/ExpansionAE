@@ -79,5 +79,7 @@
   "gui.expansionae.threshold_level.lower": "Lower",
   "block.expansionae.ex_charger": "Extended Charger",
   "block.expansionae.ex_inscriber": "Extended Inscriber",
-  "gui.expansionae.ex_inscriber.page": "Process %s/%s"
+  "gui.expansionae.ex_inscriber.page": "Process %s/%s",
+  "block.expansionae.ex_molecular_assembler": "Extended Molecular Assembler",
+  "gui.expansionae.ex_assembler.page": "Process %s/%s"
 }
