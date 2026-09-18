@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GPG",
+    " L "
+  ],
+  "key": {
+    "G": {
+      "item": "minecraft:green_dye"
+    },
+    "P": {
+      "item": "appliedenergistics2:blank_pattern"
+    },
+    "L": {
+      "item": "appliedenergistics2:logic_processor"
+    }
+  },
+  "result": {
+    "item": "expansionae:pattern_modifier",
+    "count": 1
+  }
+}
