@@ -1,0 +1,10 @@
+{
+  "type": "appliedenergistics2:inscriber",
+  "mode": "press",
+  "result": { "item": "expansionae:quantum_processor_press" },
+  "ingredients": {
+    "top": { "item": "appliedenergistics2:engineering_processor_press" },
+    "middle": { "item": "expansionae:shattered_singularity" },
+    "bottom": { "item": "appliedenergistics2:logic_processor_press" }
+  }
+}
