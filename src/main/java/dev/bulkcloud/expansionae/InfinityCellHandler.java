@@ -54,7 +54,7 @@ public final class InfinityCellHandler implements ICellHandler {
         Inventory(IStorageChannel<T> channel, T prototype) { this.channel = channel; this.prototype = prototype.copy(); }
         @Override public T injectItems(T input, Actionable mode, IActionSource source) { return input; }
         @Override public T extractItems(T request, Actionable mode, IActionSource source) {
-            return request != null && request.getStackSize() > 0 && prototype.isSameType(request) ? request.copy() : null;
+            return request != null && request.getStackSize() > 0 && prototype.equals(request) ? request.copy() : null;
         }
         @Override public IItemList<T> getAvailableItems(IItemList<T> out) {
             out.add(prototype.copy().setStackSize(Integer.MAX_VALUE));

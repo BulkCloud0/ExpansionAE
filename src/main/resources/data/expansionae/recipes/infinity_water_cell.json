@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "appliedenergistics2:cell_component_64k"
+      "item": "appliedenergistics2:64k_cell_component"
     },
     {
       "item": "minecraft:water_bucket"

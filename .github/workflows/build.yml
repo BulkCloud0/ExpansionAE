@@ -15,6 +15,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '8'
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: forge-1.16.5-36.2.42-ae2-8.4.7-v1
       - name: Build and reobfuscate
         run: bash ./gradlew --no-daemon clean build
       - uses: actions/upload-artifact@v4
