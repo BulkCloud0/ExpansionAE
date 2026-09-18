@@ -6,6 +6,7 @@ import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
+import dev.bulkcloud.expansionae.StockExportBusContainer;
 import dev.bulkcloud.expansionae.ExpandedTerminalContainer;
 import dev.bulkcloud.expansionae.ExpansionNetwork;
 import dev.bulkcloud.expansionae.client.terminal.ExpandedTerminalScreen;
@@ -34,6 +35,11 @@ public final class ClientSetup {
             try {
                 return new PatternModifierScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_modifier.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load pattern modifier screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(StockExportBusContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new StockExportBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load stock export bus screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
