@@ -27,5 +27,6 @@
   "item.expansionae.interface_upgrade": "Melhoria de Interface",
   "item.expansionae.pattern_provider_upgrade": "Melhoria de Fornecedor de Padrões",
   "item.expansionae.io_bus_upgrade": "Melhoria de Barramento de Importação/Exportação",
-  "item.expansionae.pattern_terminal_upgrade": "Melhoria de Terminal de Acesso a Padrões"
+  "item.expansionae.pattern_terminal_upgrade": "Melhoria de Terminal de Acesso a Padrões",
+  "item.expansionae.import_export_bus": "Barramento de Importação e Exportação"
 }
