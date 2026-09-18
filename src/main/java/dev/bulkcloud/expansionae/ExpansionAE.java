@@ -61,6 +61,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), PreciseExportBus::new));
     public static final RegistryObject<Item> MOD_EXPORT_BUS = ITEMS.register("mod_export_bus", () ->
             new PartItem<>(props(), ModExportBus::new));
+    public static final RegistryObject<Item> TAG_EXPORT_BUS = ITEMS.register("tag_export_bus", () ->
+            new PartItem<>(props(), TagExportBus::new));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -144,6 +146,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ThresholdExportBusContainer.TYPE);
         event.getRegistry().register(PreciseExportBusContainer.TYPE);
         event.getRegistry().register(ModExportBusContainer.TYPE);
+        event.getRegistry().register(TagExportBusContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -186,6 +189,8 @@ public final class ExpansionAE {
             Upgrades.CRAFTING.registerItem(ACTIVE_FORMATION_PLANE.get(), 1);
             Upgrades.SPEED.registerItem(MOD_EXPORT_BUS.get(), 4);
             Upgrades.REDSTONE.registerItem(MOD_EXPORT_BUS.get(), 1);
+            Upgrades.SPEED.registerItem(TAG_EXPORT_BUS.get(), 4);
+            Upgrades.REDSTONE.registerItem(TAG_EXPORT_BUS.get(), 1);
         });
     }
 }
