@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["TSL"],
+  "key": {
+    "T": { "item": "minecraft:name_tag" },
+    "S": { "item": "appliedenergistics2:storage_bus" },
+    "L": { "item": "appliedenergistics2:logic_processor" }
+  },
+  "result": { "item": "expansionae:tag_storage_bus", "count": 1 }
+}
