@@ -45,5 +45,6 @@
   "gui.expansionae.pattern_modifier.div10": "÷10",
   "gui.expansionae.pattern_modifier.clear": "Clear",
   "gui.expansionae.pattern_modifier.replace": "Replace",
-  "gui.expansionae.pattern_modifier.clone": "Clone"
+  "gui.expansionae.pattern_modifier.clone": "Clone",
+  "item.expansionae.stock_export_bus": "Stock Export Bus"
 }
