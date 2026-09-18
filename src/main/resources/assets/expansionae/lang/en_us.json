@@ -64,5 +64,7 @@
   "gui.expansionae.mod_export_bus.filter": "Mod ids/names, separated by commas",
   "item.expansionae.tag_export_bus": "Tag Export Bus",
   "gui.expansionae.tag_export_bus.whitelist": "Whitelist expression",
-  "gui.expansionae.tag_export_bus.blacklist": "Blacklist expression"
+  "gui.expansionae.tag_export_bus.blacklist": "Blacklist expression",
+  "item.expansionae.mod_storage_bus": "Mod Storage Bus",
+  "item.expansionae.tag_storage_bus": "Tag Storage Bus"
 }
