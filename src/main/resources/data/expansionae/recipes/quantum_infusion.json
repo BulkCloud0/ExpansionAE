@@ -1,0 +1,9 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 20000,
+  "fluid": { "fluid": "minecraft:water", "amount": 4000 },
+  "input_items": [
+    { "amount": 1, "ingredient": { "item": "expansionae:quantum_infused_dust" } }
+  ],
+  "output_fluid": { "fluid": "expansionae:quantum_infusion_source", "amount": 1000 }
+}
