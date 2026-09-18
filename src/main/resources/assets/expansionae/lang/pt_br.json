@@ -45,5 +45,6 @@
   "gui.expansionae.pattern_modifier.div10": "÷10",
   "gui.expansionae.pattern_modifier.clear": "Limpar",
   "gui.expansionae.pattern_modifier.replace": "Substituir",
-  "gui.expansionae.pattern_modifier.clone": "Clonar"
+  "gui.expansionae.pattern_modifier.clone": "Clonar",
+  "item.expansionae.stock_export_bus": "Barramento de Exportação com Estoque"
 }
