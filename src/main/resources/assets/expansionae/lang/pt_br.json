@@ -32,5 +32,6 @@
   "item.expansionae.me_packing_tape": "Fita de Empacotamento ME",
   "item.expansionae.package": "Dispositivo Empacotado",
   "tooltip.expansionae.packaged_device": "Contém: %s",
-  "tooltip.expansionae.packaged_device.invalid": "Dispositivo empacotado inválido"
+  "tooltip.expansionae.packaged_device.invalid": "Dispositivo empacotado inválido",
+  "item.expansionae.active_formation_plane": "Plano de Formação Ativo ME"
 }
