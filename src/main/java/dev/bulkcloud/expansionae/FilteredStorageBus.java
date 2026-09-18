@@ -424,8 +424,7 @@ public abstract class FilteredStorageBus extends UpgradeablePart
             if (inv != null) {
                 this.checkInterfaceVsStorageBus(target, this.getSide().getOpposite());
 
-                this.handler = new MEInventoryHandler<IAEItemStack>(inv,
-                        Api.instance().storage().getStorageChannel(IItemStorageChannel.class));
+                this.handler = createInventoryHandler(inv);
 
                 this.handler.setBaseAccess((AccessRestriction) this.getConfigManager().getSetting(Settings.ACCESS));
                 this.handler.setWhitelist(this.getInstalledUpgrades(Upgrades.INVERTER) > 0 ? IncludeExclude.BLACKLIST
@@ -488,6 +487,11 @@ public abstract class FilteredStorageBus extends UpgradeablePart
     }
 
     protected abstract appeng.util.prioritylist.IPartitionList<IAEItemStack> createPartitionList();
+
+    protected MEInventoryHandler<IAEItemStack> createInventoryHandler(final IMEInventory<IAEItemStack> inv) {
+        return new MEInventoryHandler<IAEItemStack>(inv,
+                Api.instance().storage().getStorageChannel(IItemStorageChannel.class));
+    }
 
     protected final void forceFilterUpdate() {
         this.resetCache(true);
