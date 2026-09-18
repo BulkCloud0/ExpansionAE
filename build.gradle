@@ -13,17 +13,6 @@ apply plugin: 'java'
 new File(gradle.gradleUserHomeDir,
     'caches/forge_gradle/minecraft_user_repo/de/oceanlabs/mcp/mcp_config/1.16.5-20210115.111550').mkdirs()
 
-// Access transformers make ForgeGradle use a project-local FG cache as well.
-// Create the MCP parent eagerly to avoid a clean-run NoSuchFileException.
-new File(buildDir,
-    'fg_cache/de/oceanlabs/mcp/mcp_config/1.16.5-20210115.111550').mkdirs()
-
-clean.doLast {
-    // The clean task deletes build/fg_cache after project configuration.
-    // Recreate the mapping directory before compileClasspath is resolved.
-    new File(buildDir,
-        'fg_cache/de/oceanlabs/mcp/mcp_config/1.16.5-20210115.111550').mkdirs()
-}
 
 group = 'dev.bulkcloud.expansionae'
 version = "${minecraft_version}-${mod_version}"
@@ -32,7 +21,6 @@ sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
     mappings channel: 'snapshot', version: '20210309-1.16.5'
-    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
     runs {
         client {
             workingDirectory project.file('run')
