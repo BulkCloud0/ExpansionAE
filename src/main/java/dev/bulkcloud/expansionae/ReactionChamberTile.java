@@ -190,7 +190,25 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
             return TickRateModulation.SLEEP;
         }
 
-        int speed = 1 + upgrades.getInstalledUpgrades(Upgrades.SPEED);
+        int installedSpeed = upgrades.getInstalledUpgrades(Upgrades.SPEED);
+        int speed;
+        switch (installedSpeed) {
+            case 1:
+                speed = 3;
+                break;
+            case 2:
+                speed = 5;
+                break;
+            case 3:
+                speed = 10;
+                break;
+            case 4:
+                speed = 50;
+                break;
+            default:
+                speed = 2;
+                break;
+        }
         int steps = Math.max(1, ticksSinceLastCall) * speed;
         double energyPerStep = Math.max(1.0, task.getEnergy() / (double) PROCESSING_STEPS);
         double requested = energyPerStep * steps;

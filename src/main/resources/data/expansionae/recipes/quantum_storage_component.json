@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["PSP", "CQC", "PCP"],
+  "key": {
+    "P": { "item": "expansionae:quantum_processor" },
+    "S": { "item": "appliedenergistics2:2_cubed_spatial_cell_component" },
+    "C": { "item": "appliedenergistics2:64k_cell_component" },
+    "Q": { "item": "appliedenergistics2:quartz_vibrant_glass" }
+  },
+  "result": { "item": "expansionae:quantum_storage_component" }
+}

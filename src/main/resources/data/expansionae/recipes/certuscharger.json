@@ -1,0 +1,9 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 1300000,
+  "fluid": { "fluid": "minecraft:water", "amount": 1000 },
+  "input_items": [
+    { "amount": 64, "ingredient": { "item": "appliedenergistics2:certus_quartz_crystal" } }
+  ],
+  "output_item": { "item": "appliedenergistics2:charged_certus_quartz_crystal", "count": 64 }
+}

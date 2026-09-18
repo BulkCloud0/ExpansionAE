@@ -1,0 +1,11 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 20000,
+  "fluid": { "fluid": "minecraft:water", "amount": 100 },
+  "input_items": [
+    { "amount": 4, "ingredient": { "item": "expansionae:printed_quantum_processor" } },
+    { "amount": 4, "ingredient": { "item": "appliedenergistics2:printed_silicon" } },
+    { "amount": 4, "ingredient": { "item": "minecraft:redstone" } }
+  ],
+  "output_item": { "item": "expansionae:quantum_processor", "count": 4 }
+}

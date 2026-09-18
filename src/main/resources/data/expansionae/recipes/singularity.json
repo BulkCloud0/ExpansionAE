@@ -1,0 +1,9 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 1000000,
+  "fluid": { "fluid": "minecraft:lava", "amount": 100 },
+  "input_items": [
+    { "amount": 64, "ingredient": { "item": "appliedenergistics2:matter_ball" } }
+  ],
+  "output_item": { "item": "appliedenergistics2:singularity" }
+}

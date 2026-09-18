@@ -36,6 +36,13 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - AdvancedAE Advanced IO Bus, incluindo regulação de estoque e importação filtrada.
 - Throughput Monitor do AdvancedAE, com histórico de vazão e configurador de janela de medição.
 
+### AdvancedAE — materiais e Reaction Chamber
+- Reaction Chamber funcional com 9 entradas, saída de item, entrada/saída de fluido, energia AE e quatro Speed Cards.
+- Curva de aceleração adaptada do upstream (2/3/5/10/50 passos por ciclo para 0–4 Speed Cards).
+- Quantum Infusion, Shattered Singularity, Quantum Alloy, Quantum Alloy Plate, Quantum Processor e Quantum Storage Component.
+- Receitas de Reaction Chamber para singularidade, cristais Certus/Fluix e produção em lote de processadores.
+- A receita do Quantum Alloy aceita cobre via tag quando disponível e ferro como fallback de compatibilidade para modpacks 1.16.5 sem cobre.
+
 ### Recursos
 - Telas próprias para os containers já adaptados.
 - Modelos, blockstates, loot tables, traduções en_US/pt_BR e receitas dos recursos já registrados.
@@ -55,7 +62,6 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 
 ### AdvancedAE
-- Reaction Chamber, receitas, materiais e Quantum Infusion.
 - Advanced Crafting CPU / componentes e lógica de cluster.
 - Quantum Computer.
 - Quantum Crafter, terminal e terminal wireless.
@@ -63,7 +69,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Portable Workbench e utilitários associados.
 - Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos.
 - Integrações opcionais.
-- Auditoria fina de todas as opções de GUI, lock reasons e comportamentos introduzidos nas versões modernas.
+- Auto-export direcional e configuração visual completa do Reaction Chamber, além da auditoria fina de opções de GUI, lock reasons e comportamentos modernos.
 
 ## Diferenças arquiteturais inevitáveis
 
