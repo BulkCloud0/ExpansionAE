@@ -118,15 +118,11 @@ public final class UpgradeItem extends Item {
     }
 
     private Block getBlockTarget(TileEntity tile) {
-        if (tile.getClass() != InterfaceTileEntity.class) {
-            return null;
-        }
-
         switch (target) {
             case INTERFACE:
-                return ExpansionAE.INTERFACE.get();
+                return tile.getClass() == InterfaceTileEntity.class ? ExpansionAE.INTERFACE.get() : null;
             case PATTERN_PROVIDER:
-                return ExpansionAE.PROVIDER.get();
+                return tile.getClass() == InterfaceTileEntity.class ? ExpansionAE.PROVIDER.get() : null;
             case DRIVE:
                 return tile.getClass() == DriveTileEntity.class ? ExpansionAE.EX_DRIVE.get() : null;
             default:
