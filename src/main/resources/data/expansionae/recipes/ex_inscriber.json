@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    "EIE",
+    " E "
+  ],
+  "key": {
+    "E": { "item": "appliedenergistics2:engineering_processor" },
+    "I": { "item": "appliedenergistics2:inscriber" }
+  },
+  "result": {
+    "item": "expansionae:ex_inscriber",
+    "count": 1
+  }
+}
