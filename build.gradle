@@ -23,6 +23,9 @@ minecraft {
     mappings channel: 'snapshot', version: '20210309-1.16.5'
     runs {
         client {
+            // AE2 8.4.x itself disables refmaps in userdev because ForgeGradle 4
+            // otherwise fails to resolve some 1.16.5 mixin invokers.
+            property 'mixin.env.disableRefMap', 'true'
             workingDirectory project.file('run')
             if (project.hasProperty('smokeTest')) property 'expansionae.smokeTest', 'true'
             mods { expansionae { source sourceSets.main } }
