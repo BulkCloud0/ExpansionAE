@@ -49,6 +49,8 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> COBBLE_CELL = ITEMS.register("infinity_cobblestone_cell", () -> new Item(props().maxStackSize(1)));
     public static final RegistryObject<Item> IMPORT_BUS = ITEMS.register("ex_import_bus", () -> new PartItem<>(props(), FastImportBus::new));
     public static final RegistryObject<Item> EXPORT_BUS = ITEMS.register("ex_export_bus", () -> new PartItem<>(props(), FastExportBus::new));
+    public static final RegistryObject<Item> IMPORT_EXPORT_BUS = ITEMS.register("import_export_bus", () ->
+            new PartItem<>(props(), ImportExportBus::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
         ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
         block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newAdvancedProvider);
@@ -117,14 +119,15 @@ public final class ExpansionAE {
                     SMALL_ADV_PROVIDER_ITEM.get(), ADV_PROVIDER_PART.get(), SMALL_ADV_PROVIDER_PART.get()}) {
                 Upgrades.CRAFTING.registerItem(item, 1);
             }
-            for (Item item : new Item[]{IMPORT_BUS.get(), EXPORT_BUS.get()}) {
-                Item stack = item;
-                Upgrades.SPEED.registerItem(stack, 4);
-                Upgrades.CAPACITY.registerItem(stack, 2);
-                Upgrades.REDSTONE.registerItem(stack, 1);
-                Upgrades.FUZZY.registerItem(stack, 1);
+            for (Item item : new Item[]{IMPORT_BUS.get(), EXPORT_BUS.get(), IMPORT_EXPORT_BUS.get()}) {
+                Upgrades.SPEED.registerItem(item, 4);
+                Upgrades.CAPACITY.registerItem(item, 2);
+                Upgrades.REDSTONE.registerItem(item, 1);
+                Upgrades.FUZZY.registerItem(item, 1);
             }
             Upgrades.CRAFTING.registerItem(EXPORT_BUS.get(), 1);
+            Upgrades.CRAFTING.registerItem(IMPORT_EXPORT_BUS.get(), 1);
+            Upgrades.INVERTER.registerItem(IMPORT_EXPORT_BUS.get(), 1);
         });
     }
 }
