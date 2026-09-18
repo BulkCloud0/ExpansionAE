@@ -1,0 +1,9 @@
+{
+  "type": "appliedenergistics2:inscriber",
+  "mode": "inscribe",
+  "result": { "item": "expansionae:quantum_processor_press" },
+  "ingredients": {
+    "top": { "item": "expansionae:quantum_processor_press" },
+    "middle": { "item": "minecraft:iron_block" }
+  }
+}
