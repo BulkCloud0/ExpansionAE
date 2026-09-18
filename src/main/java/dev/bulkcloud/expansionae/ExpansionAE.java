@@ -67,6 +67,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), ModStorageBus::new));
     public static final RegistryObject<Item> TAG_STORAGE_BUS = ITEMS.register("tag_storage_bus", () ->
             new PartItem<>(props(), TagStorageBus::new));
+    public static final RegistryObject<Item> PRECISE_STORAGE_BUS = ITEMS.register("precise_storage_bus", () ->
+            new PartItem<>(props(), PreciseStorageBus::new));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -153,6 +155,7 @@ public final class ExpansionAE {
         event.getRegistry().register(TagExportBusContainer.TYPE);
         event.getRegistry().register(ModStorageBusContainer.TYPE);
         event.getRegistry().register(TagStorageBusContainer.TYPE);
+        event.getRegistry().register(PreciseStorageBusContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -199,6 +202,9 @@ public final class ExpansionAE {
             Upgrades.REDSTONE.registerItem(TAG_EXPORT_BUS.get(), 1);
             Upgrades.INVERTER.registerItem(MOD_STORAGE_BUS.get(), 1);
             Upgrades.INVERTER.registerItem(TAG_STORAGE_BUS.get(), 1);
+            Upgrades.CAPACITY.registerItem(PRECISE_STORAGE_BUS.get(), 5);
+            Upgrades.FUZZY.registerItem(PRECISE_STORAGE_BUS.get(), 1);
+            Upgrades.INVERTER.registerItem(PRECISE_STORAGE_BUS.get(), 1);
         });
     }
 }
