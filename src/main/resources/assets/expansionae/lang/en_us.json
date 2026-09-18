@@ -79,5 +79,11 @@
   "gui.expansionae.threshold_level.lower": "Lower",
   "block.expansionae.ingredient_buffer": "Ingredient Buffer",
   "gui.expansionae.ingredient_buffer": "Ingredient Buffer",
-  "gui.expansionae.ingredient_buffer.fluid": "Fluid tank: 64,000 mB"
+  "gui.expansionae.ingredient_buffer.fluid": "Fluid tank: 64,000 mB",
+  "block.expansionae.wireless_connector": "Wireless Connector",
+  "item.expansionae.wireless_connect_tool": "Wireless Connect Tool",
+  "chat.expansionae.wireless.first": "First wireless connector stored.",
+  "chat.expansionae.wireless.linked": "Wireless connectors paired.",
+  "chat.expansionae.wireless.clear": "Wireless pairing cleared.",
+  "tooltip.expansionae.wireless.bound": "Bound to %s, %s, %s"
 }
