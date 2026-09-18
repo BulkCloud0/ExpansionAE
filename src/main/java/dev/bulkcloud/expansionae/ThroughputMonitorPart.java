@@ -9,7 +9,6 @@ import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.parts.IPartModel;
 import appeng.api.storage.data.IAEItemStack;
-import appeng.hooks.ticking.TickHandler;
 import appeng.parts.reporting.AbstractMonitorPart;
 import appeng.parts.reporting.StorageMonitorPart;
 import net.minecraft.entity.player.PlayerEntity;
@@ -40,6 +39,7 @@ public final class ThroughputMonitorPart extends AbstractMonitorPart implements 
     private final ThroughputCache cache = new ThroughputCache();
     private Mode mode = Mode.SECOND;
     private double lastThroughput;
+    private long sampleClock;
 
     public ThroughputMonitorPart(ItemStack stack) {
         super(stack);
@@ -85,10 +85,10 @@ public final class ThroughputMonitorPart extends AbstractMonitorPart implements 
             return TickRateModulation.SLEEP;
         }
 
-        long tick = TickHandler.instance().getCurrentTick();
-        cache.push(displayed.getStackSize(), tick);
+        sampleClock += Math.max(1, ticksSinceLastCall);
+        cache.push(displayed.getStackSize(), sampleClock);
         if (cache.size() > 1) {
-            lastThroughput = cache.averagePerTick(tick, mode.sampleSeconds) * mode.multiplier;
+            lastThroughput = cache.averagePerTick(sampleClock, mode.sampleSeconds) * mode.multiplier;
         }
         getHost().markForUpdate();
         return TickRateModulation.SAME;
