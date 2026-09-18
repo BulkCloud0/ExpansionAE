@@ -216,13 +216,18 @@ public final class ExpandedIOPortTile extends IOPortTileEntity {
         return budget / channel.transferFactor();
     }
 
-    private boolean matchesFullness(IMEInventory<?> inventory) {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private boolean matchesFullness(IMEInventory inventory) {
         FullnessMode mode = (FullnessMode) getConfigManager().getSetting(Settings.FULLNESS_MODE);
         if (mode == FullnessMode.HALF || inventory == null) {
             return true;
         }
 
-        IItemList<? extends IAEStack> list;
+        // AE2 8.4 ties IMEInventory<T>, its channel and IItemList<T> through a
+        // self-referential generic. This method intentionally works across both
+        // item and fluid channels, so use the raw boundary here and keep all
+        // channel-specific values together instead of breaking the capture type.
+        IItemList list;
         if (inventory instanceof IMEMonitor) {
             list = ((IMEMonitor) inventory).getStorageList();
         } else {
@@ -233,7 +238,7 @@ public final class ExpandedIOPortTile extends IOPortTileEntity {
             return list.isEmpty();
         }
 
-        IAEStack first = list.getFirstItem();
+        IAEStack first = (IAEStack) list.getFirstItem();
         if (first == null) {
             return false;
         }
