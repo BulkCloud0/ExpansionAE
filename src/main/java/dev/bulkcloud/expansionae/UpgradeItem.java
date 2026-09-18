@@ -1,7 +1,5 @@
 package dev.bulkcloud.expansionae;
 
-import java.util.Map;
-
 import appeng.api.parts.IPart;
 import appeng.api.parts.PartItemStack;
 import appeng.api.parts.SelectedPart;
@@ -19,7 +17,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUseContext;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.state.Property;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.math.BlockPos;
@@ -167,22 +164,10 @@ public final class UpgradeItem extends Item {
         return true;
     }
 
-    @SuppressWarnings({"rawtypes", "unchecked"})
     private boolean replaceBlock(World world, BlockPos pos, TileEntity oldTile, Block targetBlock) {
         CompoundNBT data = oldTile.write(new CompoundNBT());
         BlockState oldState = world.getBlockState(pos);
         BlockState newState = targetBlock.getDefaultState();
-
-        for (Map.Entry<Property<?>, Comparable<?>> entry : oldState.getValues().entrySet()) {
-            Property property = entry.getKey();
-            if (newState.hasProperty(property)) {
-                try {
-                    newState = newState.with(property, entry.getValue());
-                } catch (IllegalArgumentException ignored) {
-                    // A property with the same identity but incompatible value is simply not copied.
-                }
-            }
-        }
 
         if (!world.setBlockState(pos, newState, 3)) {
             return false;
