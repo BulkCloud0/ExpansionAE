@@ -42,6 +42,9 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Quantum Infusion, Shattered Singularity, Quantum Alloy, Quantum Alloy Plate, Quantum Processor e Quantum Storage Component.
 - Receitas de Reaction Chamber para singularidade, cristais Certus/Fluix e produção em lote de processadores.
 - A receita do Quantum Alloy aceita cobre via tag quando disponível e ferro como fallback de compatibilidade para modpacks 1.16.5 sem cobre.
+- Quantum Computer / Advanced Crafting CPU com Core, 128M/256M Storage, Accelerator, Data Entangler, Multi-Threader, Unit e Structural Glass.
+- Regras de formação 7×7×7 adaptadas do upstream: vidro estrutural na borda, um Core interno, no máximo um Data Entangler e um Multi-Threader.
+- O cluster continua usando a engine de jobs do AE2 8.4; os contadores de storage/threads são escalados para os valores padrão do AdvancedAE (8 threads, multiplicadores 4×).
 
 ### Recursos
 - Telas próprias para os containers já adaptados.
@@ -62,8 +65,6 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 
 ### AdvancedAE
-- Advanced Crafting CPU / componentes e lógica de cluster.
-- Quantum Computer.
 - Quantum Crafter, terminal e terminal wireless.
 - Quantum Armor, upgrades, energia, filtros e telas de configuração.
 - Portable Workbench e utilitários associados.

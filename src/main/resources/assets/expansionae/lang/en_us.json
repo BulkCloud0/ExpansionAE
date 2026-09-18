@@ -85,5 +85,13 @@
   "block.expansionae.ex_io_port": "Extended IO Port",
   "item.expansionae.throughput_monitor": "Throughput Monitor",
   "item.expansionae.throughput_monitor_configurator": "Throughput Monitor Configurator",
-  "block.expansionae.reaction_chamber": "Reaction Chamber"
+  "block.expansionae.reaction_chamber": "Reaction Chamber",
+  "block.expansionae.quantum_unit": "Quantum Crafting Unit",
+  "block.expansionae.quantum_core": "Quantum Computer Core",
+  "block.expansionae.quantum_storage_128": "128M Quantum Computer Storage",
+  "block.expansionae.quantum_storage_256": "256M Quantum Computer Storage",
+  "block.expansionae.data_entangler": "Quantum Data Entangler",
+  "block.expansionae.quantum_accelerator": "Quantum Computer Accelerator",
+  "block.expansionae.quantum_multi_threader": "Quantum Computer Multi-Threader",
+  "block.expansionae.quantum_structure": "Quantum Computer Structural Glass"
 }

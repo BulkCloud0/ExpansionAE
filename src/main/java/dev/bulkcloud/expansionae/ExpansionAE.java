@@ -134,6 +134,46 @@ public final class ExpansionAE {
                     .create(ExpansionAE::newReactionChamber, REACTION_CHAMBER.get()).build(null));
     public static final RegistryObject<Item> REACTION_CHAMBER_ITEM = ITEMS.register("reaction_chamber",
             () -> new BlockItem(REACTION_CHAMBER.get(), props()));
+
+    // AdvancedAE Quantum Computer, adapted onto the AE2 8.4 crafting CPU cluster.
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_UNIT = BLOCKS.register("quantum_unit",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.UNIT));
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_CORE = BLOCKS.register("quantum_core",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.CORE));
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_STORAGE_128 = BLOCKS.register("quantum_storage_128",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.STORAGE_128M));
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_STORAGE_256 = BLOCKS.register("quantum_storage_256",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.STORAGE_256M));
+    public static final RegistryObject<QuantumCraftingBlock> DATA_ENTANGLER = BLOCKS.register("data_entangler",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.DATA_ENTANGLER));
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_ACCELERATOR = BLOCKS.register("quantum_accelerator",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.ACCELERATOR));
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_MULTI_THREADER = BLOCKS.register("quantum_multi_threader",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.MULTI_THREADER));
+    public static final RegistryObject<QuantumCraftingBlock> QUANTUM_STRUCTURE = BLOCKS.register("quantum_structure",
+            () -> quantumBlock(QuantumCraftingBlock.Kind.STRUCTURE));
+    public static final RegistryObject<TileEntityType<QuantumCraftingTile>> QUANTUM_CRAFTING_TILE =
+            TILES.register("quantum_crafting", () -> TileEntityType.Builder.create(
+                    ExpansionAE::newQuantumCrafting,
+                    QUANTUM_UNIT.get(), QUANTUM_CORE.get(), QUANTUM_STORAGE_128.get(), QUANTUM_STORAGE_256.get(),
+                    DATA_ENTANGLER.get(), QUANTUM_ACCELERATOR.get(), QUANTUM_MULTI_THREADER.get(),
+                    QUANTUM_STRUCTURE.get()).build(null));
+    public static final RegistryObject<Item> QUANTUM_UNIT_ITEM = ITEMS.register("quantum_unit",
+            () -> new BlockItem(QUANTUM_UNIT.get(), props()));
+    public static final RegistryObject<Item> QUANTUM_CORE_ITEM = ITEMS.register("quantum_core",
+            () -> new BlockItem(QUANTUM_CORE.get(), props()));
+    public static final RegistryObject<Item> QUANTUM_STORAGE_128_ITEM = ITEMS.register("quantum_storage_128",
+            () -> new BlockItem(QUANTUM_STORAGE_128.get(), props()));
+    public static final RegistryObject<Item> QUANTUM_STORAGE_256_ITEM = ITEMS.register("quantum_storage_256",
+            () -> new BlockItem(QUANTUM_STORAGE_256.get(), props()));
+    public static final RegistryObject<Item> DATA_ENTANGLER_ITEM = ITEMS.register("data_entangler",
+            () -> new BlockItem(DATA_ENTANGLER.get(), props()));
+    public static final RegistryObject<Item> QUANTUM_ACCELERATOR_ITEM = ITEMS.register("quantum_accelerator",
+            () -> new BlockItem(QUANTUM_ACCELERATOR.get(), props()));
+    public static final RegistryObject<Item> QUANTUM_MULTI_THREADER_ITEM = ITEMS.register("quantum_multi_threader",
+            () -> new BlockItem(QUANTUM_MULTI_THREADER.get(), props()));
+    public static final RegistryObject<Item> QUANTUM_STRUCTURE_ITEM = ITEMS.register("quantum_structure",
+            () -> new BlockItem(QUANTUM_STRUCTURE.get(), props()));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -243,6 +283,16 @@ public final class ExpansionAE {
     }
     private static ReactionChamberTile newReactionChamber() {
         return new ReactionChamberTile(REACTION_CHAMBER_TILE.get());
+    }
+
+    private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
+        QuantumCraftingBlock block = new QuantumCraftingBlock(kind);
+        block.setTileEntity(QuantumCraftingTile.class, ExpansionAE::newQuantumCrafting);
+        return block;
+    }
+
+    private static QuantumCraftingTile newQuantumCrafting() {
+        return new QuantumCraftingTile(QUANTUM_CRAFTING_TILE.get());
     }
 
     private static ForgeFlowingFluid.Properties quantumInfusionProperties() {

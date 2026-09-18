@@ -85,5 +85,13 @@
   "block.expansionae.ex_io_port": "Porta E/S Estendida",
   "item.expansionae.throughput_monitor": "Monitor de Vazão",
   "item.expansionae.throughput_monitor_configurator": "Configurador do Monitor de Vazão",
-  "block.expansionae.reaction_chamber": "Câmara de Reação"
+  "block.expansionae.reaction_chamber": "Câmara de Reação",
+  "block.expansionae.quantum_unit": "Unidade de Fabricação Quântica",
+  "block.expansionae.quantum_core": "Núcleo do Computador Quântico",
+  "block.expansionae.quantum_storage_128": "Armazenamento Quântico 128M",
+  "block.expansionae.quantum_storage_256": "Armazenamento Quântico 256M",
+  "block.expansionae.data_entangler": "Entrelaçador de Dados Quântico",
+  "block.expansionae.quantum_accelerator": "Acelerador do Computador Quântico",
+  "block.expansionae.quantum_multi_threader": "Multi-Threader do Computador Quântico",
+  "block.expansionae.quantum_structure": "Vidro Estrutural do Computador Quântico"
 }
