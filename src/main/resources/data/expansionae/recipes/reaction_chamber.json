@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["EME", "FVF", "GBG"],
+  "key": {
+    "B": { "item": "minecraft:bucket" },
+    "E": { "item": "appliedenergistics2:fluix_dust" },
+    "F": { "item": "appliedenergistics2:fluix_dust" },
+    "G": { "item": "minecraft:glowstone_dust" },
+    "M": { "item": "appliedenergistics2:condenser" },
+    "V": { "item": "appliedenergistics2:vibration_chamber" }
+  },
+  "result": { "item": "expansionae:reaction_chamber" }
+}
