@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":[" RE"," SI","S  "],"key":{"R":{"item":"minecraft:redstone"},"E":{"item":"minecraft:ender_eye"},"S":{"item":"minecraft:stick"},"I":{"item":"minecraft:iron_ingot"}},"result":{"item":"expansionae:wireless_connect_tool","count":1}}
