@@ -20,38 +20,36 @@ package dev.bulkcloud.expansionae.client.terminal;
 // Adapted for ExpansionAE on 2026-09-18.
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
-
-import appeng.container.slot.AppEngSlot;
 import appeng.items.misc.EncodedPatternItem;
 
 /**
  * This slot is used in the {@link InterfaceTerminalScreen} to interact with the internal inventory of interfaces.
  */
-public class InterfaceSlot extends AppEngSlot {
+public class InterfaceSlot extends Slot {
+
+    private static final Inventory EMPTY_INVENTORY = new Inventory(0);
 
     private final InterfaceRecord machineInv;
 
     public InterfaceSlot(InterfaceRecord machineInv, int machineInvSlot, int x, int y) {
-        super(machineInv.getInventory(), machineInvSlot);
+        super(EMPTY_INVENTORY, machineInvSlot, x, y);
         this.machineInv = machineInv;
-        this.xPos = x;
-        this.yPos = y;
     }
 
     @Override
-    public ItemStack getDisplayStack() {
-        if (isRemote()) {
-            final ItemStack is = super.getDisplayStack();
-            if (!is.isEmpty() && is.getItem() instanceof EncodedPatternItem) {
-                final EncodedPatternItem iep = (EncodedPatternItem) is.getItem();
-                final ItemStack out = iep.getOutput(is);
-                if (!out.isEmpty()) {
-                    return out;
-                }
+    public ItemStack getStack() {
+        final ItemStack is = this.machineInv.getInventory().getStackInSlot(this.getSlotIndex());
+        if (!is.isEmpty() && is.getItem() instanceof EncodedPatternItem) {
+            final EncodedPatternItem iep = (EncodedPatternItem) is.getItem();
+            final ItemStack out = iep.getOutput(is);
+            if (!out.isEmpty()) {
+                return out;
             }
         }
-        return super.getDisplayStack();
+        return is;
     }
 
     @Override
