@@ -83,7 +83,7 @@ public final class ExpansionAE {
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_PROVIDER));
     public static final RegistryObject<Item> IO_BUS_UPGRADE = ITEMS.register("io_bus_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.IO_BUS));
-    public static final RegistryObject<Item> PATTERN_TERMINAL_UPGRADE = ITEMS.register("pattern_access_terminal_upgrade", () ->
+    public static final RegistryObject<Item> PATTERN_TERMINAL_UPGRADE = ITEMS.register("pattern_terminal_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_TERMINAL));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
