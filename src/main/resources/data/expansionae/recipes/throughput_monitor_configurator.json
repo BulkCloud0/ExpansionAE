@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["  S", " I ", "I  "],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "S": { "item": "appliedenergistics2:speed_card" }
+  },
+  "result": { "item": "expansionae:throughput_monitor_configurator" }
+}
