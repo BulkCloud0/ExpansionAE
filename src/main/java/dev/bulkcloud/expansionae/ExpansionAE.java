@@ -53,6 +53,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), ImportExportBus::new));
     public static final RegistryObject<Item> STOCK_EXPORT_BUS = ITEMS.register("stock_export_bus", () ->
             new PartItem<>(props(), StockExportBus::new));
+    public static final RegistryObject<Item> ADVANCED_IO_BUS = ITEMS.register("advanced_io_bus", () ->
+            new PartItem<>(props(), AdvancedIOBus::new));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -120,6 +122,7 @@ public final class ExpansionAE {
         event.getRegistry().register(PatternEncoderContainer.TYPE);
         event.getRegistry().register(PatternModifierContainer.TYPE);
         event.getRegistry().register(StockExportBusContainer.TYPE);
+        event.getRegistry().register(AdvancedIOBusContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {
@@ -144,6 +147,15 @@ public final class ExpansionAE {
             Upgrades.CAPACITY.registerItem(STOCK_EXPORT_BUS.get(), 2);
             Upgrades.REDSTONE.registerItem(STOCK_EXPORT_BUS.get(), 1);
             Upgrades.FUZZY.registerItem(STOCK_EXPORT_BUS.get(), 1);
+            Upgrades.CRAFTING.registerItem(STOCK_EXPORT_BUS.get(), 1);
+            for (Item item : new Item[]{ADVANCED_IO_BUS.get()}) {
+                Upgrades.SPEED.registerItem(item, 4);
+                Upgrades.CAPACITY.registerItem(item, 2);
+                Upgrades.REDSTONE.registerItem(item, 1);
+                Upgrades.FUZZY.registerItem(item, 1);
+                Upgrades.INVERTER.registerItem(item, 1);
+                Upgrades.CRAFTING.registerItem(item, 1);
+            }
             Upgrades.SPEED.registerItem(ACTIVE_FORMATION_PLANE.get(), 4);
             Upgrades.CAPACITY.registerItem(ACTIVE_FORMATION_PLANE.get(), 5);
             Upgrades.REDSTONE.registerItem(ACTIVE_FORMATION_PLANE.get(), 1);
