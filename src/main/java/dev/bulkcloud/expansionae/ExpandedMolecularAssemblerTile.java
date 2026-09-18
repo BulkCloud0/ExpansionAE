@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockState;
-import net.minecraft.inventory.Container;
+import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -23,6 +23,7 @@ import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.IPowerChannelState;
+import appeng.api.implementations.IUpgradeableHost;
 import appeng.api.implementations.tiles.ICraftingMachine;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -33,6 +34,8 @@ import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.networking.ticking.TickingRequest;
 import appeng.api.util.AECableType;
 import appeng.api.util.AEPartLocation;
+import appeng.api.util.DimensionalCoord;
+import appeng.api.util.IConfigManager;
 import appeng.core.Api;
 import appeng.me.GridAccessException;
 import appeng.parts.automation.UpgradeInventory;
@@ -52,7 +55,7 @@ import appeng.util.inv.WrapperChainedItemHandler;
  * parallel while sharing the machine's speed cards and network energy.
  */
 public final class ExpandedMolecularAssemblerTile extends AENetworkInvTileEntity
-        implements IGridTickable, ICraftingMachine, IPowerChannelState {
+        implements IGridTickable, ICraftingMachine, IPowerChannelState, IUpgradeableHost {
     public static final int LANES = 8;
     private static final int SLOTS_PER_LANE = 10;
 
@@ -142,6 +145,16 @@ public final class ExpandedMolecularAssemblerTile extends AENetworkInvTileEntity
     @Override
     public IItemHandler getInternalInventory() {
         return combinedInventory;
+    }
+
+    @Override
+    public DimensionalCoord getLocation() {
+        return new DimensionalCoord(this);
+    }
+
+    @Override
+    public IConfigManager getConfigManager() {
+        return null;
     }
 
     @Override
