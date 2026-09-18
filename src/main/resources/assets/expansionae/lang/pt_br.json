@@ -81,5 +81,6 @@
   "block.expansionae.ex_inscriber": "Prensa Estendida",
   "gui.expansionae.ex_inscriber.page": "Processo %s/%s",
   "block.expansionae.ex_molecular_assembler": "Montador Molecular Estendido",
-  "gui.expansionae.ex_assembler.page": "Processo %s/%s"
+  "gui.expansionae.ex_assembler.page": "Processo %s/%s",
+  "block.expansionae.ex_io_port": "Porta E/S Estendida"
 }
