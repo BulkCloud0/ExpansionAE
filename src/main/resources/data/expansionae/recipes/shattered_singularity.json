@@ -1,0 +1,11 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 200000,
+  "fluid": { "fluid": "minecraft:lava", "amount": 100 },
+  "input_items": [
+    { "amount": 1, "ingredient": { "item": "appliedenergistics2:singularity" } },
+    { "amount": 2, "ingredient": { "item": "appliedenergistics2:ender_dust" } },
+    { "amount": 2, "ingredient": { "item": "appliedenergistics2:sky_dust" } }
+  ],
+  "output_item": { "item": "expansionae:shattered_singularity", "count": 2 }
+}
