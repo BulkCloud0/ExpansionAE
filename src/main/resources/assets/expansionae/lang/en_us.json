@@ -85,5 +85,11 @@
   "chat.expansionae.wireless.first": "First wireless connector stored.",
   "chat.expansionae.wireless.linked": "Wireless connectors paired.",
   "chat.expansionae.wireless.clear": "Wireless pairing cleared.",
-  "tooltip.expansionae.wireless.bound": "Bound to %s, %s, %s"
+  "tooltip.expansionae.wireless.bound": "Bound to %s, %s, %s",
+  "item.expansionae.throughput_monitor": "ME Throughput Monitor",
+  "item.expansionae.throughput_monitor_configurator": "Throughput Monitor Configurator",
+  "chat.expansionae.throughput.mode.tick": "Throughput mode: items/tick",
+  "chat.expansionae.throughput.mode.second": "Throughput mode: items/second",
+  "chat.expansionae.throughput.mode.minute": "Throughput mode: items/minute",
+  "chat.expansionae.throughput.value": "Throughput: %s"
 }
