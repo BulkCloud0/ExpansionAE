@@ -1,0 +1,11 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 1000000,
+  "fluid": { "fluid": "expansionae:quantum_infusion_source", "amount": 1000 },
+  "input_items": [
+    { "amount": 8, "ingredient": { "item": "expansionae:quantum_alloy" } },
+    { "amount": 2, "ingredient": { "item": "minecraft:netherite_ingot" } },
+    { "amount": 1, "ingredient": { "item": "minecraft:nether_star" } }
+  ],
+  "output_item": { "item": "expansionae:quantum_alloy_plate" }
+}
