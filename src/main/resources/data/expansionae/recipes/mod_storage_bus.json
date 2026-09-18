@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["MSL"],
+  "key": {
+    "M": { "item": "appliedenergistics2:memory_card" },
+    "S": { "item": "appliedenergistics2:storage_bus" },
+    "L": { "item": "appliedenergistics2:logic_processor" }
+  },
+  "result": { "item": "expansionae:mod_storage_bus", "count": 1 }
+}
