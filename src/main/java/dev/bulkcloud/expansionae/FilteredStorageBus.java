@@ -490,7 +490,34 @@ public abstract class FilteredStorageBus extends UpgradeablePart
 
     protected MEInventoryHandler<IAEItemStack> createInventoryHandler(final IMEInventory<IAEItemStack> inv) {
         return new MEInventoryHandler<IAEItemStack>(inv,
-                Api.instance().storage().getStorageChannel(IItemStorageChannel.class));
+                Api.instance().storage().getStorageChannel(IItemStorageChannel.class)) {
+            private boolean allowed(IAEItemStack stack) {
+                appeng.util.prioritylist.IPartitionList<IAEItemStack> filter = createPartitionList();
+                if (filter == null || filter.isEmpty()) {
+                    return true;
+                }
+                boolean listed = filter.isListed(stack);
+                return getInstalledUpgrades(Upgrades.INVERTER) > 0 ? !listed : listed;
+            }
+
+            @Override
+            public IAEItemStack extractItems(IAEItemStack request, Actionable type, IActionSource src) {
+                return allowed(request) ? super.extractItems(request, type, src) : null;
+            }
+
+            @Override
+            public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
+                IItemList<IAEItemStack> current = Api.instance().storage()
+                        .getStorageChannel(IItemStorageChannel.class).createList();
+                super.getAvailableItems(current);
+                for (IAEItemStack stack : current) {
+                    if (allowed(stack)) {
+                        out.addStorage(stack);
+                    }
+                }
+                return out;
+            }
+        };
     }
 
     protected final void forceFilterUpdate() {
