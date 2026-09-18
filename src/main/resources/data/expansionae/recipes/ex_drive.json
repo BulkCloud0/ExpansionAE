@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DDD",
+    "DED",
+    "DDD"
+  ],
+  "key": {
+    "D": { "item": "appliedenergistics2:drive" },
+    "E": { "item": "appliedenergistics2:engineering_processor" }
+  },
+  "result": {
+    "item": "expansionae:ex_drive",
+    "count": 1
+  }
+}
