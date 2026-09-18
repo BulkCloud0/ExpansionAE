@@ -23,5 +23,9 @@
   "item.expansionae.ex_interface_part": "Interface ME Estendida (para cabo)",
   "item.expansionae.advanced_pattern_provider_part": "Fornecedor de Padrões Avançado (para cabo)",
   "item.expansionae.small_advanced_pattern_provider_part": "Fornecedor Avançado Pequeno (para cabo)",
-  "item.expansionae.ex_pattern_access_terminal": "Terminal ampliado de acesso a padrões"
+  "item.expansionae.ex_pattern_access_terminal": "Terminal ampliado de acesso a padrões",
+  "item.expansionae.interface_upgrade": "Melhoria de Interface",
+  "item.expansionae.pattern_provider_upgrade": "Melhoria de Fornecedor de Padrões",
+  "item.expansionae.io_bus_upgrade": "Melhoria de Barramento de Importação/Exportação",
+  "item.expansionae.pattern_terminal_upgrade": "Melhoria de Terminal de Acesso a Padrões"
 }
