@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {"item": "appliedenergistics2:calculation_processor"},
+    {"item": "appliedenergistics2:storage_monitor"}
+  ],
+  "result": {"item": "expansionae:throughput_monitor", "count": 1}
+}
