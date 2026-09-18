@@ -33,5 +33,17 @@
   "item.expansionae.package": "Dispositivo Empacotado",
   "tooltip.expansionae.packaged_device": "Contém: %s",
   "tooltip.expansionae.packaged_device.invalid": "Dispositivo empacotado inválido",
-  "item.expansionae.active_formation_plane": "Plano de Formação Ativo ME"
+  "item.expansionae.active_formation_plane": "Plano de Formação Ativo ME",
+  "item.expansionae.pattern_modifier": "Modificador de Padrões",
+  "gui.expansionae.pattern_modifier": "Modificador de Padrões",
+  "gui.expansionae.pattern_modifier.bulk": "Escala em lote de padrões de processamento",
+  "gui.expansionae.pattern_modifier.replace_area": "Substituir A → B",
+  "gui.expansionae.pattern_modifier.clone_area": "Clonar alvo",
+  "gui.expansionae.pattern_modifier.x2": "x2",
+  "gui.expansionae.pattern_modifier.x10": "x10",
+  "gui.expansionae.pattern_modifier.div2": "÷2",
+  "gui.expansionae.pattern_modifier.div10": "÷10",
+  "gui.expansionae.pattern_modifier.clear": "Limpar",
+  "gui.expansionae.pattern_modifier.replace": "Substituir",
+  "gui.expansionae.pattern_modifier.clone": "Clonar"
 }
