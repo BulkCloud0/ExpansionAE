@@ -155,6 +155,10 @@ public final class ExpansionAE {
             () -> new BlockItem(WIRELESS_CONNECTOR.get(), props()));
     public static final RegistryObject<Item> WIRELESS_CONNECT_TOOL = ITEMS.register("wireless_connect_tool",
             () -> new WirelessConnectToolItem(props().maxStackSize(1)));
+    public static final RegistryObject<Item> THROUGHPUT_MONITOR = ITEMS.register("throughput_monitor",
+            () -> new appeng.items.parts.PartItem<>(props(), ThroughputMonitorPart::new));
+    public static final RegistryObject<Item> THROUGHPUT_MONITOR_CONFIGURATOR = ITEMS.register("throughput_monitor_configurator",
+            () -> new Item(props().maxStackSize(1)));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
