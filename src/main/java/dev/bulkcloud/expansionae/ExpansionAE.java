@@ -66,6 +66,16 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> ADV_PROVIDER_ITEM = ITEMS.register("advanced_pattern_provider", () -> new BlockItem(ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> SMALL_ADV_PROVIDER_ITEM = ITEMS.register("small_advanced_pattern_provider", () -> new BlockItem(SMALL_ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> PATTERN_ENCODER = ITEMS.register("advanced_pattern_encoder", () -> new PatternEncoderItem(props()));
+    public static final RegistryObject<Item> PROVIDER_PART = ITEMS.register("ex_pattern_provider_part", () ->
+            new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 36, false, "ex_pattern_provider")));
+    public static final RegistryObject<Item> INTERFACE_PART = ITEMS.register("ex_interface_part", () ->
+            new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 36, 0, false, "ex_interface")));
+    public static final RegistryObject<Item> ADV_PROVIDER_PART = ITEMS.register("advanced_pattern_provider_part", () ->
+            new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 36, true, "advanced_pattern_provider")));
+    public static final RegistryObject<Item> SMALL_ADV_PROVIDER_PART = ITEMS.register("small_advanced_pattern_provider_part", () ->
+            new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 9, true, "small_advanced_pattern_provider")));
+    public static final RegistryObject<Item> PATTERN_TERMINAL = ITEMS.register("ex_pattern_access_terminal", () ->
+            new PartItem<>(props(), ExpandedTerminalPart::new));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
@@ -74,6 +84,9 @@ public final class ExpansionAE {
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
+        ExpansionNetwork.init();
+        Api.instance().registries().partModels().registerModels(
+                appeng.items.parts.PartModelsHelper.createModels(ExpandedInterfacePart.class));
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCKS.register(bus);
         ITEMS.register(bus);
@@ -84,12 +97,17 @@ public final class ExpansionAE {
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().register(ExpandedContainer.TYPE);
         event.getRegistry().register(PatternEncoderContainer.TYPE);
+        event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             Api.instance().registries().cell().addCellHandler(new InfinityCellHandler());
             Upgrades.CRAFTING.registerItem(INTERFACE_ITEM.get(), 1);
             Upgrades.CRAFTING.registerItem(PROVIDER_ITEM.get(), 1);
+            for (Item item : new Item[]{PROVIDER_PART.get(), INTERFACE_PART.get(), ADV_PROVIDER_ITEM.get(),
+                    SMALL_ADV_PROVIDER_ITEM.get(), ADV_PROVIDER_PART.get(), SMALL_ADV_PROVIDER_PART.get()}) {
+                Upgrades.CRAFTING.registerItem(item, 1);
+            }
             for (Item item : new Item[]{IMPORT_BUS.get(), EXPORT_BUS.get()}) {
                 Item stack = item;
                 Upgrades.SPEED.registerItem(stack, 4);

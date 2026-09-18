@@ -23,6 +23,20 @@ jobs:
           key: forge-1.16.5-36.2.42-ae2-8.4.7-v1
       - name: Build and reobfuscate
         run: bash ./gradlew --no-daemon clean build
+      - name: Client startup and registry smoke test
+        run: |
+          timeout 240s xvfb-run -a bash ./gradlew --no-daemon runClient -PsmokeTest
+          test -f run/expansionae-smoke-ok.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ExpansionAE-validation-logs
+          path: |
+            run/logs/latest.log
+            run/crash-reports/
+            run/expansionae-smoke-ok.txt
+            build/reports/tests/
+          if-no-files-found: ignore
       - uses: actions/upload-artifact@v4
         with:
           name: ExpansionAE-1.16.5-development

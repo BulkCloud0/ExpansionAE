@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "expansionae:block/small_adv_pattern_provider"
+  }
+}

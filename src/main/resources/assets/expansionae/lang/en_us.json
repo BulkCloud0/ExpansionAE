@@ -18,5 +18,10 @@
   "gui.expansionae.face.north": "North",
   "gui.expansionae.face.south": "South",
   "gui.expansionae.face.west": "West",
-  "gui.expansionae.face.east": "East"
+  "gui.expansionae.face.east": "East",
+  "item.expansionae.ex_pattern_provider_part": "Extended Pattern Provider (cable part)",
+  "item.expansionae.ex_interface_part": "Extended ME Interface (cable part)",
+  "item.expansionae.advanced_pattern_provider_part": "Advanced Pattern Provider (cable part)",
+  "item.expansionae.small_advanced_pattern_provider_part": "Small Advanced Pattern Provider (cable part)",
+  "item.expansionae.ex_pattern_access_terminal": "Extended Pattern Access Terminal"
 }

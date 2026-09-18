@@ -1,0 +1,6 @@
+{
+  "parent": "appliedenergistics2:part/interface_base",
+  "textures": {
+    "front": "expansionae:block/ex_interface"
+  }
+}

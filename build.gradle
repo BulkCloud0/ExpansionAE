@@ -23,6 +23,7 @@ minecraft {
     runs {
         client {
             workingDirectory project.file('run')
+            if (project.hasProperty('smokeTest')) property 'expansionae.smokeTest', 'true'
             mods { expansionae { source sourceSets.main } }
         }
         server {

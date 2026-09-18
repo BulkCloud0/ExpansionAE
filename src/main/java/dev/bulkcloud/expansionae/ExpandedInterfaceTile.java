@@ -317,7 +317,16 @@ public class ExpandedInterfaceTile extends AENetworkInvTileEntity
 
     @Override
     public ItemStack getItemStackRepresentation() {
-        return new ItemStack(getBlockState().getBlock());
+        return getItemFromTile(this);
+    }
+
+    // Native AE2 maps a Java tile class to one item. Our configurable tile has
+    // several registered types, so resolve by type before a world is attached.
+    @Override
+    protected ItemStack getItemFromTile(Object tile) {
+        net.minecraft.util.ResourceLocation id = getType().getRegistryName();
+        net.minecraft.item.Item item = id == null ? null : net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(id);
+        return item == null ? ItemStack.EMPTY : new ItemStack(item);
     }
 
     @Override

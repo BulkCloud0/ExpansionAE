@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "appliedenergistics2:interface_terminal"
+    },
+    {
+      "item": "appliedenergistics2:engineering_processor"
+    }
+  ],
+  "result": {
+    "item": "expansionae:ex_pattern_access_terminal"
+  }
+}

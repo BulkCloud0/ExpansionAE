@@ -5,6 +5,9 @@ import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
+import dev.bulkcloud.expansionae.ExpandedTerminalContainer;
+import dev.bulkcloud.expansionae.ExpansionNetwork;
+import dev.bulkcloud.expansionae.client.terminal.ExpandedTerminalScreen;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,6 +18,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public final class ClientSetup {
     private ClientSetup() { }
     @SubscribeEvent public static void setup(FMLClientSetupEvent event) {
+        ExpansionNetwork.clientReceiver = ClientPackets::receive;
+        event.enqueueWork(() -> ScreenManager.<ExpandedTerminalContainer, ExpandedTerminalScreen>registerFactory(ExpandedTerminalContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ExpandedTerminalScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_terminal.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load pattern access terminal", e); }
+        }));
         event.enqueueWork(() -> ScreenManager.<PatternEncoderContainer, PatternEncoderScreen>registerFactory(PatternEncoderContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new PatternEncoderScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_encoder.json"));
