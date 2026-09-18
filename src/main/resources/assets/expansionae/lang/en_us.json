@@ -82,5 +82,7 @@
   "gui.expansionae.ex_inscriber.page": "Process %s/%s",
   "block.expansionae.ex_molecular_assembler": "Extended Molecular Assembler",
   "gui.expansionae.ex_assembler.page": "Process %s/%s",
-  "block.expansionae.ex_io_port": "Extended IO Port"
+  "block.expansionae.ex_io_port": "Extended IO Port",
+  "item.expansionae.throughput_monitor": "Throughput Monitor",
+  "item.expansionae.throughput_monitor_configurator": "Throughput Monitor Configurator"
 }
