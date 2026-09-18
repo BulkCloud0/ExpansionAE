@@ -5,6 +5,7 @@ import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
+import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.ExpandedTerminalContainer;
 import dev.bulkcloud.expansionae.ExpansionNetwork;
 import dev.bulkcloud.expansionae.client.terminal.ExpandedTerminalScreen;
@@ -28,6 +29,11 @@ public final class ClientSetup {
             try {
                 return new PatternEncoderScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_encoder.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load pattern encoder screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<PatternModifierContainer, PatternModifierScreen>registerFactory(PatternModifierContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new PatternModifierScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_modifier.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load pattern modifier screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
