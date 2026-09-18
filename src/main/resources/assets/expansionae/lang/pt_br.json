@@ -61,5 +61,8 @@
   "gui.expansionae.precise.exact": "Lote: EXATO",
   "gui.expansionae.precise.multiple": "Lote: MÚLTIPLOS",
   "item.expansionae.mod_export_bus": "Barramento de Exportação por Mod",
-  "gui.expansionae.mod_export_bus.filter": "IDs/nomes de mods, separados por vírgulas"
+  "gui.expansionae.mod_export_bus.filter": "IDs/nomes de mods, separados por vírgulas",
+  "item.expansionae.tag_export_bus": "Barramento de Exportação por Tag",
+  "gui.expansionae.tag_export_bus.whitelist": "Expressão da lista permitida",
+  "gui.expansionae.tag_export_bus.blacklist": "Expressão da lista bloqueada"
 }
