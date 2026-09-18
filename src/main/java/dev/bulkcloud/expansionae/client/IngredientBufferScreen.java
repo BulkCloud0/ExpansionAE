@@ -15,7 +15,7 @@ public final class IngredientBufferScreen extends AEBaseScreen<IngredientBufferC
     }
     @Override public void drawFG(MatrixStack pose,int ox,int oy,int mx,int my){
         super.drawFG(pose,ox,oy,mx,my);
-        font.drawString(pose,new TranslationTextComponent("gui.expansionae.ingredient_buffer.fluid"),8,94,0x404040);
+        font.drawString(pose,new TranslationTextComponent("gui.expansionae.ingredient_buffer.fluid").getString(),8,94,0x404040);
         font.drawString(pose,container.getBuffer().getFluid().getAmount()+" mB",8,105,0x404040);
     }
 }
