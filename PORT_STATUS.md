@@ -1,40 +1,79 @@
 # Estado do port
 
-Este arquivo descreve o código, não uma certificação de funcionamento. A tarefa de portar os dois mods integralmente permanece aberta.
+Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sendo portar o conteúdo dos branches Forge 1.20.1 do ExtendedAE e AdvancedAE para Minecraft 1.16.5 / Forge 36.2.42 / AE2 8.4.7, adaptando recursos que dependem de APIs inexistentes nessa versão.
 
-## Código adaptado; validação em andamento
+## Implementado / adaptado
 
-- Fornecedor de padrões em bloco com 36 posições, persistência NBT e interface de configuração usando a API de autocrafting do AE2 8.4.
-- Interface em bloco com 36 posições de configuração/armazenamento.
-- Buses de importação/exportação de itens com orçamento de transferência multiplicado por 8, mantendo regras de energia, canal, upgrades e redstone do AE2.
-- Células de água e pedregulho infinitos, com canais separados de fluidos e itens. São somente de leitura e recusam depósitos.
-- Fornecedores avançados em bloco de 36 e 9 padrões, com roteamento de cada ingrediente para uma face da máquina adjacente.
-- Codificador portátil com interface para escolher as faces de entrada de padrões de processamento. Segure na mão principal e clique com o botão direito; coloque um padrão codificado e selecione as faces. Os padrões configurados devem ser usados nos fornecedores avançados do ExpansionAE; interfaces do AE2 original não interpretam essa configuração.
-- Buffer persistente para ingredientes aceitos pelo fornecedor e ainda não inseridos na máquina; retoma após reload e devolve os itens restantes ao quebrar o bloco.
-- Variantes multipart dos provedores e da interface, com conversão entre item de bloco e item para cabo.
-- Terminal de acesso a padrões que enumera interfaces/provedores da rede e divide inventários grandes em linhas de nove posições; busca por nome/saída, edição remota e verificação de permissão no servidor.
-- Recursos, traduções pt_BR/en_US e receitas próprias para os itens/blocos já adaptados.
+### Base e terminais
+- Expanded Pattern Provider em bloco e multipart, com 36 padrões.
+- Expanded Interface em bloco e multipart, com 36 posições.
+- Advanced Pattern Provider e Small Advanced Pattern Provider, incluindo roteamento por face para padrões de processamento.
+- Expanded Pattern Access Terminal próprio para inventários maiores que os nove slots assumidos pelo terminal original do AE2 8.4.
+- Advanced Pattern Encoder portátil.
+- Pattern Modifier.
+- Persistência dos buffers de roteamento e devolução segura de itens pendentes.
 
-## Ainda não portado
+### Armazenamento, máquinas e utilitários do ExtendedAE
+- Expanded Drive.
+- Expanded IO Port.
+- Expanded Charger.
+- Expanded Inscriber.
+- Expanded Molecular Assembler.
+- Active Formation Plane.
+- Infinity Cobblestone Cell e Infinity Water Cell.
+- ME Packing Tape e Packed Device.
+- Upgrade items para interface, pattern provider, IO bus, pattern terminal e drive.
 
-ExtendedAE: ferramentas de upgrade; fita e pacotes; conexões sem fio; ingredient buffer; drive ampliado; modificador de padrões; assembler, inscriber e charger ampliados; crystal fixer; buses por tag/mod/precisão/limiar; formation plane; caner; IO port; oversize interface; assembler matrix; circuit cutter; terminais de crafting; integrações opcionais.
+### Buses e controle
+- Fast Import Bus e Fast Export Bus.
+- Mod Export Bus e Mod Storage Bus.
+- Tag Export Bus e Tag Storage Bus.
+- Precise Export Bus e Precise Storage Bus.
+- Threshold Export Bus.
+- Threshold Level Emitter com histerese.
+- AdvancedAE Import/Export Bus.
+- AdvancedAE Stock Export Bus com quantidade-alvo configurável dentro das limitações do ItemStack do AE2 8.4.
+- AdvancedAE Advanced IO Bus, incluindo regulação de estoque e importação filtrada.
+- Throughput Monitor do AdvancedAE, com histórico de vazão e configurador de janela de medição.
 
-AdvancedAE: paridade de todos os modos de bloqueio, round-robin e importação filtrada; padrões com fluidos; computador quântico e seus componentes; reaction chamber; quantum crafter e terminais; buses avançados; throughput monitor; armadura quântica, upgrades, energia e configurações; materiais, fluidos, receitas e integrações.
+### Recursos
+- Telas próprias para os containers já adaptados.
+- Modelos, blockstates, loot tables, traduções en_US/pt_BR e receitas dos recursos já registrados.
+- NOTICE/LGPL preservando créditos e origem das adaptações.
 
-Também não foram auditadas para paridade as adições exclusivas das branches 1.21/26.x. As referências fixadas deste trabalho são as branches Forge 1.20.1 dos dois projetos.
+## Ainda pendente ou sem paridade completa
 
-## Validação necessária
+### ExtendedAE
+- Wireless Connector, Wireless Hub e ferramentas/terminais wireless estendidos.
+- Ingredient Buffer. O original moderno usa GenericStackInv; AE2 8.4 não possui a mesma abstração, portanto exige uma implementação equivalente para itens/fluidos.
+- Crystal Fixer. O original depende do sistema moderno de budding quartz, inexistente no AE2 8.4; requer redesign/backport da mecânica.
+- Caner.
+- Circuit Cutter e seu sistema de receitas.
+- Assembler Matrix multiblock.
+- Expanded Crafting Terminal e variantes wireless.
+- Paridade específica do Oversize Interface além da adaptação item-only já coberta pelo Expanded Interface.
+- Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 
-1. Compilação e reobfuscação: aprovadas no commit 36f3260 (Actions 35383727995). As alterações seguintes precisam de nova execução.
-2. Inicialização de cliente e servidor dedicado; registro de modelos e carregamento de receitas.
-3. Exposição dos 36 padrões ao autocrafting, incluindo as posições 9–35.
-4. Inserção/extração, shift-click, drops e reload de chunk sem perdas ou duplicação.
-5. Inventários cheios, máquina ausente, canais/energia desligados e cancelamento de receitas.
-6. Compatibilidade do terminal de interfaces do AE2 com mais de nove padrões. O terminal padrão tem suposições de nove posições. Um terminal próprio foi implementado; ainda precisa de teste em uma rede ativa.
-7. Interface com todos os 36 filtros, salvamento e cartão de crafting.
-8. Extração das células nos canais corretos e rejeição de depósitos.
-9. Buses com todos os upgrades, redstone e disponibilidade limitada de energia.
-10. Encoder: cliques e mensagens de cliente inválidos; mudança/remoção do item segurado; preservação do padrão guardado no item.
-11. Roteamento: receitas com vários ingredientes, inventários compartilhados por faces, capacidade insuficiente, máquina removida e reload com buffer pendente.
+### AdvancedAE
+- Reaction Chamber, receitas, materiais e Quantum Infusion.
+- Advanced Crafting CPU / componentes e lógica de cluster.
+- Quantum Computer.
+- Quantum Crafter, terminal e terminal wireless.
+- Quantum Armor, upgrades, energia, filtros e telas de configuração.
+- Portable Workbench e utilitários associados.
+- Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos.
+- Integrações opcionais.
+- Auditoria fina de todas as opções de GUI, lock reasons e comportamentos introduzidos nas versões modernas.
 
-Nenhum item deste checklist deve ser marcado como aprovado sem evidência.
+## Diferenças arquiteturais inevitáveis
+
+AE2 8.4.7 antecede várias APIs usadas pelos mods modernos: Pattern Provider separado de Interface, AEKey/GenericStack, GenericStackInv, estratégias genéricas de import/export e o sistema moderno de fluidos/padrões. O port usa equivalentes semânticos de 1.16.5 em vez de copiar classes literalmente.
+
+## Validação
+
+- `clean build` e reobfuscação funcionam com Forge 36.2.42.
+- Uma tentativa de alinhar o userdev a Forge 36.1.10 falhou em compilação por diferenças de generics no Forge/AE2 usado pelo código atual; o branch permanece em 36.2.42.
+- O smoke test de cliente chega ao carregamento de modelos, mas o userdev Forge 36.2.42 atualmente cai em um `IllegalAccessError` interno envolvendo `TransformationMatrix.inverseVanilla()`. Isso ocorre fora do código compilado do mod e continua sendo investigado separadamente.
+- O smoke test automatizado verifica registros, tamanhos de inventário, variantes de provider e células infinitas; deve continuar crescendo junto com o port.
+
+Nenhum subsistema pendente deve ser considerado concluído somente por possuir registro, modelo ou receita; a implementação funcional e a compilação precisam estar presentes.
