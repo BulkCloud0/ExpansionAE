@@ -1,0 +1,48 @@
+package dev.bulkcloud.expansionae.client;
+
+import appeng.client.gui.implementations.UpgradeableScreen;
+import appeng.client.gui.style.ScreenStyle;
+import appeng.client.gui.widgets.ProgressBar;
+import appeng.client.gui.widgets.ProgressBar.Direction;
+import dev.bulkcloud.expansionae.ExpandedInscriberContainer;
+import net.minecraft.client.gui.widget.button.Button;
+import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
+
+public final class ExpandedInscriberScreen extends UpgradeableScreen<ExpandedInscriberContainer> {
+    private final ProgressBar progress;
+    private Button pageButton;
+
+    public ExpandedInscriberScreen(ExpandedInscriberContainer container, PlayerInventory player,
+            ITextComponent title, ScreenStyle style) {
+        super(container, player, title, style);
+        progress = new ProgressBar(container, style.getImage("progressBar"), Direction.VERTICAL);
+        widgets.add("progressBar", progress);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        addButton(new Button(guiLeft + 8, guiTop + 18, 18, 18, new StringTextComponent("<"),
+                b -> container.previousPage()));
+        pageButton = addButton(new Button(guiLeft + 28, guiTop + 18, 70, 18, pageText(),
+                b -> container.nextPage()));
+    }
+
+    private ITextComponent pageText() {
+        return new TranslationTextComponent("gui.expansionae.ex_inscriber.page",
+                container.page + 1, 4);
+    }
+
+    @Override
+    protected void updateBeforeRender() {
+        super.updateBeforeRender();
+        int pct = container.getCurrentProgress() * 100 / Math.max(1, container.getMaxProgress());
+        progress.setFullMsg(new StringTextComponent(pct + "%"));
+        if (pageButton != null) {
+            pageButton.setMessage(pageText());
+        }
+    }
+}
