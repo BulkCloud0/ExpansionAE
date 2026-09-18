@@ -82,5 +82,7 @@
   "gui.expansionae.ex_inscriber.page": "Processo %s/%s",
   "block.expansionae.ex_molecular_assembler": "Montador Molecular Estendido",
   "gui.expansionae.ex_assembler.page": "Processo %s/%s",
-  "block.expansionae.ex_io_port": "Porta E/S Estendida"
+  "block.expansionae.ex_io_port": "Porta E/S Estendida",
+  "item.expansionae.throughput_monitor": "Monitor de Vazão",
+  "item.expansionae.throughput_monitor_configurator": "Configurador do Monitor de Vazão"
 }
