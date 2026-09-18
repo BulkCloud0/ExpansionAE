@@ -52,7 +52,7 @@ public final class ModStorageBusScreen extends UpgradeableScreen<ModStorageBusCo
     @Override
     protected void updateBeforeRender() {
         super.updateBeforeRender();
-        access.set(container.getAccess());
+        access.set(container.getReadWriteMode());
         storageFilter.set(container.getStorageFilter());
         if (filter != null && !filter.isFocused() && !filter.getText().equals(container.filter)) {
             filter.setText(container.filter == null ? "" : container.filter);
