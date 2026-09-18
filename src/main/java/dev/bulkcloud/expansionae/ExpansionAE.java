@@ -77,6 +77,15 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> PATTERN_TERMINAL = ITEMS.register("ex_pattern_access_terminal", () ->
             new PartItem<>(props(), ExpandedTerminalPart::new));
 
+    public static final RegistryObject<Item> INTERFACE_UPGRADE = ITEMS.register("interface_upgrade", () ->
+            new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.INTERFACE));
+    public static final RegistryObject<Item> PATTERN_PROVIDER_UPGRADE = ITEMS.register("pattern_provider_upgrade", () ->
+            new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_PROVIDER));
+    public static final RegistryObject<Item> IO_BUS_UPGRADE = ITEMS.register("io_bus_upgrade", () ->
+            new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.IO_BUS));
+    public static final RegistryObject<Item> PATTERN_TERMINAL_UPGRADE = ITEMS.register("pattern_access_terminal_upgrade", () ->
+            new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_TERMINAL));
+
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
     private static ExpandedInterfaceTile newAdvancedProvider() { return new ExpandedInterfaceTile(ADV_PROVIDER_TILE.get(), 9, 36, true); }
