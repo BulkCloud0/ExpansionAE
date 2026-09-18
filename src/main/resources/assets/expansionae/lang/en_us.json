@@ -56,5 +56,8 @@
   "block.expansionae.ex_drive": "Extended ME Drive",
   "item.expansionae.ex_drive": "Extended ME Drive",
   "item.expansionae.drive_upgrade": "Drive Upgrade",
-  "gui.expansionae.drive": "20-Cell ME Drive"
+  "gui.expansionae.drive": "20-Cell ME Drive",
+  "item.expansionae.precise_export_bus": "Precise Export Bus",
+  "gui.expansionae.precise.exact": "Batch: EXACT",
+  "gui.expansionae.precise.multiple": "Batch: MULTIPLE"
 }
