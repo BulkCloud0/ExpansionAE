@@ -33,5 +33,17 @@
   "item.expansionae.package": "Packaged Device",
   "tooltip.expansionae.packaged_device": "Contains: %s",
   "tooltip.expansionae.packaged_device.invalid": "Invalid packaged device",
-  "item.expansionae.active_formation_plane": "ME Active Formation Plane"
+  "item.expansionae.active_formation_plane": "ME Active Formation Plane",
+  "item.expansionae.pattern_modifier": "Pattern Modifier",
+  "gui.expansionae.pattern_modifier": "Pattern Modifier",
+  "gui.expansionae.pattern_modifier.bulk": "Processing-pattern bulk scaling",
+  "gui.expansionae.pattern_modifier.replace_area": "Replace A → B",
+  "gui.expansionae.pattern_modifier.clone_area": "Clone target",
+  "gui.expansionae.pattern_modifier.x2": "x2",
+  "gui.expansionae.pattern_modifier.x10": "x10",
+  "gui.expansionae.pattern_modifier.div2": "÷2",
+  "gui.expansionae.pattern_modifier.div10": "÷10",
+  "gui.expansionae.pattern_modifier.clear": "Clear",
+  "gui.expansionae.pattern_modifier.replace": "Replace",
+  "gui.expansionae.pattern_modifier.clone": "Clone"
 }
