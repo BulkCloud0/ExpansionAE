@@ -1,0 +1,30 @@
+modLoader="javafml"
+loaderVersion="[36,37)"
+license="LGPL-3.0-or-later"
+issueTrackerURL="https://github.com/BulkCloud0/ExpansionAE/issues"
+
+[[mods]]
+modId="expansionae"
+version="${version}"
+displayName="ExpansionAE (development)"
+authors="BulkCloud0; upstream credits in NOTICE.md"
+description='''Development backport of selected ExtendedAE and AdvancedAE features to Minecraft 1.16.5. See PORT_STATUS.md for implemented and pending features.'''
+
+[[dependencies.expansionae]]
+modId="forge"
+mandatory=true
+versionRange="[36.2.42,37)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.expansionae]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.16.5,1.17)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.expansionae]]
+modId="appliedenergistics2"
+mandatory=true
+versionRange="[8.4.7,8.5)"
+ordering="AFTER"
+side="BOTH"

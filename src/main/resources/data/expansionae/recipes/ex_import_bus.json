@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "appliedenergistics2:import_bus"
+    },
+    {
+      "item": "appliedenergistics2:import_bus"
+    },
+    {
+      "item": "appliedenergistics2:acceleration_card"
+    }
+  ],
+  "result": {
+    "item": "expansionae:ex_import_bus"
+  }
+}

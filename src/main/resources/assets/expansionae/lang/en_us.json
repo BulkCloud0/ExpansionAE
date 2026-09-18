@@ -1,0 +1,11 @@
+{
+  "block.expansionae.ex_pattern_provider": "Extended Pattern Provider",
+  "block.expansionae.ex_interface": "Extended ME Interface",
+  "item.expansionae.infinity_water_cell": "Infinite Water Cell",
+  "item.expansionae.infinity_cobblestone_cell": "Infinite Cobblestone Cell",
+  "item.expansionae.ex_import_bus": "Extended Import Bus",
+  "item.expansionae.ex_export_bus": "Extended Export Bus",
+  "itemGroup.expansionae": "ExpansionAE (development)",
+  "gui.expansionae.provider": "36-pattern Provider",
+  "gui.expansionae.interface": "36-slot ME Interface"
+}

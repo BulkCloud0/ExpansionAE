@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "appliedenergistics2:interface"
+    },
+    {
+      "item": "appliedenergistics2:interface"
+    },
+    {
+      "item": "appliedenergistics2:calculation_processor"
+    }
+  ],
+  "result": {
+    "item": "expansionae:ex_interface"
+  }
+}

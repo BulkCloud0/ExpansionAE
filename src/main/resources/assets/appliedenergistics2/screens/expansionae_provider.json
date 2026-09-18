@@ -1,0 +1,51 @@
+{
+  "includes": [
+    "common/common.json",
+    "common/player_inventory.json"
+  ],
+  "background": {
+    "texture": "guis/interface.png",
+    "textureWidth": 512,
+    "textureHeight": 512,
+    "srcRect": [
+      0,
+      0,
+      176,
+      282
+    ]
+  },
+  "slots": {
+    "ENCODED_PATTERN": {
+      "left": 8,
+      "top": 30,
+      "grid": "BREAK_AFTER_9COLS"
+    },
+    "CONFIG": {
+      "left": 8,
+      "top": 120,
+      "grid": "HORIZONTAL"
+    },
+    "STORAGE": {
+      "left": 8,
+      "top": 156,
+      "grid": "HORIZONTAL"
+    }
+  },
+  "text": {
+    "dialog_title": {
+      "text": {
+        "translate": "gui.expansionae.provider"
+      },
+      "position": {
+        "left": 8,
+        "top": 6
+      }
+    }
+  },
+  "widgets": {
+    "openPriority": {
+      "left": 154,
+      "top": 0
+    }
+  }
+}

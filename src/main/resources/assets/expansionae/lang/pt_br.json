@@ -1,0 +1,11 @@
+{
+  "block.expansionae.ex_pattern_provider": "Fornecedor de Padrões Estendido",
+  "block.expansionae.ex_interface": "Interface ME Estendida",
+  "item.expansionae.infinity_water_cell": "Célula de Água Infinita",
+  "item.expansionae.infinity_cobblestone_cell": "Célula de Pedregulho Infinito",
+  "item.expansionae.ex_import_bus": "Barramento de Importação Estendido",
+  "item.expansionae.ex_export_bus": "Barramento de Exportação Estendido",
+  "itemGroup.expansionae": "ExpansionAE (desenvolvimento)",
+  "gui.expansionae.provider": "Fornecedor de 36 Padrões",
+  "gui.expansionae.interface": "Interface ME de 36 Posições"
+}

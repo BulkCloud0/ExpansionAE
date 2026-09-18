@@ -1,0 +1,83 @@
+package dev.bulkcloud.expansionae;
+
+import appeng.api.config.Upgrades;
+import appeng.core.Api;
+import appeng.items.parts.PartItem;
+import net.minecraft.block.Block;
+import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.fml.RegistryObject;
+
+@Mod(ExpansionAE.ID)
+public final class ExpansionAE {
+    public static final String ID = "expansionae";
+    public static final ItemGroup TAB = new ItemGroup(ID) {
+        @Override public ItemStack createIcon() { return new ItemStack(PROVIDER.get()); }
+    };
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
+    public static final DeferredRegister<TileEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, ID);
+
+    public static final RegistryObject<ExpandedInterfaceBlock> PROVIDER = BLOCKS.register("ex_pattern_provider", () -> {
+        ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
+        block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newProvider);
+        return block;
+    });
+    public static final RegistryObject<ExpandedInterfaceBlock> INTERFACE = BLOCKS.register("ex_interface", () -> {
+        ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
+        block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newInterface);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> PROVIDER_TILE = TILES.register("ex_pattern_provider",
+            () -> TileEntityType.Builder.create(ExpansionAE::newProvider, PROVIDER.get()).build(null));
+    public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> INTERFACE_TILE = TILES.register("ex_interface",
+            () -> TileEntityType.Builder.create(ExpansionAE::newInterface, INTERFACE.get()).build(null));
+    public static final RegistryObject<Item> PROVIDER_ITEM = ITEMS.register("ex_pattern_provider", () -> new BlockItem(PROVIDER.get(), props()));
+    public static final RegistryObject<Item> INTERFACE_ITEM = ITEMS.register("ex_interface", () -> new BlockItem(INTERFACE.get(), props()));
+    public static final RegistryObject<Item> WATER_CELL = ITEMS.register("infinity_water_cell", () -> new Item(props().maxStackSize(1)));
+    public static final RegistryObject<Item> COBBLE_CELL = ITEMS.register("infinity_cobblestone_cell", () -> new Item(props().maxStackSize(1)));
+    public static final RegistryObject<Item> IMPORT_BUS = ITEMS.register("ex_import_bus", () -> new PartItem<>(props(), FastImportBus::new));
+    public static final RegistryObject<Item> EXPORT_BUS = ITEMS.register("ex_export_bus", () -> new PartItem<>(props(), FastExportBus::new));
+
+    private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
+    private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
+    public static Item.Properties props() { return new Item.Properties().group(TAB); }
+
+    public ExpansionAE() {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        BLOCKS.register(bus);
+        ITEMS.register(bus);
+        TILES.register(bus);
+        bus.addGenericListener(ContainerType.class, this::registerContainers);
+        bus.addListener(this::setup);
+    }
+    private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
+        event.getRegistry().register(ExpandedContainer.TYPE);
+    }
+    private void setup(FMLCommonSetupEvent event) {
+        event.enqueueWork(() -> {
+            Api.instance().registries().cell().addCellHandler(new InfinityCellHandler());
+            Upgrades.CRAFTING.registerItem(INTERFACE_ITEM.get(), 1);
+            Upgrades.CRAFTING.registerItem(PROVIDER_ITEM.get(), 1);
+            for (Item item : new Item[]{IMPORT_BUS.get(), EXPORT_BUS.get()}) {
+                Item stack = item;
+                Upgrades.SPEED.registerItem(stack, 4);
+                Upgrades.CAPACITY.registerItem(stack, 2);
+                Upgrades.REDSTONE.registerItem(stack, 1);
+                Upgrades.FUZZY.registerItem(stack, 1);
+            }
+            Upgrades.CRAFTING.registerItem(EXPORT_BUS.get(), 1);
+        });
+    }
+}

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "expansionae:block/ex_pattern_provider"
+    }
+  }
+}
