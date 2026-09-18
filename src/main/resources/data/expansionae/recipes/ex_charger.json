@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " E ",
+    "ECE",
+    " E "
+  ],
+  "key": {
+    "E": { "item": "appliedenergistics2:engineering_processor" },
+    "C": { "item": "appliedenergistics2:charger" }
+  },
+  "result": {
+    "item": "expansionae:ex_charger",
+    "count": 1
+  }
+}
