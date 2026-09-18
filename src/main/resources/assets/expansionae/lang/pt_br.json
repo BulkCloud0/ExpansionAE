@@ -59,5 +59,7 @@
   "gui.expansionae.drive": "Drive ME de 20 Células",
   "item.expansionae.precise_export_bus": "Barramento de Exportação Precisa",
   "gui.expansionae.precise.exact": "Lote: EXATO",
-  "gui.expansionae.precise.multiple": "Lote: MÚLTIPLOS"
+  "gui.expansionae.precise.multiple": "Lote: MÚLTIPLOS",
+  "item.expansionae.mod_export_bus": "Barramento de Exportação por Mod",
+  "gui.expansionae.mod_export_bus.filter": "IDs/nomes de mods, separados por vírgulas"
 }
