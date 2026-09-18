@@ -78,7 +78,20 @@ public final class ReactionChamberRecipe implements IRecipe<IInventory> {
         return true;
     }
 
-    @Override public boolean matches(IInventory inv, World worldIn) { return false; }
+    @Override
+    public boolean matches(IInventory inv, World worldIn) {
+        for (Input required : inputs) {
+            int found = 0;
+            for (int slot = 0; slot < inv.getSizeInventory(); slot++) {
+                ItemStack stack = inv.getStackInSlot(slot);
+                if (!stack.isEmpty() && required.ingredient.test(stack)) {
+                    found += stack.getCount();
+                }
+            }
+            if (found < required.amount) return false;
+        }
+        return true;
+    }
     @Override public ItemStack getCraftingResult(IInventory inv) { return outputItem.copy(); }
     @Override public boolean canFit(int width, int height) { return true; }
     @Override public ItemStack getRecipeOutput() { return outputItem.copy(); }
