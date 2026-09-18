@@ -3,6 +3,7 @@ package dev.bulkcloud.expansionae.client;
 import java.io.IOException;
 import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
+import dev.bulkcloud.expansionae.AdvancedIOBusContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
@@ -40,6 +41,11 @@ public final class ClientSetup {
             try {
                 return new StockExportBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load stock export bus screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<AdvancedIOBusContainer, AdvancedIOBusScreen>registerFactory(AdvancedIOBusContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new AdvancedIOBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load advanced IO bus screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
