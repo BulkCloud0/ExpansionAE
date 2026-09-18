@@ -57,6 +57,15 @@ public final class ExpansionAE {
             new PartItem<>(props(), AdvancedIOBus::new));
     public static final RegistryObject<Item> THRESHOLD_EXPORT_BUS = ITEMS.register("threshold_export_bus", () ->
             new PartItem<>(props(), ThresholdExportBus::new));
+    public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
+        ExpandedDriveBlock block = new ExpandedDriveBlock();
+        block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedDriveTile>> EX_DRIVE_TILE = TILES.register("ex_drive",
+            () -> TileEntityType.Builder.create(ExpansionAE::newExpandedDrive, EX_DRIVE.get()).build(null));
+    public static final RegistryObject<Item> EX_DRIVE_ITEM = ITEMS.register("ex_drive",
+            () -> new BlockItem(EX_DRIVE.get(), props()));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -101,11 +110,14 @@ public final class ExpansionAE {
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.IO_BUS));
     public static final RegistryObject<Item> PATTERN_TERMINAL_UPGRADE = ITEMS.register("pattern_terminal_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_TERMINAL));
+    public static final RegistryObject<Item> DRIVE_UPGRADE = ITEMS.register("drive_upgrade", () ->
+            new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.DRIVE));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
     private static ExpandedInterfaceTile newAdvancedProvider() { return new ExpandedInterfaceTile(ADV_PROVIDER_TILE.get(), 9, 36, true); }
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
+    private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -126,6 +138,7 @@ public final class ExpansionAE {
         event.getRegistry().register(StockExportBusContainer.TYPE);
         event.getRegistry().register(AdvancedIOBusContainer.TYPE);
         event.getRegistry().register(ThresholdExportBusContainer.TYPE);
+        event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {
