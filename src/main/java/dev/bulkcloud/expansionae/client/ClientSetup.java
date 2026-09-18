@@ -10,6 +10,7 @@ import dev.bulkcloud.expansionae.ModExportBusContainer;
 import dev.bulkcloud.expansionae.TagExportBusContainer;
 import dev.bulkcloud.expansionae.ModStorageBusContainer;
 import dev.bulkcloud.expansionae.TagStorageBusContainer;
+import dev.bulkcloud.expansionae.PreciseStorageBusContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.ExpandedDriveContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
@@ -83,6 +84,11 @@ public final class ClientSetup {
             try {
                 return new TagStorageBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/storage_bus.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load tag storage bus screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<PreciseStorageBusContainer, PreciseStorageBusScreen>registerFactory(PreciseStorageBusContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new PreciseStorageBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/storage_bus.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load precise storage bus screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedDriveContainer, ExpandedDriveScreen>registerFactory(ExpandedDriveContainer.TYPE, (container, inventory, title) -> {
             try {
