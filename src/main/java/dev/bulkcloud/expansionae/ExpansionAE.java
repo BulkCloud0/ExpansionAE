@@ -4,14 +4,23 @@ import appeng.api.config.Upgrades;
 import appeng.core.Api;
 import appeng.items.parts.PartItem;
 import net.minecraft.block.Block;
+import net.minecraft.block.AbstractBlock;
+import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.material.Material;
+import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.BucketItem;
+import net.minecraft.item.Items;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -29,6 +38,8 @@ public final class ExpansionAE {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ID);
     public static final DeferredRegister<TileEntityType<?>> TILES = DeferredRegister.create(ForgeRegistries.TILE_ENTITIES, ID);
+    public static final DeferredRegister<net.minecraft.fluid.Fluid> FLUIDS =
+            DeferredRegister.create(ForgeRegistries.FLUIDS, ID);
 
     public static final RegistryObject<ExpandedInterfaceBlock> PROVIDER = BLOCKS.register("ex_pattern_provider", () -> {
         ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
@@ -76,6 +87,42 @@ public final class ExpansionAE {
             new PartItem<>(props(), ThroughputMonitorPart::new));
     public static final RegistryObject<Item> THROUGHPUT_MONITOR_CONFIGURATOR = ITEMS.register(
             "throughput_monitor_configurator", () -> new Item(props().maxStackSize(1)));
+
+    // AdvancedAE quantum material chain.
+    public static final RegistryObject<Item> QUANTUM_INFUSED_DUST = ITEMS.register("quantum_infused_dust",
+            () -> new Item(props()));
+    public static final RegistryObject<Item> QUANTUM_ALLOY = ITEMS.register("quantum_alloy",
+            () -> new Item(props()));
+    public static final RegistryObject<Item> QUANTUM_ALLOY_PLATE = ITEMS.register("quantum_alloy_plate",
+            () -> new Item(props()));
+    public static final RegistryObject<Item> SHATTERED_SINGULARITY = ITEMS.register("shattered_singularity",
+            () -> new Item(props()));
+    public static final RegistryObject<Item> QUANTUM_PROCESSOR_PRESS = ITEMS.register("quantum_processor_press",
+            () -> new Item(props().maxStackSize(1)));
+    public static final RegistryObject<Item> PRINTED_QUANTUM_PROCESSOR = ITEMS.register("printed_quantum_processor",
+            () -> new Item(props()));
+    public static final RegistryObject<Item> QUANTUM_PROCESSOR = ITEMS.register("quantum_processor",
+            () -> new Item(props()));
+    public static final RegistryObject<Item> QUANTUM_STORAGE_COMPONENT = ITEMS.register("quantum_storage_component",
+            () -> new Item(props()));
+
+    public static final RegistryObject<FlowingFluid> QUANTUM_INFUSION_SOURCE =
+            FLUIDS.register("quantum_infusion_source",
+                    () -> new ForgeFlowingFluid.Source(quantumInfusionProperties()));
+    public static final RegistryObject<FlowingFluid> QUANTUM_INFUSION_FLOWING =
+            FLUIDS.register("quantum_infusion_flowing",
+                    () -> new ForgeFlowingFluid.Flowing(quantumInfusionProperties()));
+    public static final RegistryObject<FlowingFluidBlock> QUANTUM_INFUSION_BLOCK =
+            BLOCKS.register("quantum_infusion_block",
+                    () -> new FlowingFluidBlock(QUANTUM_INFUSION_SOURCE,
+                            AbstractBlock.Properties.create(Material.WATER)
+                                    .doesNotBlockMovement()
+                                    .hardnessAndResistance(100.0F)
+                                    .noDrops()));
+    public static final RegistryObject<Item> QUANTUM_INFUSION_BUCKET =
+            ITEMS.register("quantum_infusion_bucket",
+                    () -> new BucketItem(QUANTUM_INFUSION_SOURCE,
+                            props().maxStackSize(1).containerItem(Items.BUCKET)));
 
     public static final RegistryObject<ReactionChamberBlock> REACTION_CHAMBER = BLOCKS.register("reaction_chamber", () -> {
         ReactionChamberBlock block = new ReactionChamberBlock();
@@ -197,6 +244,26 @@ public final class ExpansionAE {
     private static ReactionChamberTile newReactionChamber() {
         return new ReactionChamberTile(REACTION_CHAMBER_TILE.get());
     }
+
+    private static ForgeFlowingFluid.Properties quantumInfusionProperties() {
+        return new ForgeFlowingFluid.Properties(
+                QUANTUM_INFUSION_SOURCE,
+                QUANTUM_INFUSION_FLOWING,
+                FluidAttributes.builder(
+                        new ResourceLocation("minecraft", "block/water_still"),
+                        new ResourceLocation("minecraft", "block/water_flow"))
+                        .translationKey("fluid.expansionae.quantum_infusion")
+                        .color(0xFF7B61FF)
+                        .luminosity(4)
+                        .density(1200)
+                        .viscosity(1400))
+                .block(QUANTUM_INFUSION_BLOCK)
+                .bucket(QUANTUM_INFUSION_BUCKET)
+                .tickRate(8)
+                .slopeFindDistance(4)
+                .levelDecreasePerBlock(1);
+    }
+
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -209,6 +276,7 @@ public final class ExpansionAE {
         BLOCKS.register(bus);
         ITEMS.register(bus);
         TILES.register(bus);
+        FLUIDS.register(bus);
         bus.addGenericListener(ContainerType.class, this::registerContainers);
         bus.addGenericListener(IRecipeSerializer.class, this::registerRecipeSerializers);
         bus.addListener(this::setup);
