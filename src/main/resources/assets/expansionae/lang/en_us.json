@@ -28,5 +28,9 @@
   "item.expansionae.pattern_provider_upgrade": "Pattern Provider Upgrade",
   "item.expansionae.io_bus_upgrade": "Import/Export Bus Upgrade",
   "item.expansionae.pattern_terminal_upgrade": "Pattern Access Terminal Upgrade",
-  "item.expansionae.import_export_bus": "Import Export Bus"
+  "item.expansionae.import_export_bus": "Import Export Bus",
+  "item.expansionae.me_packing_tape": "ME Packing Tape",
+  "item.expansionae.package": "Packaged Device",
+  "tooltip.expansionae.packaged_device": "Contains: %s",
+  "tooltip.expansionae.packaged_device.invalid": "Invalid packaged device"
 }
