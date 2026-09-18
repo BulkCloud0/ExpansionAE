@@ -108,6 +108,16 @@ public final class ExpansionAE {
                     .create(ExpansionAE::newExpandedAssembler, EX_ASSEMBLER.get()).build(null));
     public static final RegistryObject<Item> EX_ASSEMBLER_ITEM = ITEMS.register("ex_molecular_assembler",
             () -> new BlockItem(EX_ASSEMBLER.get(), props()));
+    public static final RegistryObject<ExpandedIOPortBlock> EX_IO_PORT = BLOCKS.register("ex_io_port", () -> {
+        ExpandedIOPortBlock block = new ExpandedIOPortBlock();
+        block.setTileEntity(ExpandedIOPortTile.class, ExpansionAE::newExpandedIOPort);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedIOPortTile>> EX_IO_PORT_TILE =
+            TILES.register("ex_io_port", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newExpandedIOPort, EX_IO_PORT.get()).build(null));
+    public static final RegistryObject<Item> EX_IO_PORT_ITEM = ITEMS.register("ex_io_port",
+            () -> new BlockItem(EX_IO_PORT.get(), props()));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -165,6 +175,9 @@ public final class ExpansionAE {
     private static ExpandedMolecularAssemblerTile newExpandedAssembler() {
         return new ExpandedMolecularAssemblerTile(EX_ASSEMBLER_TILE.get());
     }
+    private static ExpandedIOPortTile newExpandedIOPort() {
+        return new ExpandedIOPortTile(EX_IO_PORT_TILE.get());
+    }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -194,6 +207,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ThresholdLevelEmitterContainer.TYPE);
         event.getRegistry().register(ExpandedInscriberContainer.TYPE);
         event.getRegistry().register(ExpandedMolecularAssemblerContainer.TYPE);
+        event.getRegistry().register(ExpandedIOPortContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -247,6 +261,8 @@ public final class ExpansionAE {
             Upgrades.CRAFTING.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
             Upgrades.SPEED.registerItem(EX_INSCRIBER_ITEM.get(), 4);
             Upgrades.SPEED.registerItem(EX_ASSEMBLER_ITEM.get(), 5);
+            Upgrades.SPEED.registerItem(EX_IO_PORT_ITEM.get(), 5);
+            Upgrades.REDSTONE.registerItem(EX_IO_PORT_ITEM.get(), 1);
         });
     }
 }
