@@ -1,0 +1,11 @@
+{
+  "type": "expansionae:reaction",
+  "energy": 200000,
+  "fluid": { "fluid": "expansionae:quantum_infusion_source", "amount": 1000 },
+  "input_items": [
+    { "amount": 4, "ingredient": { "tag": "forge:ingots/copper" } },
+    { "amount": 4, "ingredient": { "item": "expansionae:shattered_singularity" } },
+    { "amount": 4, "ingredient": { "item": "appliedenergistics2:singularity" } }
+  ],
+  "output_item": { "item": "expansionae:quantum_alloy" }
+}
