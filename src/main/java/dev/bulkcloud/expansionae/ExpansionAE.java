@@ -51,6 +51,8 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> EXPORT_BUS = ITEMS.register("ex_export_bus", () -> new PartItem<>(props(), FastExportBus::new));
     public static final RegistryObject<Item> IMPORT_EXPORT_BUS = ITEMS.register("import_export_bus", () ->
             new PartItem<>(props(), ImportExportBus::new));
+    public static final RegistryObject<Item> STOCK_EXPORT_BUS = ITEMS.register("stock_export_bus", () ->
+            new PartItem<>(props(), StockExportBus::new));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -117,6 +119,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedContainer.TYPE);
         event.getRegistry().register(PatternEncoderContainer.TYPE);
         event.getRegistry().register(PatternModifierContainer.TYPE);
+        event.getRegistry().register(StockExportBusContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {
@@ -137,6 +140,10 @@ public final class ExpansionAE {
             Upgrades.CRAFTING.registerItem(EXPORT_BUS.get(), 1);
             Upgrades.CRAFTING.registerItem(IMPORT_EXPORT_BUS.get(), 1);
             Upgrades.INVERTER.registerItem(IMPORT_EXPORT_BUS.get(), 1);
+            Upgrades.SPEED.registerItem(STOCK_EXPORT_BUS.get(), 4);
+            Upgrades.CAPACITY.registerItem(STOCK_EXPORT_BUS.get(), 2);
+            Upgrades.REDSTONE.registerItem(STOCK_EXPORT_BUS.get(), 1);
+            Upgrades.FUZZY.registerItem(STOCK_EXPORT_BUS.get(), 1);
             Upgrades.SPEED.registerItem(ACTIVE_FORMATION_PLANE.get(), 4);
             Upgrades.CAPACITY.registerItem(ACTIVE_FORMATION_PLANE.get(), 5);
             Upgrades.REDSTONE.registerItem(ACTIVE_FORMATION_PLANE.get(), 1);
