@@ -52,5 +52,9 @@
   "gui.expansionae.advanced_io.regulate_off": "Regular estoque: DESLIGADO",
   "item.expansionae.threshold_export_bus": "Barramento de Exportação por Limiar",
   "gui.expansionae.threshold.greater": "Limiar: ≥",
-  "gui.expansionae.threshold.lower": "Limiar: ≤"
+  "gui.expansionae.threshold.lower": "Limiar: ≤",
+  "block.expansionae.ex_drive": "Drive ME Estendido",
+  "item.expansionae.ex_drive": "Drive ME Estendido",
+  "item.expansionae.drive_upgrade": "Melhoria de Drive",
+  "gui.expansionae.drive": "Drive ME de 20 Células"
 }
