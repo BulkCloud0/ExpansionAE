@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "expansionae:block/small_adv_pattern_provider"
+  }
+}

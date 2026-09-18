@@ -7,5 +7,16 @@
   "item.expansionae.ex_export_bus": "Extended Export Bus",
   "itemGroup.expansionae": "ExpansionAE (development)",
   "gui.expansionae.provider": "36-pattern Provider",
-  "gui.expansionae.interface": "36-slot ME Interface"
+  "gui.expansionae.interface": "36-slot ME Interface",
+  "block.expansionae.advanced_pattern_provider": "Advanced Pattern Provider",
+  "block.expansionae.small_advanced_pattern_provider": "Small Advanced Pattern Provider",
+  "item.expansionae.advanced_pattern_encoder": "Advanced Pattern Encoder",
+  "gui.expansionae.encoder": "Pattern Encoder",
+  "gui.expansionae.face.auto": "Automatic",
+  "gui.expansionae.face.down": "Down",
+  "gui.expansionae.face.up": "Up",
+  "gui.expansionae.face.north": "North",
+  "gui.expansionae.face.south": "South",
+  "gui.expansionae.face.west": "West",
+  "gui.expansionae.face.east": "East"
 }

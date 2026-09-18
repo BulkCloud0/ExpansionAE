@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "appliedenergistics2:calculation_processor"
+    },
+    {
+      "item": "appliedenergistics2:engineering_processor"
+    },
+    {
+      "item": "minecraft:iron_ingot"
+    }
+  ],
+  "result": {
+    "item": "expansionae:advanced_pattern_encoder"
+  }
+}

@@ -4,6 +4,7 @@ import java.io.IOException;
 import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.ExpandedContainer;
+import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,7 +15,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public final class ClientSetup {
     private ClientSetup() { }
     @SubscribeEvent public static void setup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ScreenManager.registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
+        event.enqueueWork(() -> ScreenManager.<PatternEncoderContainer, PatternEncoderScreen>registerFactory(PatternEncoderContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new PatternEncoderScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_encoder.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load pattern encoder screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
                 String style = container.storageSlots == 36 ? "expansionae_interface" : "expansionae_provider";
                 return new ExpandedScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/" + style + ".json"));

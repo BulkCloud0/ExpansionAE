@@ -120,9 +120,10 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
 
     private static final Collection<Block> BAD_BLOCKS = new HashSet<>(100);
     private final IAEItemStack[] requireWork;
-    private final MultiCraftingTracker craftingTracker;
+    private final ExpandedCraftingTracker craftingTracker;
     private final AENetworkProxy gridProxy;
     private final IInterfaceHost iHost;
+    private final RoutingBuffer routedInputs;
     private final IActionSource mySource;
     private final IActionSource interfaceRequestSource;
     private final ConfigManager cm = new ConfigManager(this);
@@ -157,7 +158,8 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
         this.cm.registerSetting(Settings.INTERFACE_TERMINAL, YesNo.YES);
 
         this.iHost = ih;
-        this.craftingTracker = new MultiCraftingTracker(this.iHost, storageSlots);
+        this.routedInputs = new RoutingBuffer(ih);
+        this.craftingTracker = new ExpandedCraftingTracker(this.iHost, storageSlots);
 
         final MachineSource actionSource = new MachineSource(this.iHost);
         this.mySource = actionSource;
@@ -211,6 +213,7 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
     }
 
     public void writeToNBT(final CompoundNBT data) {
+        this.routedInputs.write(data);
         this.config.writeToNBT(data, "config");
         this.patterns.writeToNBT(data, "patterns");
         this.storage.writeToNBT(data, "storage");
@@ -231,6 +234,7 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
     }
 
     public void readFromNBT(final CompoundNBT data) {
+        this.routedInputs.read(data);
         this.waitingToSend = null;
         final ListNBT waitingList = data.getList("waitingToSend", 10);
         if (waitingList != null) {
@@ -347,6 +351,7 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
     }
 
     private boolean hasWorkToDo() {
+        if (this.routedInputs.hasPending()) return true;
         if (this.hasItemsToSend()) {
             return true;
         } else {
@@ -494,6 +499,8 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
         if (!this.gridProxy.isActive()) {
             return TickRateModulation.SLEEP;
         }
+
+        this.routedInputs.flush();
 
         if (this.hasItemsToSend()) {
             this.pushItemsOut(this.iHost.getTargets());
@@ -753,8 +760,20 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
 
     @Override
     public boolean pushPattern(final ICraftingPatternDetails patternDetails, final CraftingInventory table) {
+        if (this.routedInputs.hasPending()) return false;
         if (this.hasItemsToSend() || !this.gridProxy.isActive() || (this.craftingList == null || !this.craftingList.contains(patternDetails))) {
             return false;
+        }
+
+        if (RoutingBuffer.hasRouting(patternDetails.getPattern())) {
+            if (patternDetails.isCraftable() || !(this.iHost instanceof ExpandedHost)
+                    || !((ExpandedHost) this.iHost).supportsAdvancedRouting()) return false;
+            boolean accepted = this.routedInputs.push(patternDetails.getPattern(), table, this.isBlocking());
+            if (accepted) {
+                try { this.gridProxy.getTick().alertDevice(this.gridProxy.getNode()); }
+                catch (GridAccessException unavailable) { /* The persisted buffer will resume on grid change. */ }
+            }
+            return accepted;
         }
 
         final TileEntity tile = this.iHost.getTileEntity();
@@ -808,6 +827,7 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
 
     @Override
     public boolean isBusy() {
+        if (this.routedInputs.hasPending()) return true;
         if (this.hasItemsToSend()) {
             return true;
         }
@@ -873,6 +893,7 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
     }
 
     public void addDrops(final List<ItemStack> drops) {
+        this.routedInputs.addDrops(drops);
         if (this.waitingToSend != null) {
             for (final ItemStack is : this.waitingToSend) {
                 if (!is.isEmpty()) {

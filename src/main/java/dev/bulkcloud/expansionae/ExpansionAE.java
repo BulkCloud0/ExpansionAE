@@ -49,9 +49,28 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> COBBLE_CELL = ITEMS.register("infinity_cobblestone_cell", () -> new Item(props().maxStackSize(1)));
     public static final RegistryObject<Item> IMPORT_BUS = ITEMS.register("ex_import_bus", () -> new PartItem<>(props(), FastImportBus::new));
     public static final RegistryObject<Item> EXPORT_BUS = ITEMS.register("ex_export_bus", () -> new PartItem<>(props(), FastExportBus::new));
+    public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
+        ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
+        block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newAdvancedProvider);
+        return block;
+    });
+    public static final RegistryObject<ExpandedInterfaceBlock> SMALL_ADV_PROVIDER = BLOCKS.register("small_advanced_pattern_provider", () -> {
+        ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
+        block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newSmallAdvancedProvider);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> ADV_PROVIDER_TILE = TILES.register("advanced_pattern_provider",
+            () -> TileEntityType.Builder.create(ExpansionAE::newAdvancedProvider, ADV_PROVIDER.get()).build(null));
+    public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> SMALL_ADV_PROVIDER_TILE = TILES.register("small_advanced_pattern_provider",
+            () -> TileEntityType.Builder.create(ExpansionAE::newSmallAdvancedProvider, SMALL_ADV_PROVIDER.get()).build(null));
+    public static final RegistryObject<Item> ADV_PROVIDER_ITEM = ITEMS.register("advanced_pattern_provider", () -> new BlockItem(ADV_PROVIDER.get(), props()));
+    public static final RegistryObject<Item> SMALL_ADV_PROVIDER_ITEM = ITEMS.register("small_advanced_pattern_provider", () -> new BlockItem(SMALL_ADV_PROVIDER.get(), props()));
+    public static final RegistryObject<Item> PATTERN_ENCODER = ITEMS.register("advanced_pattern_encoder", () -> new PatternEncoderItem(props()));
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
+    private static ExpandedInterfaceTile newAdvancedProvider() { return new ExpandedInterfaceTile(ADV_PROVIDER_TILE.get(), 9, 36, true); }
+    private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -64,6 +83,7 @@ public final class ExpansionAE {
     }
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().register(ExpandedContainer.TYPE);
+        event.getRegistry().register(PatternEncoderContainer.TYPE);
     }
     private void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {

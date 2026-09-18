@@ -73,14 +73,22 @@ public class ExpandedInterfaceTile extends AENetworkInvTileEntity
         implements IGridTickable, IInventoryDestination, ExpandedHost, IPriorityHost {
 
     private final ExpandedDuality duality;
+    private final boolean advanced;
 
     // Indicates that this interface has no specific direction set
     private boolean omniDirectional = true;
 
     public ExpandedInterfaceTile(TileEntityType<?> tileEntityTypeIn, int storageSlots, int patternSlots) {
+        this(tileEntityTypeIn, storageSlots, patternSlots, false);
+    }
+
+    public ExpandedInterfaceTile(TileEntityType<?> tileEntityTypeIn, int storageSlots, int patternSlots, boolean advanced) {
         super(tileEntityTypeIn);
+        this.advanced = advanced;
         duality = new ExpandedDuality(getProxy(), this, storageSlots, patternSlots);
     }
+
+    @Override public boolean supportsAdvancedRouting() { return advanced; }
 
     @MENetworkEventSubscribe
     public void stateChange(final MENetworkChannelsChanged c) {

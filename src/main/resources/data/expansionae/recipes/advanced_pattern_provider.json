@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:ex_pattern_provider"
+    },
+    {
+      "item": "appliedenergistics2:engineering_processor"
+    },
+    {
+      "item": "minecraft:ender_pearl"
+    }
+  ],
+  "result": {
+    "item": "expansionae:advanced_pattern_provider"
+  }
+}

@@ -7,5 +7,16 @@
   "item.expansionae.ex_export_bus": "Barramento de Exportação Estendido",
   "itemGroup.expansionae": "ExpansionAE (desenvolvimento)",
   "gui.expansionae.provider": "Fornecedor de 36 Padrões",
-  "gui.expansionae.interface": "Interface ME de 36 Posições"
+  "gui.expansionae.interface": "Interface ME de 36 Posições",
+  "block.expansionae.advanced_pattern_provider": "Fornecedor de Padrões Avançado",
+  "block.expansionae.small_advanced_pattern_provider": "Fornecedor Avançado Pequeno",
+  "item.expansionae.advanced_pattern_encoder": "Codificador de Padrões Avançado",
+  "gui.expansionae.encoder": "Codificador de Padrões",
+  "gui.expansionae.face.auto": "Automático",
+  "gui.expansionae.face.down": "Baixo",
+  "gui.expansionae.face.up": "Cima",
+  "gui.expansionae.face.north": "Norte",
+  "gui.expansionae.face.south": "Sul",
+  "gui.expansionae.face.west": "Oeste",
+  "gui.expansionae.face.east": "Leste"
 }
