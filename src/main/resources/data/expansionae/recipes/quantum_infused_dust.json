@@ -1,0 +1,8 @@
+{
+  "type": "appliedenergistics2:inscriber",
+  "mode": "press",
+  "result": { "item": "expansionae:quantum_infused_dust" },
+  "ingredients": {
+    "middle": { "item": "expansionae:shattered_singularity" }
+  }
+}
