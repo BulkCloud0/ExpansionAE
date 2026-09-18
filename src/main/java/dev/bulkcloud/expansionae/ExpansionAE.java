@@ -5,6 +5,7 @@ import appeng.core.Api;
 import appeng.items.parts.PartItem;
 import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
+import net.minecraft.item.crafting.IRecipeSerializer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -75,6 +76,17 @@ public final class ExpansionAE {
             new PartItem<>(props(), ThroughputMonitorPart::new));
     public static final RegistryObject<Item> THROUGHPUT_MONITOR_CONFIGURATOR = ITEMS.register(
             "throughput_monitor_configurator", () -> new Item(props().maxStackSize(1)));
+
+    public static final RegistryObject<ReactionChamberBlock> REACTION_CHAMBER = BLOCKS.register("reaction_chamber", () -> {
+        ReactionChamberBlock block = new ReactionChamberBlock();
+        block.setTileEntity(ReactionChamberTile.class, ExpansionAE::newReactionChamber);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ReactionChamberTile>> REACTION_CHAMBER_TILE =
+            TILES.register("reaction_chamber", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newReactionChamber, REACTION_CHAMBER.get()).build(null));
+    public static final RegistryObject<Item> REACTION_CHAMBER_ITEM = ITEMS.register("reaction_chamber",
+            () -> new BlockItem(REACTION_CHAMBER.get(), props()));
     public static final RegistryObject<ExpandedDriveBlock> EX_DRIVE = BLOCKS.register("ex_drive", () -> {
         ExpandedDriveBlock block = new ExpandedDriveBlock();
         block.setTileEntity(ExpandedDriveTile.class, ExpansionAE::newExpandedDrive);
@@ -182,6 +194,9 @@ public final class ExpansionAE {
     private static ExpandedIOPortTile newExpandedIOPort() {
         return new ExpandedIOPortTile(EX_IO_PORT_TILE.get());
     }
+    private static ReactionChamberTile newReactionChamber() {
+        return new ReactionChamberTile(REACTION_CHAMBER_TILE.get());
+    }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -195,6 +210,7 @@ public final class ExpansionAE {
         ITEMS.register(bus);
         TILES.register(bus);
         bus.addGenericListener(ContainerType.class, this::registerContainers);
+        bus.addGenericListener(IRecipeSerializer.class, this::registerRecipeSerializers);
         bus.addListener(this::setup);
     }
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
@@ -216,6 +232,11 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedIOPortContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
+        event.getRegistry().register(ReactionChamberContainer.TYPE);
+    }
+
+    private void registerRecipeSerializers(RegistryEvent.Register<IRecipeSerializer<?>> event) {
+        event.getRegistry().register(ReactionChamberRecipeSerializer.INSTANCE);
     }
     private void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
@@ -269,6 +290,7 @@ public final class ExpansionAE {
             Upgrades.SPEED.registerItem(EX_ASSEMBLER_ITEM.get(), 5);
             Upgrades.SPEED.registerItem(EX_IO_PORT_ITEM.get(), 5);
             Upgrades.REDSTONE.registerItem(EX_IO_PORT_ITEM.get(), 1);
+            Upgrades.SPEED.registerItem(REACTION_CHAMBER_ITEM.get(), 4);
         });
     }
 }
