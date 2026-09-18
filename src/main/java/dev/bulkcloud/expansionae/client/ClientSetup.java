@@ -4,6 +4,7 @@ import java.io.IOException;
 import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.AdvancedIOBusContainer;
+import dev.bulkcloud.expansionae.ThresholdExportBusContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
@@ -46,6 +47,11 @@ public final class ClientSetup {
             try {
                 return new AdvancedIOBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load advanced IO bus screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<ThresholdExportBusContainer, ThresholdExportBusScreen>registerFactory(ThresholdExportBusContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ThresholdExportBusScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/export_bus.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load threshold export bus screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
