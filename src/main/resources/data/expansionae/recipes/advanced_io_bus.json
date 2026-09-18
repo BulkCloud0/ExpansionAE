@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SIE",
+    " P "
+  ],
+  "key": {
+    "S": { "item": "expansionae:stock_export_bus" },
+    "I": { "item": "expansionae:import_export_bus" },
+    "E": { "item": "appliedenergistics2:engineering_processor" },
+    "P": { "item": "appliedenergistics2:calculation_processor" }
+  },
+  "result": {
+    "item": "expansionae:advanced_io_bus",
+    "count": 1
+  }
+}
