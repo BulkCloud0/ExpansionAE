@@ -79,5 +79,11 @@
   "gui.expansionae.threshold_level.lower": "Inferior",
   "block.expansionae.ingredient_buffer": "Buffer de Ingredientes",
   "gui.expansionae.ingredient_buffer": "Buffer de Ingredientes",
-  "gui.expansionae.ingredient_buffer.fluid": "Tanque de fluido: 64.000 mB"
+  "gui.expansionae.ingredient_buffer.fluid": "Tanque de fluido: 64.000 mB",
+  "block.expansionae.wireless_connector": "Conector Sem Fio",
+  "item.expansionae.wireless_connect_tool": "Ferramenta de Conexão Sem Fio",
+  "chat.expansionae.wireless.first": "Primeiro conector sem fio armazenado.",
+  "chat.expansionae.wireless.linked": "Conectores sem fio pareados.",
+  "chat.expansionae.wireless.clear": "Pareamento sem fio limpo.",
+  "tooltip.expansionae.wireless.bound": "Vinculado a %s, %s, %s"
 }
