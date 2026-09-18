@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "CEL"
+  ],
+  "key": {
+    "C": {
+      "item": "appliedenergistics2:calculation_processor"
+    },
+    "E": {
+      "item": "appliedenergistics2:export_bus"
+    },
+    "L": {
+      "item": "appliedenergistics2:logic_processor"
+    }
+  },
+  "result": {
+    "item": "expansionae:stock_export_bus",
+    "count": 1
+  }
+}
