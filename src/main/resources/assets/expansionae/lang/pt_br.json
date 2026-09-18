@@ -85,5 +85,11 @@
   "chat.expansionae.wireless.first": "Primeiro conector sem fio armazenado.",
   "chat.expansionae.wireless.linked": "Conectores sem fio pareados.",
   "chat.expansionae.wireless.clear": "Pareamento sem fio limpo.",
-  "tooltip.expansionae.wireless.bound": "Vinculado a %s, %s, %s"
+  "tooltip.expansionae.wireless.bound": "Vinculado a %s, %s, %s",
+  "item.expansionae.throughput_monitor": "Monitor de Vazão ME",
+  "item.expansionae.throughput_monitor_configurator": "Configurador do Monitor de Vazão",
+  "chat.expansionae.throughput.mode.tick": "Modo de vazão: itens/tick",
+  "chat.expansionae.throughput.mode.second": "Modo de vazão: itens/segundo",
+  "chat.expansionae.throughput.mode.minute": "Modo de vazão: itens/minuto",
+  "chat.expansionae.throughput.value": "Vazão: %s"
 }
