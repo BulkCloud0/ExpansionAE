@@ -49,5 +49,8 @@
   "item.expansionae.stock_export_bus": "Stock Export Bus",
   "item.expansionae.advanced_io_bus": "Advanced IO Bus",
   "gui.expansionae.advanced_io.regulate_on": "Regulate stock: ON",
-  "gui.expansionae.advanced_io.regulate_off": "Regulate stock: OFF"
+  "gui.expansionae.advanced_io.regulate_off": "Regulate stock: OFF",
+  "item.expansionae.threshold_export_bus": "Threshold Export Bus",
+  "gui.expansionae.threshold.greater": "Threshold: ≥",
+  "gui.expansionae.threshold.lower": "Threshold: ≤"
 }
