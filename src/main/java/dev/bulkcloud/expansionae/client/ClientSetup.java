@@ -15,6 +15,7 @@ import dev.bulkcloud.expansionae.ThresholdLevelEmitterContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
 import dev.bulkcloud.expansionae.ExpandedDriveContainer;
 import dev.bulkcloud.expansionae.ExpandedInscriberContainer;
+import dev.bulkcloud.expansionae.ExpandedMolecularAssemblerContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.StockExportBusContainer;
@@ -106,6 +107,11 @@ public final class ClientSetup {
             try {
                 return new ExpandedInscriberScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/inscriber.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load expanded inscriber screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<ExpandedMolecularAssemblerContainer, ExpandedMolecularAssemblerScreen>registerFactory(ExpandedMolecularAssemblerContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ExpandedMolecularAssemblerScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/molecular_assembler.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load expanded molecular assembler screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {
