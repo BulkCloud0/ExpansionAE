@@ -98,6 +98,16 @@ public final class ExpansionAE {
             () -> TileEntityType.Builder.create(ExpansionAE::newExpandedInscriber, EX_INSCRIBER.get()).build(null));
     public static final RegistryObject<Item> EX_INSCRIBER_ITEM = ITEMS.register("ex_inscriber",
             () -> new BlockItem(EX_INSCRIBER.get(), props()));
+    public static final RegistryObject<ExpandedMolecularAssemblerBlock> EX_ASSEMBLER = BLOCKS.register("ex_molecular_assembler", () -> {
+        ExpandedMolecularAssemblerBlock block = new ExpandedMolecularAssemblerBlock();
+        block.setTileEntity(ExpandedMolecularAssemblerTile.class, ExpansionAE::newExpandedAssembler);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<ExpandedMolecularAssemblerTile>> EX_ASSEMBLER_TILE =
+            TILES.register("ex_molecular_assembler", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newExpandedAssembler, EX_ASSEMBLER.get()).build(null));
+    public static final RegistryObject<Item> EX_ASSEMBLER_ITEM = ITEMS.register("ex_molecular_assembler",
+            () -> new BlockItem(EX_ASSEMBLER.get(), props()));
     public static final RegistryObject<Item> ACTIVE_FORMATION_PLANE = ITEMS.register("active_formation_plane", () ->
             new PartItem<>(props(), ActiveFormationPlane::new));
     public static final RegistryObject<ExpandedInterfaceBlock> ADV_PROVIDER = BLOCKS.register("advanced_pattern_provider", () -> {
@@ -152,6 +162,9 @@ public final class ExpansionAE {
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
     private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
     private static ExpandedInscriberTile newExpandedInscriber() { return new ExpandedInscriberTile(EX_INSCRIBER_TILE.get()); }
+    private static ExpandedMolecularAssemblerTile newExpandedAssembler() {
+        return new ExpandedMolecularAssemblerTile(EX_ASSEMBLER_TILE.get());
+    }
     public static Item.Properties props() { return new Item.Properties().group(TAB); }
 
     public ExpansionAE() {
@@ -180,6 +193,7 @@ public final class ExpansionAE {
         event.getRegistry().register(PreciseStorageBusContainer.TYPE);
         event.getRegistry().register(ThresholdLevelEmitterContainer.TYPE);
         event.getRegistry().register(ExpandedInscriberContainer.TYPE);
+        event.getRegistry().register(ExpandedMolecularAssemblerContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
     }
@@ -232,6 +246,7 @@ public final class ExpansionAE {
             Upgrades.FUZZY.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
             Upgrades.CRAFTING.registerItem(THRESHOLD_LEVEL_EMITTER.get(), 1);
             Upgrades.SPEED.registerItem(EX_INSCRIBER_ITEM.get(), 4);
+            Upgrades.SPEED.registerItem(EX_ASSEMBLER_ITEM.get(), 5);
         });
     }
 }
