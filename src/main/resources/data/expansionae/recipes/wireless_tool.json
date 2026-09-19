@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " F ",
+    "QIQ",
+    " Q "
+  ],
+  "key": {
+    "F": { "item": "appliedenergistics2:fluix_crystal" },
+    "Q": { "item": "minecraft:quartz" },
+    "I": { "item": "minecraft:iron_ingot" }
+  },
+  "result": {
+    "item": "expansionae:wireless_tool"
+  }
+}
