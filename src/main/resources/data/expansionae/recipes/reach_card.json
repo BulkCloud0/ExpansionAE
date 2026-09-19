@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_upgrade_base"
+    },
+    {
+      "item": "minecraft:end_rod"
+    },
+    {
+      "item": "minecraft:piston"
+    }
+  ],
+  "result": {
+    "item": "expansionae:reach_card"
+  }
+}

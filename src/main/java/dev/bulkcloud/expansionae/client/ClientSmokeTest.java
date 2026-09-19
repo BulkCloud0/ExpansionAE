@@ -60,6 +60,11 @@ public final class ClientSmokeTest {
                 "quantum crafter pattern slots");
         check(ExpansionAE.QUANTUM_CRAFTER_TILE.get().create().getOutputInventory().getSlots() == 18,
                 "quantum crafter output slots");
+        QuantumArmorItem quantumHelmet = (QuantumArmorItem) ExpansionAE.QUANTUM_HELMET.get();
+        check(quantumHelmet.getAEMaxPower(new ItemStack(ExpansionAE.QUANTUM_HELMET.get())) == 200000000D,
+                "quantum armor capacity");
+        check(quantumHelmet.canInstall(QuantumUpgradeType.WATER_BREATHING),
+                "quantum helmet water-breathing upgrade");
         for (Item item : new Item[]{ExpansionAE.PROVIDER_PART.get(), ExpansionAE.INTERFACE_PART.get(),
                 ExpansionAE.ADV_PROVIDER_PART.get(), ExpansionAE.SMALL_ADV_PROVIDER_PART.get()}) {
             ExpandedInterfacePart part = (ExpandedInterfacePart) ((IPartItem<?>) item).createPart(new ItemStack(item));

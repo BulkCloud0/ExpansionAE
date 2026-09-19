@@ -136,6 +136,42 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> QUANTUM_STORAGE_COMPONENT = ITEMS.register("quantum_storage_component",
             () -> new Item(props()));
 
+    // AdvancedAE Quantum Armor core and upgrade cards.
+    public static final RegistryObject<Item> QUANTUM_HELMET = ITEMS.register("quantum_helmet",
+            () -> new QuantumArmorItem(net.minecraft.inventory.EquipmentSlotType.HEAD, 200000000D, props()));
+    public static final RegistryObject<Item> QUANTUM_CHESTPLATE = ITEMS.register("quantum_chestplate",
+            () -> new QuantumArmorItem(net.minecraft.inventory.EquipmentSlotType.CHEST, 300000000D, props()));
+    public static final RegistryObject<Item> QUANTUM_LEGGINGS = ITEMS.register("quantum_leggings",
+            () -> new QuantumArmorItem(net.minecraft.inventory.EquipmentSlotType.LEGS, 250000000D, props()));
+    public static final RegistryObject<Item> QUANTUM_BOOTS = ITEMS.register("quantum_boots",
+            () -> new QuantumArmorItem(net.minecraft.inventory.EquipmentSlotType.FEET, 200000000D, props()));
+
+    public static final RegistryObject<Item> QUANTUM_UPGRADE_BASE = ITEMS.register("quantum_upgrade_base",
+            () -> new Item(props().maxStackSize(16)));
+    public static final RegistryObject<Item> WALK_SPEED_CARD = upgradeCard("walk_speed_card", QuantumUpgradeType.WALK_SPEED);
+    public static final RegistryObject<Item> SPRINT_SPEED_CARD = upgradeCard("sprint_speed_card", QuantumUpgradeType.SPRINT_SPEED);
+    public static final RegistryObject<Item> STEP_ASSIST_CARD = upgradeCard("step_assist_card", QuantumUpgradeType.STEP_ASSIST);
+    public static final RegistryObject<Item> JUMP_HEIGHT_CARD = upgradeCard("jump_height_card", QuantumUpgradeType.JUMP_HEIGHT);
+    public static final RegistryObject<Item> LAVA_IMMUNITY_CARD = upgradeCard("lava_immunity_card", QuantumUpgradeType.LAVA_IMMUNITY);
+    public static final RegistryObject<Item> FLIGHT_CARD = upgradeCard("flight_card", QuantumUpgradeType.FLIGHT);
+    public static final RegistryObject<Item> WATER_BREATHING_CARD = upgradeCard("water_breathing_card", QuantumUpgradeType.WATER_BREATHING);
+    public static final RegistryObject<Item> AUTO_FEED_CARD = upgradeCard("auto_feeding_card", QuantumUpgradeType.AUTO_FEED);
+    public static final RegistryObject<Item> AUTO_STOCK_CARD = upgradeCard("auto_stock_card", QuantumUpgradeType.AUTO_STOCK);
+    public static final RegistryObject<Item> MAGNET_CARD = upgradeCard("magnet_card", QuantumUpgradeType.MAGNET);
+    public static final RegistryObject<Item> HP_BUFFER_CARD = upgradeCard("hp_buffer_card", QuantumUpgradeType.HP_BUFFER);
+    public static final RegistryObject<Item> EVASION_CARD = upgradeCard("evasion_card", QuantumUpgradeType.EVASION);
+    public static final RegistryObject<Item> REGENERATION_CARD = upgradeCard("regeneration_card", QuantumUpgradeType.REGENERATION);
+    public static final RegistryObject<Item> STRENGTH_CARD = upgradeCard("strength_card", QuantumUpgradeType.STRENGTH);
+    public static final RegistryObject<Item> ATTACK_SPEED_CARD = upgradeCard("attack_speed_card", QuantumUpgradeType.ATTACK_SPEED);
+    public static final RegistryObject<Item> LUCK_CARD = upgradeCard("luck_card", QuantumUpgradeType.LUCK);
+    public static final RegistryObject<Item> REACH_CARD = upgradeCard("reach_card", QuantumUpgradeType.REACH);
+    public static final RegistryObject<Item> SWIM_SPEED_CARD = upgradeCard("swim_speed_card", QuantumUpgradeType.SWIM_SPEED);
+    public static final RegistryObject<Item> NIGHT_VISION_CARD = upgradeCard("night_vision_card", QuantumUpgradeType.NIGHT_VISION);
+    public static final RegistryObject<Item> FLIGHT_DRIFT_CARD = upgradeCard("flight_drift_card", QuantumUpgradeType.FLIGHT_DRIFT);
+    public static final RegistryObject<Item> RECHARGING_CARD = upgradeCard("recharging_card", QuantumUpgradeType.CHARGING);
+    public static final RegistryObject<Item> WORKBENCH_CARD = upgradeCard("portable_workbench_card", QuantumUpgradeType.WORKBENCH);
+    public static final RegistryObject<Item> PICK_CRAFT_CARD = upgradeCard("pick_craft_card", QuantumUpgradeType.PICK_CRAFT);
+
     public static final RegistryObject<Block> QUANTUM_ALLOY_BLOCK = BLOCKS.register("quantum_alloy_block",
             () -> new Block(AbstractBlock.Properties.create(Material.IRON)
                     .hardnessAndResistance(25.0F, 150.0F)));
@@ -442,6 +478,10 @@ public final class ExpansionAE {
                 .tickRate(8)
                 .slopeFindDistance(4)
                 .levelDecreasePerBlock(1);
+    }
+
+    private static RegistryObject<Item> upgradeCard(String id, QuantumUpgradeType type) {
+        return ITEMS.register(id, () -> new QuantumUpgradeItem(type, props().maxStackSize(1)));
     }
 
     public static Item.Properties props() { return new Item.Properties().group(TAB); }

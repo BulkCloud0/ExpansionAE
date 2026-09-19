@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_upgrade_base"
+    },
+    {
+      "item": "minecraft:totem_of_undying"
+    },
+    {
+      "item": "appliedenergistics2:64k_cell_component"
+    }
+  ],
+  "result": {
+    "item": "expansionae:hp_buffer_card"
+  }
+}

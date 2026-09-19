@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_upgrade_base"
+    },
+    {
+      "item": "appliedenergistics2:crafting_card"
+    }
+  ],
+  "result": {
+    "item": "expansionae:pick_craft_card"
+  }
+}

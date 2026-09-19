@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PWP",
+    "PNP",
+    "AQA"
+  ],
+  "key": {
+    "P": {
+      "item": "expansionae:quantum_processor"
+    },
+    "W": {
+      "item": "appliedenergistics2:wireless_access_point"
+    },
+    "N": {
+      "item": "minecraft:netherite_helmet"
+    },
+    "A": {
+      "item": "expansionae:quantum_alloy_plate"
+    },
+    "Q": {
+      "item": "expansionae:quantum_storage_component"
+    }
+  },
+  "result": {
+    "item": "expansionae:quantum_helmet"
+  }
+}

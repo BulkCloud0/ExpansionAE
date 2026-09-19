@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_upgrade_base"
+    },
+    {
+      "item": "minecraft:rabbit_hide"
+    },
+    {
+      "item": "appliedenergistics2:speed_card"
+    }
+  ],
+  "result": {
+    "item": "expansionae:evasion_card"
+  }
+}

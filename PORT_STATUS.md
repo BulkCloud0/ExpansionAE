@@ -51,6 +51,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Regras de formação 7×7×7 adaptadas do upstream: vidro estrutural na borda, um Core interno, no máximo um Data Entangler e um Multi-Threader.
 - O cluster continua usando a engine de jobs do AE2 8.4; os contadores de storage/threads são escalados para os valores padrão do AdvancedAE (8 threads, multiplicadores 4×).
 - Quantum Crafter funcional no núcleo item-only do AE2 8.4: 9 padrões de crafting, buffer de 18 saídas, consumo direto do armazenamento ME, retorno automático para a rede e aceleração 1×/8×/16×/32×/64× com Speed Cards. O buffer local garante fallback sem perda quando a inserção na rede falha.
+- Quantum Armor energizada: helmet/chestplate/leggings/boots com capacidades 200M/300M/250M/200M AE, material Quantum Alloy, instalação por cards e núcleo 1.16.5 para voo, respiração aquática, visão noturna, magnet, auto-feed local, regeneração, força, attack-speed, HP buffer, walk/sprint/swim, jump, step assist, evasion, flight drift e proteção contra queda. Todos os 23 cards foram registrados; os dependentes de link ME/GUI ficam preservados mas marcados como integração pendente.
 
 ### Recursos
 - Telas próprias para os containers já adaptados.

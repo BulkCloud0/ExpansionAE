@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_upgrade_base"
+    },
+    {
+      "item": "minecraft:shulker_box"
+    },
+    {
+      "item": "appliedenergistics2:controller"
+    }
+  ],
+  "result": {
+    "item": "expansionae:auto_stock_card"
+  }
+}

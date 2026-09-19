@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_upgrade_base"
+    },
+    {
+      "item": "appliedenergistics2:energy_acceptor"
+    }
+  ],
+  "result": {
+    "item": "expansionae:recharging_card"
+  }
+}

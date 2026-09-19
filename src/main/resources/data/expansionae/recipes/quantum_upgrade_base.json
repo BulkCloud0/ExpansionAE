@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " Q ",
+    "QPQ",
+    " Q "
+  ],
+  "key": {
+    "Q": {
+      "item": "expansionae:quantum_processor"
+    },
+    "P": {
+      "item": "expansionae:quantum_alloy_plate"
+    }
+  },
+  "result": {
+    "item": "expansionae:quantum_upgrade_base"
+  }
+}
