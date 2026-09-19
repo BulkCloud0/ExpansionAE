@@ -21,6 +21,7 @@ import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.ReactionChamberContainer;
 import dev.bulkcloud.expansionae.QuantumCrafterContainer;
+import dev.bulkcloud.expansionae.PortableWorkbenchContainer;
 import dev.bulkcloud.expansionae.CircuitCutterContainer;
 import dev.bulkcloud.expansionae.IngredientBufferContainer;
 import dev.bulkcloud.expansionae.CanerContainer;
@@ -148,6 +149,11 @@ public final class ClientSetup {
             try {
                 return new QuantumCrafterScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_quantum_crafter.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load quantum crafter screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<PortableWorkbenchContainer, PortableWorkbenchScreen>registerFactory(PortableWorkbenchContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new PortableWorkbenchScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/cell_workbench.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load portable workbench screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ExpandedContainer, ExpandedScreen>registerFactory(ExpandedContainer.TYPE, (container, inventory, title) -> {
             try {

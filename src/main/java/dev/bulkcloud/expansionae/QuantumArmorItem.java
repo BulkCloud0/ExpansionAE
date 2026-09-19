@@ -8,6 +8,10 @@ import javax.annotation.Nullable;
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
 import appeng.api.implementations.items.IAEItemPowerStorage;
+import appeng.api.implementations.guiobjects.IGuiItem;
+import appeng.api.implementations.guiobjects.IGuiItemObject;
+import appeng.container.ContainerLocator;
+import appeng.container.ContainerOpener;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -18,10 +22,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerStorage {
+public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerStorage, IGuiItem {
     private static final String POWER = "ExpansionAEQuantumPower";
     private static final String UPGRADES = "ExpansionAEQuantumUpgrades";
     private final double capacity;
@@ -29,6 +37,26 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
     public QuantumArmorItem(EquipmentSlotType slot, double capacity, Item.Properties properties) {
         super(QuantumArmorMaterial.QUANTUM_ALLOY, slot, properties.maxStackSize(1).rarity(Rarity.EPIC));
         this.capacity = capacity;
+    }
+
+    @Override
+    public IGuiItemObject getGuiObject(ItemStack stack, int playerInventorySlot, World world, @Nullable BlockPos pos) {
+        if (slot == EquipmentSlotType.HEAD && hasUpgrade(stack, QuantumUpgradeType.WORKBENCH)) {
+            return new PortableWorkbenchGuiObject(stack, world.isRemote);
+        }
+        return null;
+    }
+
+    @Override
+    public ActionResult<ItemStack> onItemRightClick(World world, net.minecraft.entity.player.PlayerEntity player, Hand hand) {
+        ItemStack stack = player.getHeldItem(hand);
+        if (slot == EquipmentSlotType.HEAD && hasUpgrade(stack, QuantumUpgradeType.WORKBENCH)) {
+            if (!world.isRemote) {
+                ContainerOpener.openContainer(PortableWorkbenchContainer.TYPE, player, ContainerLocator.forHand(player, hand));
+            }
+            return new ActionResult<ItemStack>(ActionResultType.func_233537_a_(world.isRemote), stack);
+        }
+        return new ActionResult<ItemStack>(ActionResultType.PASS, stack);
     }
 
     public boolean canInstall(QuantumUpgradeType type) {

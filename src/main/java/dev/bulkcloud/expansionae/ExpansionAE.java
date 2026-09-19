@@ -522,6 +522,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
         event.getRegistry().register(ReactionChamberContainer.TYPE);
         event.getRegistry().register(QuantumCrafterContainer.TYPE);
+        event.getRegistry().register(PortableWorkbenchContainer.TYPE);
         event.getRegistry().register(CircuitCutterContainer.TYPE);
         event.getRegistry().register(IngredientBufferContainer.TYPE);
         event.getRegistry().register(CanerContainer.TYPE);

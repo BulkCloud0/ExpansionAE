@@ -15,6 +15,7 @@ import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.InfinityCellHandler;
 import dev.bulkcloud.expansionae.QuantumArmorItem;
 import dev.bulkcloud.expansionae.QuantumUpgradeType;
+import dev.bulkcloud.expansionae.PortableWorkbenchGuiObject;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -67,6 +68,11 @@ public final class ClientSmokeTest {
                 "quantum armor capacity");
         check(quantumHelmet.canInstall(QuantumUpgradeType.WATER_BREATHING),
                 "quantum helmet water-breathing upgrade");
+        ItemStack portableHelmet = new ItemStack(ExpansionAE.QUANTUM_HELMET.get());
+        quantumHelmet.installUpgrade(portableHelmet, QuantumUpgradeType.WORKBENCH);
+        PortableWorkbenchGuiObject portableWorkbench = new PortableWorkbenchGuiObject(portableHelmet, true);
+        check(portableWorkbench.getInventoryByName("config").getSlots() == 63,
+                "portable workbench config slots");
         for (Item item : new Item[]{ExpansionAE.PROVIDER_PART.get(), ExpansionAE.INTERFACE_PART.get(),
                 ExpansionAE.ADV_PROVIDER_PART.get(), ExpansionAE.SMALL_ADV_PROVIDER_PART.get()}) {
             ExpandedInterfacePart part = (ExpandedInterfacePart) ((IPartItem<?>) item).createPart(new ItemStack(item));
