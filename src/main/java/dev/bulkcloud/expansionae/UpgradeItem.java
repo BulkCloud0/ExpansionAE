@@ -37,7 +37,8 @@ public final class UpgradeItem extends Item {
         PATTERN_PROVIDER,
         IO_BUS,
         PATTERN_TERMINAL,
-        DRIVE
+        DRIVE,
+        ADV_PATTERN_CAPACITY
     }
 
     private final Target target;
@@ -78,7 +79,7 @@ public final class UpgradeItem extends Item {
             return ActionResultType.SUCCESS;
         }
 
-        Block targetBlock = getBlockTarget(tile);
+        Block targetBlock = getBlockTarget(world, pos, tile);
         if (targetBlock == null) {
             return ActionResultType.PASS;
         }
@@ -112,12 +113,16 @@ public final class UpgradeItem extends Item {
                 return null;
             case PATTERN_TERMINAL:
                 return part.getClass() == InterfaceTerminalPart.class ? ExpansionAE.PATTERN_TERMINAL.get() : null;
+            case ADV_PATTERN_CAPACITY:
+                return part instanceof ExpandedInterfacePart
+                        && part.getItemStack(PartItemStack.NETWORK).getItem() == ExpansionAE.SMALL_ADV_PROVIDER_PART.get()
+                        ? ExpansionAE.ADV_PROVIDER_PART.get() : null;
             default:
                 return null;
         }
     }
 
-    private Block getBlockTarget(TileEntity tile) {
+    private Block getBlockTarget(World world, BlockPos pos, TileEntity tile) {
         switch (target) {
             case INTERFACE:
                 return tile.getClass() == InterfaceTileEntity.class ? ExpansionAE.INTERFACE.get() : null;
@@ -125,6 +130,9 @@ public final class UpgradeItem extends Item {
                 return tile.getClass() == InterfaceTileEntity.class ? ExpansionAE.PROVIDER.get() : null;
             case DRIVE:
                 return tile.getClass() == DriveTileEntity.class ? ExpansionAE.EX_DRIVE.get() : null;
+            case ADV_PATTERN_CAPACITY:
+                return world.getBlockState(pos).getBlock() == ExpansionAE.SMALL_ADV_PROVIDER.get()
+                        ? ExpansionAE.ADV_PROVIDER.get() : null;
             default:
                 return null;
         }
