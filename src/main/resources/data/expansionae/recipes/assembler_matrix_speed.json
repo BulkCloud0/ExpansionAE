@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["SAS","AWA","SAS"],"key":{"S":{"item":"appliedenergistics2:speed_card"},"A":{"item":"appliedenergistics2:calculation_processor"},"W":{"item":"expansionae:assembler_matrix_wall"}},"result":{"item":"expansionae:assembler_matrix_speed","count":1}}

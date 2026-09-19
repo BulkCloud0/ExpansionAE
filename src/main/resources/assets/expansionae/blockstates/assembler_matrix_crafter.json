@@ -1,0 +1,1 @@
+{"variants":{"formed=false,powered=false":{"model":"expansionae:block/assembler_matrix_crafter"},"formed=false,powered=true":{"model":"expansionae:block/assembler_matrix_crafter"},"formed=true,powered=false":{"model":"expansionae:block/assembler_matrix_crafter"},"formed=true,powered=true":{"model":"expansionae:block/assembler_matrix_crafter"}}}

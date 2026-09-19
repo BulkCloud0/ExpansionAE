@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["FFF","FIF","FFF"],"key":{"F":{"item":"expansionae:assembler_matrix_frame"},"I":{"item":"minecraft:iron_ingot"}},"result":{"item":"expansionae:assembler_matrix_wall","count":8}}

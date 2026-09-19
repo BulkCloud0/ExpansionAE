@@ -1,0 +1,1 @@
+{"type":"minecraft:crafting_shaped","pattern":["PIP","IWI","PIP"],"key":{"P":{"item":"appliedenergistics2:logic_processor"},"I":{"item":"appliedenergistics2:interface"},"W":{"item":"expansionae:assembler_matrix_wall"}},"result":{"item":"expansionae:assembler_matrix_pattern","count":1}}

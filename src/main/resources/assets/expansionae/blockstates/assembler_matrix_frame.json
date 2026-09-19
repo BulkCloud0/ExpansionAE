@@ -1,0 +1,1 @@
+{"variants":{"formed=false,powered=false":{"model":"expansionae:block/assembler_matrix_frame"},"formed=false,powered=true":{"model":"expansionae:block/assembler_matrix_frame"},"formed=true,powered=false":{"model":"expansionae:block/assembler_matrix_frame"},"formed=true,powered=true":{"model":"expansionae:block/assembler_matrix_frame"}}}
