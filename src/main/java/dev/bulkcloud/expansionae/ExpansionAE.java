@@ -331,6 +331,18 @@ public final class ExpansionAE {
             () -> TileEntityType.Builder.create(ExpansionAE::newExpandedCharger, EX_CHARGER.get()).build(null));
     public static final RegistryObject<Item> EX_CHARGER_ITEM = ITEMS.register("ex_charger",
             () -> new BlockItem(EX_CHARGER.get(), props()));
+
+    // ExtendedAE Crystal Fixer, semantically adapted to AE2 8.4 crystal seeds.
+    public static final RegistryObject<CrystalFixerBlock> CRYSTAL_FIXER = BLOCKS.register("crystal_fixer", () -> {
+        CrystalFixerBlock block = new CrystalFixerBlock();
+        block.setTileEntity(CrystalFixerTile.class, ExpansionAE::newCrystalFixer);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<CrystalFixerTile>> CRYSTAL_FIXER_TILE =
+            TILES.register("crystal_fixer", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newCrystalFixer, CRYSTAL_FIXER.get()).build(null));
+    public static final RegistryObject<Item> CRYSTAL_FIXER_ITEM = ITEMS.register("crystal_fixer",
+            () -> new BlockItem(CRYSTAL_FIXER.get(), props()));
     public static final RegistryObject<ExpandedInscriberBlock> EX_INSCRIBER = BLOCKS.register("ex_inscriber", () -> {
         ExpandedInscriberBlock block = new ExpandedInscriberBlock();
         block.setTileEntity(ExpandedInscriberTile.class, ExpansionAE::newExpandedInscriber);
@@ -416,6 +428,7 @@ public final class ExpansionAE {
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
     private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
+    private static CrystalFixerTile newCrystalFixer() { return new CrystalFixerTile(CRYSTAL_FIXER_TILE.get()); }
     private static ExpandedInscriberTile newExpandedInscriber() { return new ExpandedInscriberTile(EX_INSCRIBER_TILE.get()); }
     private static ExpandedMolecularAssemblerTile newExpandedAssembler() {
         return new ExpandedMolecularAssemblerTile(EX_ASSEMBLER_TILE.get());

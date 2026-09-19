@@ -78,6 +78,7 @@
   "gui.expansionae.threshold_level.upper": "Upper",
   "gui.expansionae.threshold_level.lower": "Lower",
   "block.expansionae.ex_charger": "Extended Charger",
+  "block.expansionae.crystal_fixer": "ME Crystal Fixer",
   "block.expansionae.ex_inscriber": "Extended Inscriber",
   "gui.expansionae.ex_inscriber.page": "Process %s/%s",
   "block.expansionae.ex_molecular_assembler": "Extended Molecular Assembler",

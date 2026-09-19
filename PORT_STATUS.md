@@ -17,6 +17,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Expanded Drive.
 - Expanded IO Port.
 - Expanded Charger.
+- ME Crystal Fixer adaptado ao sistema antigo de Crystal Seeds do AE2 8.4: cresce seeds diretamente, consumindo energia ME e Charged Certus como catalisador (1 cristal por 100 passos de crescimento).
 - Expanded Inscriber.
 - Expanded Molecular Assembler.
 - Circuit Slicer / Circuit Cutter, com receitas de blocos para prints, Speed Cards, tanque opcional, energia AE e auto-export.
@@ -63,7 +64,6 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 
 ### ExtendedAE
 - Terminais wireless estendidos. O Wireless Connector 1:1, Wireless Hub 1:N de 8 portas, a ferramenta básica de pareamento e a ferramenta avançada com fila já estão portados.
-- Crystal Fixer. O original depende do sistema moderno de budding quartz, inexistente no AE2 8.4; requer redesign/backport da mecânica.
 - Assembler Matrix multiblock.
 - Expanded Crafting Terminal e variantes wireless.
 - Paridade específica do Oversize Interface além da adaptação item-only já coberta pelo Expanded Interface.

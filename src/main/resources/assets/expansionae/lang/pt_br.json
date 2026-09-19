@@ -78,6 +78,7 @@
   "gui.expansionae.threshold_level.upper": "Superior",
   "gui.expansionae.threshold_level.lower": "Inferior",
   "block.expansionae.ex_charger": "Carregador Estendido",
+  "block.expansionae.crystal_fixer": "Reparador de Cristais ME",
   "block.expansionae.ex_inscriber": "Prensa Estendida",
   "gui.expansionae.ex_inscriber.page": "Processo %s/%s",
   "block.expansionae.ex_molecular_assembler": "Montador Molecular Estendido",
