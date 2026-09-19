@@ -125,5 +125,9 @@
   "chat.expansionae.wireless_advanced_full": "Wireless queue is full (%s)",
   "chat.expansionae.wireless_advanced_queued": "Queued link %s at %s, %s, %s",
   "chat.expansionae.wireless_advanced_empty": "Wireless queue is empty",
-  "chat.expansionae.wireless_advanced_connected": "Connected to %s, %s, %s; %s links remain"
+  "chat.expansionae.wireless_advanced_connected": "Connected to %s, %s, %s; %s links remain",
+  "block.expansionae.quantum_alloy_block": "Quantum Alloy Block",
+  "block.expansionae.quantum_alloy_stairs": "Quantum Alloy Stairs",
+  "block.expansionae.quantum_alloy_slab": "Quantum Alloy Slab",
+  "block.expansionae.quantum_alloy_wall": "Quantum Alloy Wall"
 }
