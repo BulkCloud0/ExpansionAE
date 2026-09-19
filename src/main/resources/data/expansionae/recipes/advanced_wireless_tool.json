@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EFE",
+    "FTF",
+    "EFE"
+  ],
+  "key": {
+    "E": { "item": "minecraft:ender_pearl" },
+    "F": { "item": "appliedenergistics2:fluix_crystal" },
+    "T": { "item": "expansionae:wireless_tool" }
+  },
+  "result": {
+    "item": "expansionae:advanced_wireless_tool"
+  }
+}
