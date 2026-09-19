@@ -13,6 +13,8 @@ import dev.bulkcloud.expansionae.ExpandedInterfacePart;
 import dev.bulkcloud.expansionae.ExpandedInterfaceTile;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.InfinityCellHandler;
+import dev.bulkcloud.expansionae.QuantumArmorItem;
+import dev.bulkcloud.expansionae.QuantumUpgradeType;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
