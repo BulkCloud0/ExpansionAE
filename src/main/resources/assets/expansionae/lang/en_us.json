@@ -129,5 +129,7 @@
   "block.expansionae.quantum_alloy_block": "Quantum Alloy Block",
   "block.expansionae.quantum_alloy_stairs": "Quantum Alloy Stairs",
   "block.expansionae.quantum_alloy_slab": "Quantum Alloy Slab",
-  "block.expansionae.quantum_alloy_wall": "Quantum Alloy Wall"
+  "block.expansionae.quantum_alloy_wall": "Quantum Alloy Wall",
+  "block.expansionae.quantum_crafter": "Quantum Crafter",
+  "gui.expansionae.quantum_crafter": "Quantum Crafter"
 }

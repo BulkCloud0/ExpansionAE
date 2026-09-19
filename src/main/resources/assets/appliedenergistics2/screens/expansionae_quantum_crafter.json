@@ -1,0 +1,11 @@
+{
+  "includes": ["common/common.json", "common/player_inventory.json"],
+  "background": {"texture": "guis/interface.png", "textureWidth": 512, "textureHeight": 512, "srcRect": [0, 0, 352, 228]},
+  "slots": {
+    "ENCODED_PATTERN": {"left": 8, "top": 30, "grid": "BREAK_AFTER_3COLS"},
+    "MACHINE_OUTPUT": {"left": 96, "top": 30, "grid": "BREAK_AFTER_6COLS"},
+    "PLAYER_INVENTORY": {"left": 96, "bottom": 82, "grid": "BREAK_AFTER_9COLS"},
+    "PLAYER_HOTBAR": {"left": 96, "bottom": 24, "grid": "HORIZONTAL"}
+  },
+  "text": {"dialog_title": {"text": {"translate": "gui.expansionae.quantum_crafter"}, "position": {"left": 8, "top": 6}}}
+}

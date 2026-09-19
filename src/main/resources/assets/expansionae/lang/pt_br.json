@@ -129,5 +129,7 @@
   "block.expansionae.quantum_alloy_block": "Bloco de Liga Quântica",
   "block.expansionae.quantum_alloy_stairs": "Escadas de Liga Quântica",
   "block.expansionae.quantum_alloy_slab": "Laje de Liga Quântica",
-  "block.expansionae.quantum_alloy_wall": "Muro de Liga Quântica"
+  "block.expansionae.quantum_alloy_wall": "Muro de Liga Quântica",
+  "block.expansionae.quantum_crafter": "Fabricador Quântico",
+  "gui.expansionae.quantum_crafter": "Fabricador Quântico"
 }

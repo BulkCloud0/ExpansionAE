@@ -190,6 +190,18 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> REACTION_CHAMBER_ITEM = ITEMS.register("reaction_chamber",
             () -> new BlockItem(REACTION_CHAMBER.get(), props()));
 
+    // AdvancedAE Quantum Crafter, adapted to AE2 8.4's item crafting-pattern API.
+    public static final RegistryObject<QuantumCrafterBlock> QUANTUM_CRAFTER = BLOCKS.register("quantum_crafter", () -> {
+        QuantumCrafterBlock block = new QuantumCrafterBlock();
+        block.setTileEntity(QuantumCrafterTile.class, ExpansionAE::newQuantumCrafter);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<QuantumCrafterTile>> QUANTUM_CRAFTER_TILE =
+            TILES.register("quantum_crafter", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newQuantumCrafter, QUANTUM_CRAFTER.get()).build(null));
+    public static final RegistryObject<Item> QUANTUM_CRAFTER_ITEM = ITEMS.register("quantum_crafter",
+            () -> new BlockItem(QUANTUM_CRAFTER.get(), props()));
+
     // ExtendedAE Circuit Slicer / Circuit Cutter.
     public static final RegistryObject<CircuitCutterBlock> CIRCUIT_CUTTER = BLOCKS.register("circuit_cutter", () -> {
         CircuitCutterBlock block = new CircuitCutterBlock();
@@ -379,6 +391,10 @@ public final class ExpansionAE {
         return new ReactionChamberTile(REACTION_CHAMBER_TILE.get());
     }
 
+    private static QuantumCrafterTile newQuantumCrafter() {
+        return new QuantumCrafterTile(QUANTUM_CRAFTER_TILE.get());
+    }
+
     private static CircuitCutterTile newCircuitCutter() {
         return new CircuitCutterTile(CIRCUIT_CUTTER_TILE.get());
     }
@@ -465,6 +481,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
         event.getRegistry().register(ReactionChamberContainer.TYPE);
+        event.getRegistry().register(QuantumCrafterContainer.TYPE);
         event.getRegistry().register(CircuitCutterContainer.TYPE);
         event.getRegistry().register(IngredientBufferContainer.TYPE);
         event.getRegistry().register(CanerContainer.TYPE);
@@ -527,6 +544,7 @@ public final class ExpansionAE {
             Upgrades.SPEED.registerItem(EX_IO_PORT_ITEM.get(), 5);
             Upgrades.REDSTONE.registerItem(EX_IO_PORT_ITEM.get(), 1);
             Upgrades.SPEED.registerItem(REACTION_CHAMBER_ITEM.get(), 4);
+            Upgrades.SPEED.registerItem(QUANTUM_CRAFTER_ITEM.get(), 4);
             Upgrades.SPEED.registerItem(CIRCUIT_CUTTER_ITEM.get(), 4);
         });
     }

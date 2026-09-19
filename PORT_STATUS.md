@@ -50,6 +50,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Quantum Computer / Advanced Crafting CPU com Core, 128M/256M Storage, Accelerator, Data Entangler, Multi-Threader, Unit e Structural Glass.
 - Regras de formação 7×7×7 adaptadas do upstream: vidro estrutural na borda, um Core interno, no máximo um Data Entangler e um Multi-Threader.
 - O cluster continua usando a engine de jobs do AE2 8.4; os contadores de storage/threads são escalados para os valores padrão do AdvancedAE (8 threads, multiplicadores 4×).
+- Quantum Crafter funcional no núcleo item-only do AE2 8.4: 9 padrões de crafting, buffer de 18 saídas, consumo direto do armazenamento ME, retorno automático para a rede e aceleração 1×/8×/16×/32×/64× com Speed Cards. O buffer local garante fallback sem perda quando a inserção na rede falha.
 
 ### Recursos
 - Telas próprias para os containers já adaptados.
@@ -67,7 +68,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 
 ### AdvancedAE
-- Quantum Crafter, terminal e terminal wireless.
+- Quantum Crafter: configuração avançada por padrão (estoque mínimo/máximo), seleção direcional e integração ao terminal; o núcleo da máquina já está portado. Terminal e terminal wireless continuam pendentes.
 - Quantum Armor, upgrades, energia, filtros e telas de configuração.
 - Portable Workbench e utilitários associados.
 - Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos.

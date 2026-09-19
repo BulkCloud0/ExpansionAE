@@ -56,6 +56,10 @@ public final class ClientSmokeTest {
                 "ingredient buffer fluid slots");
         check(ExpansionAE.CANER_TILE.get().create().getFluidHandler().getTankCapacity(0) == 64000,
                 "caner fluid capacity");
+        check(ExpansionAE.QUANTUM_CRAFTER_TILE.get().create().getPatternInventory().getSlots() == 9,
+                "quantum crafter pattern slots");
+        check(ExpansionAE.QUANTUM_CRAFTER_TILE.get().create().getOutputInventory().getSlots() == 18,
+                "quantum crafter output slots");
         for (Item item : new Item[]{ExpansionAE.PROVIDER_PART.get(), ExpansionAE.INTERFACE_PART.get(),
                 ExpansionAE.ADV_PROVIDER_PART.get(), ExpansionAE.SMALL_ADV_PROVIDER_PART.get()}) {
             ExpandedInterfacePart part = (ExpandedInterfacePart) ((IPartItem<?>) item).createPart(new ItemStack(item));

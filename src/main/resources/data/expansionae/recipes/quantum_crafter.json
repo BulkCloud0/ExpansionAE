@@ -1,0 +1,11 @@
+{
+  "type":"minecraft:crafting_shaped",
+  "pattern":["SAS","KUK","SAS"],
+  "key":{
+    "S":{"item":"expansionae:shattered_singularity"},
+    "A":{"item":"expansionae:quantum_accelerator"},
+    "K":{"item":"appliedenergistics2:64k_cell_component"},
+    "U":{"item":"expansionae:quantum_unit"}
+  },
+  "result":{"item":"expansionae:quantum_crafter"}
+}
