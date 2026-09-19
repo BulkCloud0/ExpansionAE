@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "expansionae:quantum_alloy_block"
+    }
+  ],
+  "result": {
+    "item": "expansionae:quantum_alloy",
+    "count": 9
+  }
+}
