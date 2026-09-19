@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "WWW",
+    "WQW",
+    "WWW"
+  ],
+  "key": {
+    "W": { "item": "expansionae:wireless_connector" },
+    "Q": { "item": "appliedenergistics2:quantum_ring" }
+  },
+  "result": {
+    "item": "expansionae:wireless_hub"
+  }
+}
