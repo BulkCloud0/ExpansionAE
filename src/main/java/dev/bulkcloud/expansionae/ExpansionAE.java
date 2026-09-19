@@ -6,6 +6,9 @@ import appeng.items.parts.PartItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.FlowingFluidBlock;
+import net.minecraft.block.SlabBlock;
+import net.minecraft.block.StairsBlock;
+import net.minecraft.block.WallBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.fluid.FlowingFluid;
 import net.minecraft.inventory.container.ContainerType;
@@ -132,6 +135,25 @@ public final class ExpansionAE {
             () -> new Item(props()));
     public static final RegistryObject<Item> QUANTUM_STORAGE_COMPONENT = ITEMS.register("quantum_storage_component",
             () -> new Item(props()));
+
+    public static final RegistryObject<Block> QUANTUM_ALLOY_BLOCK = BLOCKS.register("quantum_alloy_block",
+            () -> new Block(AbstractBlock.Properties.create(Material.IRON)
+                    .hardnessAndResistance(25.0F, 150.0F)));
+    public static final RegistryObject<Item> QUANTUM_ALLOY_BLOCK_ITEM = ITEMS.register("quantum_alloy_block",
+            () -> new BlockItem(QUANTUM_ALLOY_BLOCK.get(), props()));
+    public static final RegistryObject<StairsBlock> QUANTUM_ALLOY_STAIRS = BLOCKS.register("quantum_alloy_stairs",
+            () -> new StairsBlock(() -> QUANTUM_ALLOY_BLOCK.get().getDefaultState(),
+                    AbstractBlock.Properties.from(QUANTUM_ALLOY_BLOCK.get())));
+    public static final RegistryObject<Item> QUANTUM_ALLOY_STAIRS_ITEM = ITEMS.register("quantum_alloy_stairs",
+            () -> new BlockItem(QUANTUM_ALLOY_STAIRS.get(), props()));
+    public static final RegistryObject<SlabBlock> QUANTUM_ALLOY_SLAB = BLOCKS.register("quantum_alloy_slab",
+            () -> new SlabBlock(AbstractBlock.Properties.from(QUANTUM_ALLOY_BLOCK.get())));
+    public static final RegistryObject<Item> QUANTUM_ALLOY_SLAB_ITEM = ITEMS.register("quantum_alloy_slab",
+            () -> new BlockItem(QUANTUM_ALLOY_SLAB.get(), props()));
+    public static final RegistryObject<WallBlock> QUANTUM_ALLOY_WALL = BLOCKS.register("quantum_alloy_wall",
+            () -> new WallBlock(AbstractBlock.Properties.from(QUANTUM_ALLOY_BLOCK.get())));
+    public static final RegistryObject<Item> QUANTUM_ALLOY_WALL_ITEM = ITEMS.register("quantum_alloy_wall",
+            () -> new BlockItem(QUANTUM_ALLOY_WALL.get(), props()));
 
     // ExtendedAE silicon block used by the Circuit Slicer's high-throughput silicon recipe.
     public static final RegistryObject<Block> SILICON_BLOCK = BLOCKS.register("silicon_block",
