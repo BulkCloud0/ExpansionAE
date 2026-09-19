@@ -4,6 +4,7 @@ import java.io.IOException;
 import appeng.client.gui.style.StyleManager;
 import dev.bulkcloud.expansionae.ExpansionAE;
 import dev.bulkcloud.expansionae.AdvancedIOBusContainer;
+import dev.bulkcloud.expansionae.AssemblerMatrixPatternContainer;
 import dev.bulkcloud.expansionae.ThresholdExportBusContainer;
 import dev.bulkcloud.expansionae.PreciseExportBusContainer;
 import dev.bulkcloud.expansionae.ModExportBusContainer;
@@ -42,6 +43,11 @@ public final class ClientSetup {
         ExpansionNetwork.clientReceiver = ClientPackets::receive;
         net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
                 QuantumArmorKeyHandler.PORTABLE_WORKBENCH);
+        event.enqueueWork(() -> ScreenManager.<AssemblerMatrixPatternContainer, AssemblerMatrixPatternScreen>registerFactory(AssemblerMatrixPatternContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new AssemblerMatrixPatternScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_matrix_pattern.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load assembler matrix pattern screen", e); }
+        }));
         event.enqueueWork(() -> ScreenManager.<ExpandedTerminalContainer, ExpandedTerminalScreen>registerFactory(ExpandedTerminalContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new ExpandedTerminalScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_terminal.json"));

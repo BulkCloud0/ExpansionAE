@@ -343,6 +343,38 @@ public final class ExpansionAE {
                     .create(ExpansionAE::newCrystalFixer, CRYSTAL_FIXER.get()).build(null));
     public static final RegistryObject<Item> CRYSTAL_FIXER_ITEM = ITEMS.register("crystal_fixer",
             () -> new BlockItem(CRYSTAL_FIXER.get(), props()));
+
+    // ExtendedAE Assembler Matrix multiblock.
+    public static final RegistryObject<AssemblerMatrixBlock> ASSEMBLER_MATRIX_FRAME =
+            BLOCKS.register("assembler_matrix_frame", () -> matrixBlock(AssemblerMatrixBlock.Kind.FRAME));
+    public static final RegistryObject<AssemblerMatrixBlock> ASSEMBLER_MATRIX_WALL =
+            BLOCKS.register("assembler_matrix_wall", () -> matrixBlock(AssemblerMatrixBlock.Kind.WALL));
+    public static final RegistryObject<AssemblerMatrixBlock> ASSEMBLER_MATRIX_GLASS =
+            BLOCKS.register("assembler_matrix_glass", () -> matrixBlock(AssemblerMatrixBlock.Kind.GLASS));
+    public static final RegistryObject<AssemblerMatrixBlock> ASSEMBLER_MATRIX_PATTERN =
+            BLOCKS.register("assembler_matrix_pattern", () -> matrixBlock(AssemblerMatrixBlock.Kind.PATTERN));
+    public static final RegistryObject<AssemblerMatrixBlock> ASSEMBLER_MATRIX_CRAFTER =
+            BLOCKS.register("assembler_matrix_crafter", () -> matrixBlock(AssemblerMatrixBlock.Kind.CRAFTER));
+    public static final RegistryObject<AssemblerMatrixBlock> ASSEMBLER_MATRIX_SPEED =
+            BLOCKS.register("assembler_matrix_speed", () -> matrixBlock(AssemblerMatrixBlock.Kind.SPEED));
+    public static final RegistryObject<TileEntityType<AssemblerMatrixTile>> ASSEMBLER_MATRIX_TILE =
+            TILES.register("assembler_matrix", () -> TileEntityType.Builder.create(
+                    ExpansionAE::newAssemblerMatrix,
+                    ASSEMBLER_MATRIX_FRAME.get(), ASSEMBLER_MATRIX_WALL.get(), ASSEMBLER_MATRIX_GLASS.get(),
+                    ASSEMBLER_MATRIX_PATTERN.get(), ASSEMBLER_MATRIX_CRAFTER.get(), ASSEMBLER_MATRIX_SPEED.get())
+                    .build(null));
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_FRAME_ITEM = ITEMS.register("assembler_matrix_frame",
+            () -> new BlockItem(ASSEMBLER_MATRIX_FRAME.get(), props()));
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_WALL_ITEM = ITEMS.register("assembler_matrix_wall",
+            () -> new BlockItem(ASSEMBLER_MATRIX_WALL.get(), props()));
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_GLASS_ITEM = ITEMS.register("assembler_matrix_glass",
+            () -> new BlockItem(ASSEMBLER_MATRIX_GLASS.get(), props()));
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_PATTERN_ITEM = ITEMS.register("assembler_matrix_pattern",
+            () -> new BlockItem(ASSEMBLER_MATRIX_PATTERN.get(), props()));
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_CRAFTER_ITEM = ITEMS.register("assembler_matrix_crafter",
+            () -> new BlockItem(ASSEMBLER_MATRIX_CRAFTER.get(), props()));
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_SPEED_ITEM = ITEMS.register("assembler_matrix_speed",
+            () -> new BlockItem(ASSEMBLER_MATRIX_SPEED.get(), props()));
     public static final RegistryObject<ExpandedInscriberBlock> EX_INSCRIBER = BLOCKS.register("ex_inscriber", () -> {
         ExpandedInscriberBlock block = new ExpandedInscriberBlock();
         block.setTileEntity(ExpandedInscriberTile.class, ExpansionAE::newExpandedInscriber);
@@ -431,6 +463,7 @@ public final class ExpansionAE {
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
     private static ExpandedChargerTile newExpandedCharger() { return new ExpandedChargerTile(EX_CHARGER_TILE.get()); }
     private static CrystalFixerTile newCrystalFixer() { return new CrystalFixerTile(CRYSTAL_FIXER_TILE.get()); }
+    private static AssemblerMatrixTile newAssemblerMatrix() { return new AssemblerMatrixTile(ASSEMBLER_MATRIX_TILE.get()); }
     private static ExpandedInscriberTile newExpandedInscriber() { return new ExpandedInscriberTile(EX_INSCRIBER_TILE.get()); }
     private static ExpandedMolecularAssemblerTile newExpandedAssembler() {
         return new ExpandedMolecularAssemblerTile(EX_ASSEMBLER_TILE.get());
@@ -464,6 +497,12 @@ public final class ExpansionAE {
 
     private static WirelessHubTile newWirelessHub() {
         return new WirelessHubTile(WIRELESS_HUB_TILE.get());
+    }
+
+    private static AssemblerMatrixBlock matrixBlock(AssemblerMatrixBlock.Kind kind) {
+        AssemblerMatrixBlock block = new AssemblerMatrixBlock(kind);
+        block.setTileEntity(AssemblerMatrixTile.class, ExpansionAE::newAssemblerMatrix);
+        return block;
     }
 
     private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
@@ -520,6 +559,7 @@ public final class ExpansionAE {
     }
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().register(ExpandedContainer.TYPE);
+        event.getRegistry().register(AssemblerMatrixPatternContainer.TYPE);
         event.getRegistry().register(PatternEncoderContainer.TYPE);
         event.getRegistry().register(PatternModifierContainer.TYPE);
         event.getRegistry().register(StockExportBusContainer.TYPE);
