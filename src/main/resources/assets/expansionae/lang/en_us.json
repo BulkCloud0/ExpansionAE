@@ -102,5 +102,14 @@
   "block.expansionae.caner": "ME Canner",
   "gui.expansionae.caner.fill": "Mode: FILL",
   "gui.expansionae.caner.empty": "Mode: EMPTY",
-  "gui.expansionae.caner.fluid": "Stored fluid: %s mB"
+  "gui.expansionae.caner.fluid": "Stored fluid: %s mB",
+  "block.expansionae.wireless_connector": "Wireless Connector",
+  "item.expansionae.wireless_tool": "Wireless Connector Tool",
+  "tooltip.expansionae.wireless_tool.bound": "Bound to %s, %s, %s",
+  "tooltip.expansionae.wireless_tool.unbound": "Use on a Wireless Connector to start pairing",
+  "chat.expansionae.wireless_bound": "Wireless Connector bound at %s, %s, %s",
+  "chat.expansionae.wireless_cross_dimension": "Wireless Connectors must be in the same dimension",
+  "chat.expansionae.wireless_same_connector": "Select a different Wireless Connector",
+  "chat.expansionae.wireless_out_of_range": "Wireless Connector is farther than %s blocks",
+  "chat.expansionae.wireless_linked": "Wireless Connector linked to %s, %s, %s"
 }
