@@ -40,6 +40,8 @@ public final class ClientSetup {
     private ClientSetup() { }
     @SubscribeEvent public static void setup(FMLClientSetupEvent event) {
         ExpansionNetwork.clientReceiver = ClientPackets::receive;
+        net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
+                QuantumArmorKeyHandler.PORTABLE_WORKBENCH);
         event.enqueueWork(() -> ScreenManager.<ExpandedTerminalContainer, ExpandedTerminalScreen>registerFactory(ExpandedTerminalContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new ExpandedTerminalScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_terminal.json"));

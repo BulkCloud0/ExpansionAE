@@ -32,6 +32,9 @@ public final class ExpansionNetwork {
         CHANNEL.registerMessage(4, PortableWorkbenchAction.class,
                 PortableWorkbenchAction::encode, PortableWorkbenchAction::decode,
                 PortableWorkbenchAction::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(5, OpenQuantumArmorMenu.class,
+                OpenQuantumArmorMenu::encode, OpenQuantumArmorMenu::decode,
+                OpenQuantumArmorMenu::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
     public static void send(ServerPlayerEntity player, TerminalUpdate update) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), update);
@@ -46,6 +49,9 @@ public final class ExpansionNetwork {
         CHANNEL.sendToServer(update);
     }
     public static void sendToServer(PortableWorkbenchAction update) {
+        CHANNEL.sendToServer(update);
+    }
+    public static void sendToServer(OpenQuantumArmorMenu update) {
         CHANNEL.sendToServer(update);
     }
     private ExpansionNetwork() { }

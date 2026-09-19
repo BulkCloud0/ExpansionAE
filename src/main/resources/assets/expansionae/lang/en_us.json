@@ -159,5 +159,7 @@
   "item.expansionae.flight_drift_card": "No Flight Drift Card",
   "item.expansionae.recharging_card": "ME Recharging Card",
   "item.expansionae.portable_workbench_card": "Portable Workbench Card",
-  "item.expansionae.pick_craft_card": "Pick-Craft Card"
+  "item.expansionae.pick_craft_card": "Pick-Craft Card",
+  "key.expansionae.portable_workbench": "Open Quantum Portable Workbench",
+  "key.categories.expansionae": "ExpansionAE"
 }

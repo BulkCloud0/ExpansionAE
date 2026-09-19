@@ -52,7 +52,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - O cluster continua usando a engine de jobs do AE2 8.4; os contadores de storage/threads são escalados para os valores padrão do AdvancedAE (8 threads, multiplicadores 4×).
 - Quantum Crafter funcional no núcleo item-only do AE2 8.4: 9 padrões de crafting, buffer de 18 saídas, consumo direto do armazenamento ME, retorno automático para a rede e aceleração 1×/8×/16×/32×/64× com Speed Cards. O buffer local garante fallback sem perda quando a inserção na rede falha.
 - Quantum Armor energizada: helmet/chestplate/leggings/boots com capacidades 200M/300M/250M/200M AE, material Quantum Alloy, instalação por cards e núcleo 1.16.5 para voo, respiração aquática, visão noturna, magnet, auto-feed local, regeneração, força, attack-speed, HP buffer, walk/sprint/swim, jump, step assist, evasion, flight drift e proteção contra queda. Todos os 23 cards foram registrados; os dependentes de link ME/GUI ficam preservados mas marcados como integração pendente.
-- Portable Workbench funcional no capacete com card instalado: host persistente em NBT, 1 célula editável, 63 filtros, até 24 upgrades da célula, fuzzy mode, partition, clear e copy mode. Em 1.16.5 ele abre ao segurar o capacete e clicar com o botão direito; o hotkey enquanto equipado ainda está pendente.
+- Portable Workbench funcional no capacete com card instalado: host persistente em NBT, 1 célula editável, 63 filtros, até 24 upgrades da célula, fuzzy mode, partition, clear e copy mode. Pode abrir ao segurar o capacete ou pelo keybind configurável diretamente enquanto ele está equipado.
 
 ### Recursos
 - Telas próprias para os containers já adaptados.
