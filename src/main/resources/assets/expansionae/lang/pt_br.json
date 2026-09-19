@@ -102,5 +102,14 @@
   "block.expansionae.caner": "Enlatadora ME",
   "gui.expansionae.caner.fill": "Modo: ENCHER",
   "gui.expansionae.caner.empty": "Modo: ESVAZIAR",
-  "gui.expansionae.caner.fluid": "Fluido armazenado: %s mB"
+  "gui.expansionae.caner.fluid": "Fluido armazenado: %s mB",
+  "block.expansionae.wireless_connector": "Conector Sem Fio",
+  "item.expansionae.wireless_tool": "Ferramenta de Conector Sem Fio",
+  "tooltip.expansionae.wireless_tool.bound": "Vinculada a %s, %s, %s",
+  "tooltip.expansionae.wireless_tool.unbound": "Use em um Conector Sem Fio para iniciar o pareamento",
+  "chat.expansionae.wireless_bound": "Conector Sem Fio vinculado em %s, %s, %s",
+  "chat.expansionae.wireless_cross_dimension": "Os Conectores Sem Fio devem estar na mesma dimensão",
+  "chat.expansionae.wireless_same_connector": "Selecione outro Conector Sem Fio",
+  "chat.expansionae.wireless_out_of_range": "O Conector Sem Fio está além de %s blocos",
+  "chat.expansionae.wireless_linked": "Conector Sem Fio ligado a %s, %s, %s"
 }
