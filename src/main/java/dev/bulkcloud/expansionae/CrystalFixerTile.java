@@ -61,6 +61,11 @@ public final class CrystalFixerTile extends AENetworkInvTileEntity implements IG
         return AECableType.COVERED;
     }
 
+    @Override
+    public DimensionalCoord getLocation() {
+        return new DimensionalCoord(this);
+    }
+
     @Nonnull
     @Override
     public IItemHandler getInternalInventory() {
