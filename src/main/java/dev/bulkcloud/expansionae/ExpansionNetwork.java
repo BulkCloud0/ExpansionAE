@@ -23,11 +23,17 @@ public final class ExpansionNetwork {
                 }, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
         CHANNEL.registerMessage(1, TextFilterUpdate.class, TextFilterUpdate::encode, TextFilterUpdate::decode,
                 TextFilterUpdate::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(2, CircuitCutterConfigUpdate.class,
+                CircuitCutterConfigUpdate::encode, CircuitCutterConfigUpdate::decode,
+                CircuitCutterConfigUpdate::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
     public static void send(ServerPlayerEntity player, TerminalUpdate update) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), update);
     }
     public static void sendToServer(TextFilterUpdate update) {
+        CHANNEL.sendToServer(update);
+    }
+    public static void sendToServer(CircuitCutterConfigUpdate update) {
         CHANNEL.sendToServer(update);
     }
     private ExpansionNetwork() { }

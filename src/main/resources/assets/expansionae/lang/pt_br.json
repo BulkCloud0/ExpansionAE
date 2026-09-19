@@ -93,5 +93,9 @@
   "block.expansionae.data_entangler": "Entrelaçador de Dados Quântico",
   "block.expansionae.quantum_accelerator": "Acelerador do Computador Quântico",
   "block.expansionae.quantum_multi_threader": "Multi-Threader do Computador Quântico",
-  "block.expansionae.quantum_structure": "Vidro Estrutural do Computador Quântico"
+  "block.expansionae.quantum_structure": "Vidro Estrutural do Computador Quântico",
+  "block.expansionae.silicon_block": "Bloco de Silício",
+  "block.expansionae.circuit_cutter": "Fatiador de Circuitos",
+  "gui.expansionae.circuit_cutter.auto_export_on": "Exportação automática: LIGADA",
+  "gui.expansionae.circuit_cutter.auto_export_off": "Exportação automática: DESLIGADA"
 }

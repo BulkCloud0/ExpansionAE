@@ -1,0 +1,10 @@
+{
+  "type": "expansionae:circuit_cutter",
+  "input": { "tag": "forge:storage_blocks/gold" },
+  "input_count": 1,
+  "output": {
+    "item": "appliedenergistics2:printed_logic_processor",
+    "count": 9
+  },
+  "energy": 18000
+}

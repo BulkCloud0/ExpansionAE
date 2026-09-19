@@ -20,6 +20,7 @@ import dev.bulkcloud.expansionae.ExpandedIOPortContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.ReactionChamberContainer;
+import dev.bulkcloud.expansionae.CircuitCutterContainer;
 import dev.bulkcloud.expansionae.StockExportBusContainer;
 import dev.bulkcloud.expansionae.ExpandedTerminalContainer;
 import dev.bulkcloud.expansionae.ExpansionNetwork;
@@ -119,6 +120,11 @@ public final class ClientSetup {
             try {
                 return new ExpandedIOPortScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/io_port.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load expanded IO port screen", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<CircuitCutterContainer, CircuitCutterScreen>registerFactory(CircuitCutterContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new CircuitCutterScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/inscriber.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load circuit cutter screen", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<ReactionChamberContainer, ReactionChamberScreen>registerFactory(ReactionChamberContainer.TYPE, (container, inventory, title) -> {
             try {

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["IEI", "ISI", "IRI"],
+  "key": {
+    "I": { "item": "minecraft:iron_ingot" },
+    "E": { "item": "appliedenergistics2:engineering_processor" },
+    "S": { "item": "minecraft:stonecutter" },
+    "R": { "item": "minecraft:redstone" }
+  },
+  "result": {
+    "item": "expansionae:circuit_cutter"
+  }
+}

@@ -46,6 +46,10 @@ public final class ClientSmokeTest {
         check(iface.getProxy().getMachineRepresentation().getItem() == ExpansionAE.INTERFACE_ITEM.get(), "interface network icon");
         check(ExpansionAE.ADV_PROVIDER_TILE.get().create().supportsAdvancedRouting(), "advanced provider type");
         check(ExpansionAE.SMALL_ADV_PROVIDER_TILE.get().create().getInterfaceDuality().getPatterns().getSlots() == 9, "small advanced provider inventory");
+        check(ExpansionAE.CIRCUIT_CUTTER_TILE.get().create().getInternalInventory().getSlots() == 2,
+                "circuit cutter inventory");
+        check(ExpansionAE.CIRCUIT_CUTTER_TILE.get().create().getMaxProcessingTime() == 200,
+                "circuit cutter processing window");
         for (Item item : new Item[]{ExpansionAE.PROVIDER_PART.get(), ExpansionAE.INTERFACE_PART.get(),
                 ExpansionAE.ADV_PROVIDER_PART.get(), ExpansionAE.SMALL_ADV_PROVIDER_PART.get()}) {
             ExpandedInterfacePart part = (ExpandedInterfacePart) ((IPartItem<?>) item).createPart(new ItemStack(item));

@@ -106,6 +106,12 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> QUANTUM_STORAGE_COMPONENT = ITEMS.register("quantum_storage_component",
             () -> new Item(props()));
 
+    // ExtendedAE silicon block used by the Circuit Slicer's high-throughput silicon recipe.
+    public static final RegistryObject<Block> SILICON_BLOCK = BLOCKS.register("silicon_block",
+            () -> new Block(AbstractBlock.Properties.create(Material.IRON).hardnessAndResistance(5.0F, 6.0F)));
+    public static final RegistryObject<Item> SILICON_BLOCK_ITEM = ITEMS.register("silicon_block",
+            () -> new BlockItem(SILICON_BLOCK.get(), props()));
+
     public static final RegistryObject<FlowingFluid> QUANTUM_INFUSION_SOURCE =
             FLUIDS.register("quantum_infusion_source",
                     () -> new ForgeFlowingFluid.Source(quantumInfusionProperties()));
@@ -134,6 +140,18 @@ public final class ExpansionAE {
                     .create(ExpansionAE::newReactionChamber, REACTION_CHAMBER.get()).build(null));
     public static final RegistryObject<Item> REACTION_CHAMBER_ITEM = ITEMS.register("reaction_chamber",
             () -> new BlockItem(REACTION_CHAMBER.get(), props()));
+
+    // ExtendedAE Circuit Slicer / Circuit Cutter.
+    public static final RegistryObject<CircuitCutterBlock> CIRCUIT_CUTTER = BLOCKS.register("circuit_cutter", () -> {
+        CircuitCutterBlock block = new CircuitCutterBlock();
+        block.setTileEntity(CircuitCutterTile.class, ExpansionAE::newCircuitCutter);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<CircuitCutterTile>> CIRCUIT_CUTTER_TILE =
+            TILES.register("circuit_cutter", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newCircuitCutter, CIRCUIT_CUTTER.get()).build(null));
+    public static final RegistryObject<Item> CIRCUIT_CUTTER_ITEM = ITEMS.register("circuit_cutter",
+            () -> new BlockItem(CIRCUIT_CUTTER.get(), props()));
 
     // AdvancedAE Quantum Computer, adapted onto the AE2 8.4 crafting CPU cluster.
     public static final RegistryObject<QuantumCraftingBlock> QUANTUM_UNIT = BLOCKS.register("quantum_unit",
@@ -285,6 +303,10 @@ public final class ExpansionAE {
         return new ReactionChamberTile(REACTION_CHAMBER_TILE.get());
     }
 
+    private static CircuitCutterTile newCircuitCutter() {
+        return new CircuitCutterTile(CIRCUIT_CUTTER_TILE.get());
+    }
+
     private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
         QuantumCraftingBlock block = new QuantumCraftingBlock(kind);
         block.setTileEntity(QuantumCraftingTile.class, ExpansionAE::newQuantumCrafting);
@@ -351,10 +373,12 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
         event.getRegistry().register(ReactionChamberContainer.TYPE);
+        event.getRegistry().register(CircuitCutterContainer.TYPE);
     }
 
     private void registerRecipeSerializers(RegistryEvent.Register<IRecipeSerializer<?>> event) {
         event.getRegistry().register(ReactionChamberRecipeSerializer.INSTANCE);
+        event.getRegistry().register(CircuitCutterRecipeSerializer.INSTANCE);
     }
     private void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
@@ -409,6 +433,7 @@ public final class ExpansionAE {
             Upgrades.SPEED.registerItem(EX_IO_PORT_ITEM.get(), 5);
             Upgrades.REDSTONE.registerItem(EX_IO_PORT_ITEM.get(), 1);
             Upgrades.SPEED.registerItem(REACTION_CHAMBER_ITEM.get(), 4);
+            Upgrades.SPEED.registerItem(CIRCUIT_CUTTER_ITEM.get(), 4);
         });
     }
 }

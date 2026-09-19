@@ -93,5 +93,9 @@
   "block.expansionae.data_entangler": "Quantum Data Entangler",
   "block.expansionae.quantum_accelerator": "Quantum Computer Accelerator",
   "block.expansionae.quantum_multi_threader": "Quantum Computer Multi-Threader",
-  "block.expansionae.quantum_structure": "Quantum Computer Structural Glass"
+  "block.expansionae.quantum_structure": "Quantum Computer Structural Glass",
+  "block.expansionae.silicon_block": "Block of Silicon",
+  "block.expansionae.circuit_cutter": "Circuit Slicer",
+  "gui.expansionae.circuit_cutter.auto_export_on": "Auto export: ON",
+  "gui.expansionae.circuit_cutter.auto_export_off": "Auto export: OFF"
 }

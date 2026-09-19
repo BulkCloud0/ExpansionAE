@@ -19,6 +19,8 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Expanded Charger.
 - Expanded Inscriber.
 - Expanded Molecular Assembler.
+- Circuit Slicer / Circuit Cutter, com receitas de blocos para prints, Speed Cards, tanque opcional, energia AE e auto-export.
+- Block of Silicon / Bloco de Silício, incluindo compressão e descompressão.
 - Active Formation Plane.
 - Infinity Cobblestone Cell e Infinity Water Cell.
 - ME Packing Tape e Packed Device.
@@ -58,7 +60,6 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Ingredient Buffer. O original moderno usa GenericStackInv; AE2 8.4 não possui a mesma abstração, portanto exige uma implementação equivalente para itens/fluidos.
 - Crystal Fixer. O original depende do sistema moderno de budding quartz, inexistente no AE2 8.4; requer redesign/backport da mecânica.
 - Caner.
-- Circuit Cutter e seu sistema de receitas.
 - Assembler Matrix multiblock.
 - Expanded Crafting Terminal e variantes wireless.
 - Paridade específica do Oversize Interface além da adaptação item-only já coberta pelo Expanded Interface.

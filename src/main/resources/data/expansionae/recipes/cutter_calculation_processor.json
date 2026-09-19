@@ -1,0 +1,10 @@
+{
+  "type": "expansionae:circuit_cutter",
+  "input": { "item": "appliedenergistics2:quartz_block" },
+  "input_count": 1,
+  "output": {
+    "item": "appliedenergistics2:printed_calculation_processor",
+    "count": 4
+  },
+  "energy": 8000
+}
