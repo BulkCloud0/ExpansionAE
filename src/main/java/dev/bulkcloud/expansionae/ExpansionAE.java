@@ -101,6 +101,8 @@ public final class ExpansionAE {
             () -> new BlockItem(WIRELESS_CONNECTOR.get(), props()));
     public static final RegistryObject<Item> WIRELESS_TOOL = ITEMS.register("wireless_tool",
             () -> new WirelessLinkToolItem(props()));
+    public static final RegistryObject<Item> ADVANCED_WIRELESS_TOOL = ITEMS.register("advanced_wireless_tool",
+            () -> new AdvancedWirelessToolItem(props()));
 
     public static final RegistryObject<WirelessHubBlock> WIRELESS_HUB = BLOCKS.register("wireless_hub", () -> {
         WirelessHubBlock block = new WirelessHubBlock();
