@@ -88,6 +88,20 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> THROUGHPUT_MONITOR_CONFIGURATOR = ITEMS.register(
             "throughput_monitor_configurator", () -> new Item(props().maxStackSize(1)));
 
+    // ExtendedAE Wireless Connector pair bridge and binding tool.
+    public static final RegistryObject<WirelessConnectorBlock> WIRELESS_CONNECTOR = BLOCKS.register("wireless_connector", () -> {
+        WirelessConnectorBlock block = new WirelessConnectorBlock();
+        block.setTileEntity(WirelessConnectorTile.class, ExpansionAE::newWirelessConnector);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<WirelessConnectorTile>> WIRELESS_CONNECTOR_TILE =
+            TILES.register("wireless_connector", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newWirelessConnector, WIRELESS_CONNECTOR.get()).build(null));
+    public static final RegistryObject<Item> WIRELESS_CONNECTOR_ITEM = ITEMS.register("wireless_connector",
+            () -> new BlockItem(WIRELESS_CONNECTOR.get(), props()));
+    public static final RegistryObject<Item> WIRELESS_TOOL = ITEMS.register("wireless_tool",
+            () -> new WirelessLinkToolItem(props()));
+
     // AdvancedAE quantum material chain.
     public static final RegistryObject<Item> QUANTUM_INFUSED_DUST = ITEMS.register("quantum_infused_dust",
             () -> new Item(props()));
@@ -337,6 +351,10 @@ public final class ExpansionAE {
 
     private static CanerTile newCaner() {
         return new CanerTile(CANER_TILE.get());
+    }
+
+    private static WirelessConnectorTile newWirelessConnector() {
+        return new WirelessConnectorTile(WIRELESS_CONNECTOR_TILE.get());
     }
 
     private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
