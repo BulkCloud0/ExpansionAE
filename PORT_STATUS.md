@@ -27,7 +27,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Infinity Cobblestone Cell e Infinity Water Cell.
 - ME Packing Tape e Packed Device.
 - Upgrade items para interface, pattern provider, IO bus, pattern terminal e drive.
-- Wireless Connector 1:1 com ferramenta de pareamento, persistência de frequência, limite de 1000 blocos e ponte real entre nós AE2 carregados na mesma dimensão.
+- Wireless Connector 1:1 e Wireless Hub de 8 portas com ferramenta de pareamento, persistência de frequência, limite de 1000 blocos e ponte real entre nós AE2 carregados na mesma dimensão.
 
 ### Buses e controle
 - Fast Import Bus e Fast Export Bus.
@@ -59,7 +59,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 ## Ainda pendente ou sem paridade completa
 
 ### ExtendedAE
-- Wireless Hub e ferramentas/terminais wireless estendidos. O Wireless Connector 1:1 e sua ferramenta de pareamento já estão portados; o Hub 1:N continua pendente.
+- Ferramenta wireless avançada em fila e terminais wireless estendidos. O Wireless Connector 1:1, Wireless Hub 1:N de 8 portas e a ferramenta básica de pareamento já estão portados.
 - Crystal Fixer. O original depende do sistema moderno de budding quartz, inexistente no AE2 8.4; requer redesign/backport da mecânica.
 - Assembler Matrix multiblock.
 - Expanded Crafting Terminal e variantes wireless.
