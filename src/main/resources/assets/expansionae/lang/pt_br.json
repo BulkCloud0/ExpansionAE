@@ -115,5 +115,15 @@
   "block.expansionae.wireless_hub": "Hub Sem Fio",
   "chat.expansionae.wireless_hub_full": "O Hub Sem Fio não possui portas livres",
   "chat.expansionae.wireless_hub_bound": "Porta %s do Hub Sem Fio vinculada em %s, %s, %s",
-  "chat.expansionae.wireless_hub_linked": "Porta %s do Hub Sem Fio ligada a %s, %s, %s"
+  "chat.expansionae.wireless_hub_linked": "Porta %s do Hub Sem Fio ligada a %s, %s, %s",
+  "item.expansionae.advanced_wireless_tool": "Ferramenta Sem Fio Avançada",
+  "tooltip.expansionae.wireless_advanced.add": "Modo: ADICIONAR À FILA",
+  "tooltip.expansionae.wireless_advanced.connect": "Modo: CONECTAR FILA",
+  "tooltip.expansionae.wireless_advanced.queue": "Links na fila: %s/%s",
+  "chat.expansionae.wireless_advanced_add": "Ferramenta Sem Fio Avançada: modo adicionar à fila",
+  "chat.expansionae.wireless_advanced_connect": "Ferramenta Sem Fio Avançada: modo conectar fila",
+  "chat.expansionae.wireless_advanced_full": "A fila wireless está cheia (%s)",
+  "chat.expansionae.wireless_advanced_queued": "Link %s adicionado em %s, %s, %s",
+  "chat.expansionae.wireless_advanced_empty": "A fila wireless está vazia",
+  "chat.expansionae.wireless_advanced_connected": "Conectado a %s, %s, %s; restam %s links"
 }
