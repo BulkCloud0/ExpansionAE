@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "EFE",
+    "FIF",
+    "EFE"
+  ],
+  "key": {
+    "E": { "item": "appliedenergistics2:engineering_processor" },
+    "F": { "item": "appliedenergistics2:fluix_crystal" },
+    "I": { "item": "appliedenergistics2:interface" }
+  },
+  "result": {
+    "item": "expansionae:wireless_connector",
+    "count": 2
+  }
+}
