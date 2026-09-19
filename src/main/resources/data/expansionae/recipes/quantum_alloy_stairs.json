@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "A  ",
+    "AA ",
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "expansionae:quantum_alloy_block"
+    }
+  },
+  "result": {
+    "item": "expansionae:quantum_alloy_stairs",
+    "count": 4
+  }
+}
