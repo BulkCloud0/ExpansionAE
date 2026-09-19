@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QSQ",
+    "SPS",
+    "QSQ"
+  ],
+  "key": {
+    "Q": { "item": "minecraft:quartz" },
+    "S": { "item": "appliedenergistics2:fluix_crystal" },
+    "P": { "item": "expansionae:small_advanced_pattern_provider" }
+  },
+  "result": {
+    "item": "expansionae:advanced_pattern_provider_capacity_upgrade"
+  }
+}
