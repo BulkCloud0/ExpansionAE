@@ -102,6 +102,17 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> WIRELESS_TOOL = ITEMS.register("wireless_tool",
             () -> new WirelessLinkToolItem(props()));
 
+    public static final RegistryObject<WirelessHubBlock> WIRELESS_HUB = BLOCKS.register("wireless_hub", () -> {
+        WirelessHubBlock block = new WirelessHubBlock();
+        block.setTileEntity(WirelessHubTile.class, ExpansionAE::newWirelessHub);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<WirelessHubTile>> WIRELESS_HUB_TILE =
+            TILES.register("wireless_hub", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newWirelessHub, WIRELESS_HUB.get()).build(null));
+    public static final RegistryObject<Item> WIRELESS_HUB_ITEM = ITEMS.register("wireless_hub",
+            () -> new BlockItem(WIRELESS_HUB.get(), props()));
+
     // AdvancedAE quantum material chain.
     public static final RegistryObject<Item> QUANTUM_INFUSED_DUST = ITEMS.register("quantum_infused_dust",
             () -> new Item(props()));
@@ -355,6 +366,10 @@ public final class ExpansionAE {
 
     private static WirelessConnectorTile newWirelessConnector() {
         return new WirelessConnectorTile(WIRELESS_CONNECTOR_TILE.get());
+    }
+
+    private static WirelessHubTile newWirelessHub() {
+        return new WirelessHubTile(WIRELESS_HUB_TILE.get());
     }
 
     private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
