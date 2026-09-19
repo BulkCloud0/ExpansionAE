@@ -115,5 +115,15 @@
   "block.expansionae.wireless_hub": "Wireless Hub",
   "chat.expansionae.wireless_hub_full": "Wireless Hub has no free ports",
   "chat.expansionae.wireless_hub_bound": "Wireless Hub port %s bound at %s, %s, %s",
-  "chat.expansionae.wireless_hub_linked": "Wireless Hub port %s linked to %s, %s, %s"
+  "chat.expansionae.wireless_hub_linked": "Wireless Hub port %s linked to %s, %s, %s",
+  "item.expansionae.advanced_wireless_tool": "Advanced Wireless Connector Tool",
+  "tooltip.expansionae.wireless_advanced.add": "Mode: ADD TO QUEUE",
+  "tooltip.expansionae.wireless_advanced.connect": "Mode: CONNECT QUEUE",
+  "tooltip.expansionae.wireless_advanced.queue": "Queued links: %s/%s",
+  "chat.expansionae.wireless_advanced_add": "Advanced Wireless Tool: add-to-queue mode",
+  "chat.expansionae.wireless_advanced_connect": "Advanced Wireless Tool: connect-queue mode",
+  "chat.expansionae.wireless_advanced_full": "Wireless queue is full (%s)",
+  "chat.expansionae.wireless_advanced_queued": "Queued link %s at %s, %s, %s",
+  "chat.expansionae.wireless_advanced_empty": "Wireless queue is empty",
+  "chat.expansionae.wireless_advanced_connected": "Connected to %s, %s, %s; %s links remain"
 }
