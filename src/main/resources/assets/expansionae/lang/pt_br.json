@@ -98,5 +98,9 @@
   "block.expansionae.circuit_cutter": "Fatiador de Circuitos",
   "gui.expansionae.circuit_cutter.auto_export_on": "Exportação automática: LIGADA",
   "gui.expansionae.circuit_cutter.auto_export_off": "Exportação automática: DESLIGADA",
-  "block.expansionae.ingredient_buffer": "Buffer de Ingredientes ME"
+  "block.expansionae.ingredient_buffer": "Buffer de Ingredientes ME",
+  "block.expansionae.caner": "Enlatadora ME",
+  "gui.expansionae.caner.fill": "Modo: ENCHER",
+  "gui.expansionae.caner.empty": "Modo: ESVAZIAR",
+  "gui.expansionae.caner.fluid": "Fluido armazenado: %s mB"
 }

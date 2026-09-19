@@ -21,6 +21,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Expanded Molecular Assembler.
 - Circuit Slicer / Circuit Cutter, com receitas de blocos para prints, Speed Cards, tanque opcional, energia AE e auto-export.
 - ME Ingredient Buffer adaptado para 1.16.5 com 36 posições compartilhadas entre itens/fluidos e 64.000 mB por posição de fluido.
+- ME Caner/Canner para fluidos Forge: modos Fill/Empty, tanque de 64.000 mB, custo de 80 AE por operação e automação por capabilities.
 - Block of Silicon / Bloco de Silício, incluindo compressão e descompressão.
 - Active Formation Plane.
 - Infinity Cobblestone Cell e Infinity Water Cell.
@@ -59,7 +60,6 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 ### ExtendedAE
 - Wireless Connector, Wireless Hub e ferramentas/terminais wireless estendidos.
 - Crystal Fixer. O original depende do sistema moderno de budding quartz, inexistente no AE2 8.4; requer redesign/backport da mecânica.
-- Caner.
 - Assembler Matrix multiblock.
 - Expanded Crafting Terminal e variantes wireless.
 - Paridade específica do Oversize Interface além da adaptação item-only já coberta pelo Expanded Interface.

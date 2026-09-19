@@ -54,6 +54,8 @@ public final class ClientSmokeTest {
                 "ingredient buffer item slots");
         check(ExpansionAE.INGREDIENT_BUFFER_TILE.get().create().getFluidInventory().getTanks() == 36,
                 "ingredient buffer fluid slots");
+        check(ExpansionAE.CANER_TILE.get().create().getFluidHandler().getTankCapacity(0) == 64000,
+                "caner fluid capacity");
         for (Item item : new Item[]{ExpansionAE.PROVIDER_PART.get(), ExpansionAE.INTERFACE_PART.get(),
                 ExpansionAE.ADV_PROVIDER_PART.get(), ExpansionAE.SMALL_ADV_PROVIDER_PART.get()}) {
             ExpandedInterfacePart part = (ExpandedInterfacePart) ((IPartItem<?>) item).createPart(new ItemStack(item));

@@ -165,6 +165,18 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> INGREDIENT_BUFFER_ITEM = ITEMS.register("ingredient_buffer",
             () -> new BlockItem(INGREDIENT_BUFFER.get(), props()));
 
+    // ExtendedAE ME Canner, adapted to Forge 1.16.5 fluid-container capabilities.
+    public static final RegistryObject<CanerBlock> CANER = BLOCKS.register("caner", () -> {
+        CanerBlock block = new CanerBlock();
+        block.setTileEntity(CanerTile.class, ExpansionAE::newCaner);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<CanerTile>> CANER_TILE =
+            TILES.register("caner", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newCaner, CANER.get()).build(null));
+    public static final RegistryObject<Item> CANER_ITEM = ITEMS.register("caner",
+            () -> new BlockItem(CANER.get(), props()));
+
     // AdvancedAE Quantum Computer, adapted onto the AE2 8.4 crafting CPU cluster.
     public static final RegistryObject<QuantumCraftingBlock> QUANTUM_UNIT = BLOCKS.register("quantum_unit",
             () -> quantumBlock(QuantumCraftingBlock.Kind.UNIT));
@@ -323,6 +335,10 @@ public final class ExpansionAE {
         return new IngredientBufferTile(INGREDIENT_BUFFER_TILE.get());
     }
 
+    private static CanerTile newCaner() {
+        return new CanerTile(CANER_TILE.get());
+    }
+
     private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
         QuantumCraftingBlock block = new QuantumCraftingBlock(kind);
         block.setTileEntity(QuantumCraftingTile.class, ExpansionAE::newQuantumCrafting);
@@ -391,6 +407,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ReactionChamberContainer.TYPE);
         event.getRegistry().register(CircuitCutterContainer.TYPE);
         event.getRegistry().register(IngredientBufferContainer.TYPE);
+        event.getRegistry().register(CanerContainer.TYPE);
     }
 
     private void registerRecipeSerializers(RegistryEvent.Register<IRecipeSerializer<?>> event) {

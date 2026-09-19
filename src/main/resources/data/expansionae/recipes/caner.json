@@ -1,0 +1,11 @@
+{
+  "type":"minecraft:crafting_shaped",
+  "pattern":[" F ","IBI"," A "],
+  "key":{
+    "F":{"item":"appliedenergistics2:formation_core"},
+    "I":{"tag":"forge:ingots/iron"},
+    "B":{"item":"expansionae:ingredient_buffer"},
+    "A":{"item":"appliedenergistics2:annihilation_core"}
+  },
+  "result":{"item":"expansionae:caner"}
+}

@@ -98,5 +98,9 @@
   "block.expansionae.circuit_cutter": "Circuit Slicer",
   "gui.expansionae.circuit_cutter.auto_export_on": "Auto export: ON",
   "gui.expansionae.circuit_cutter.auto_export_off": "Auto export: OFF",
-  "block.expansionae.ingredient_buffer": "ME Ingredient Buffer"
+  "block.expansionae.ingredient_buffer": "ME Ingredient Buffer",
+  "block.expansionae.caner": "ME Canner",
+  "gui.expansionae.caner.fill": "Mode: FILL",
+  "gui.expansionae.caner.empty": "Mode: EMPTY",
+  "gui.expansionae.caner.fluid": "Stored fluid: %s mB"
 }
