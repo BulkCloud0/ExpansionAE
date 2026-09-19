@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "expansionae:block/quantum_alloy_slab"
+    },
+    "type=top": {
+      "model": "expansionae:block/quantum_alloy_slab_top"
+    },
+    "type=double": {
+      "model": "expansionae:block/quantum_alloy_block"
+    }
+  }
+}
