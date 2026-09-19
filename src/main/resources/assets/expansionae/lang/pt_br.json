@@ -125,5 +125,9 @@
   "chat.expansionae.wireless_advanced_full": "A fila wireless está cheia (%s)",
   "chat.expansionae.wireless_advanced_queued": "Link %s adicionado em %s, %s, %s",
   "chat.expansionae.wireless_advanced_empty": "A fila wireless está vazia",
-  "chat.expansionae.wireless_advanced_connected": "Conectado a %s, %s, %s; restam %s links"
+  "chat.expansionae.wireless_advanced_connected": "Conectado a %s, %s, %s; restam %s links",
+  "block.expansionae.quantum_alloy_block": "Bloco de Liga Quântica",
+  "block.expansionae.quantum_alloy_stairs": "Escadas de Liga Quântica",
+  "block.expansionae.quantum_alloy_slab": "Laje de Liga Quântica",
+  "block.expansionae.quantum_alloy_wall": "Muro de Liga Quântica"
 }
