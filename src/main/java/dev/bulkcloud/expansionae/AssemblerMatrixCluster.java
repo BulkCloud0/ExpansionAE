@@ -66,5 +66,5 @@ public final class AssemblerMatrixCluster implements IAECluster {
     }
 
     @Override public boolean isDestroyed() { return destroyed; }
-    @Override public Iterator<AssemblerMatrixTile> getBlockEntities() { return tiles.iterator(); }
+    @Override public Iterator<AssemblerMatrixTile> getTiles() { return tiles.iterator(); }
 }
