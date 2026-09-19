@@ -111,5 +111,9 @@
   "chat.expansionae.wireless_cross_dimension": "Os Conectores Sem Fio devem estar na mesma dimensão",
   "chat.expansionae.wireless_same_connector": "Selecione outro Conector Sem Fio",
   "chat.expansionae.wireless_out_of_range": "O Conector Sem Fio está além de %s blocos",
-  "chat.expansionae.wireless_linked": "Conector Sem Fio ligado a %s, %s, %s"
+  "chat.expansionae.wireless_linked": "Conector Sem Fio ligado a %s, %s, %s",
+  "block.expansionae.wireless_hub": "Hub Sem Fio",
+  "chat.expansionae.wireless_hub_full": "O Hub Sem Fio não possui portas livres",
+  "chat.expansionae.wireless_hub_bound": "Porta %s do Hub Sem Fio vinculada em %s, %s, %s",
+  "chat.expansionae.wireless_hub_linked": "Porta %s do Hub Sem Fio ligada a %s, %s, %s"
 }
