@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "expansionae:block/wireless_hub" }
+  }
+}
