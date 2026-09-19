@@ -97,5 +97,6 @@
   "block.expansionae.silicon_block": "Block of Silicon",
   "block.expansionae.circuit_cutter": "Circuit Slicer",
   "gui.expansionae.circuit_cutter.auto_export_on": "Auto export: ON",
-  "gui.expansionae.circuit_cutter.auto_export_off": "Auto export: OFF"
+  "gui.expansionae.circuit_cutter.auto_export_off": "Auto export: OFF",
+  "block.expansionae.ingredient_buffer": "ME Ingredient Buffer"
 }

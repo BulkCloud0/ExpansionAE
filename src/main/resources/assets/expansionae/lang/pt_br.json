@@ -97,5 +97,6 @@
   "block.expansionae.silicon_block": "Bloco de Silício",
   "block.expansionae.circuit_cutter": "Fatiador de Circuitos",
   "gui.expansionae.circuit_cutter.auto_export_on": "Exportação automática: LIGADA",
-  "gui.expansionae.circuit_cutter.auto_export_off": "Exportação automática: DESLIGADA"
+  "gui.expansionae.circuit_cutter.auto_export_off": "Exportação automática: DESLIGADA",
+  "block.expansionae.ingredient_buffer": "Buffer de Ingredientes ME"
 }

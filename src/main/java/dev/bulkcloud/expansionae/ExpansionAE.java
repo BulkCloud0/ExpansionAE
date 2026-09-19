@@ -153,6 +153,18 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> CIRCUIT_CUTTER_ITEM = ITEMS.register("circuit_cutter",
             () -> new BlockItem(CIRCUIT_CUTTER.get(), props()));
 
+    // ExtendedAE ME Ingredient Buffer (36 shared item/fluid resource slots).
+    public static final RegistryObject<IngredientBufferBlock> INGREDIENT_BUFFER = BLOCKS.register("ingredient_buffer", () -> {
+        IngredientBufferBlock block = new IngredientBufferBlock();
+        block.setTileEntity(IngredientBufferTile.class, ExpansionAE::newIngredientBuffer);
+        return block;
+    });
+    public static final RegistryObject<TileEntityType<IngredientBufferTile>> INGREDIENT_BUFFER_TILE =
+            TILES.register("ingredient_buffer", () -> TileEntityType.Builder
+                    .create(ExpansionAE::newIngredientBuffer, INGREDIENT_BUFFER.get()).build(null));
+    public static final RegistryObject<Item> INGREDIENT_BUFFER_ITEM = ITEMS.register("ingredient_buffer",
+            () -> new BlockItem(INGREDIENT_BUFFER.get(), props()));
+
     // AdvancedAE Quantum Computer, adapted onto the AE2 8.4 crafting CPU cluster.
     public static final RegistryObject<QuantumCraftingBlock> QUANTUM_UNIT = BLOCKS.register("quantum_unit",
             () -> quantumBlock(QuantumCraftingBlock.Kind.UNIT));
@@ -307,6 +319,10 @@ public final class ExpansionAE {
         return new CircuitCutterTile(CIRCUIT_CUTTER_TILE.get());
     }
 
+    private static IngredientBufferTile newIngredientBuffer() {
+        return new IngredientBufferTile(INGREDIENT_BUFFER_TILE.get());
+    }
+
     private static QuantumCraftingBlock quantumBlock(QuantumCraftingBlock.Kind kind) {
         QuantumCraftingBlock block = new QuantumCraftingBlock(kind);
         block.setTileEntity(QuantumCraftingTile.class, ExpansionAE::newQuantumCrafting);
@@ -374,6 +390,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
         event.getRegistry().register(ReactionChamberContainer.TYPE);
         event.getRegistry().register(CircuitCutterContainer.TYPE);
+        event.getRegistry().register(IngredientBufferContainer.TYPE);
     }
 
     private void registerRecipeSerializers(RegistryEvent.Register<IRecipeSerializer<?>> event) {

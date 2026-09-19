@@ -50,6 +50,10 @@ public final class ClientSmokeTest {
                 "circuit cutter inventory");
         check(ExpansionAE.CIRCUIT_CUTTER_TILE.get().create().getMaxProcessingTime() == 200,
                 "circuit cutter processing window");
+        check(ExpansionAE.INGREDIENT_BUFFER_TILE.get().create().getInternalInventory().getSlots() == 36,
+                "ingredient buffer item slots");
+        check(ExpansionAE.INGREDIENT_BUFFER_TILE.get().create().getFluidInventory().getTanks() == 36,
+                "ingredient buffer fluid slots");
         for (Item item : new Item[]{ExpansionAE.PROVIDER_PART.get(), ExpansionAE.INTERFACE_PART.get(),
                 ExpansionAE.ADV_PROVIDER_PART.get(), ExpansionAE.SMALL_ADV_PROVIDER_PART.get()}) {
             ExpandedInterfacePart part = (ExpandedInterfacePart) ((IPartItem<?>) item).createPart(new ItemStack(item));

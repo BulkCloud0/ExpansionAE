@@ -1,0 +1,10 @@
+{
+  "includes":["common/common.json","common/player_inventory.json"],
+  "background":{"texture":"guis/interface.png","textureWidth":512,"textureHeight":512,"srcRect":[0,0,352,228]},
+  "slots":{
+    "STORAGE":{"left":8,"top":30,"grid":"BREAK_AFTER_9COLS"},
+    "PLAYER_INVENTORY":{"left":96,"bottom":82,"grid":"BREAK_AFTER_9COLS"},
+    "PLAYER_HOTBAR":{"left":96,"bottom":24,"grid":"HORIZONTAL"}
+  },
+  "text":{"dialog_title":{"text":{"translate":"block.expansionae.ingredient_buffer"},"position":{"left":8,"top":6}}}
+}
