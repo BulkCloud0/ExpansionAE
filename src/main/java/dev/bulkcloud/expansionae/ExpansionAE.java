@@ -352,6 +352,9 @@ public final class ExpansionAE {
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.INTERFACE));
     public static final RegistryObject<Item> PATTERN_PROVIDER_UPGRADE = ITEMS.register("pattern_provider_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.PATTERN_PROVIDER));
+    public static final RegistryObject<Item> ADV_PATTERN_PROVIDER_CAPACITY_UPGRADE =
+            ITEMS.register("advanced_pattern_provider_capacity_upgrade", () ->
+                    new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.ADV_PATTERN_CAPACITY));
     public static final RegistryObject<Item> IO_BUS_UPGRADE = ITEMS.register("io_bus_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.IO_BUS));
     public static final RegistryObject<Item> PATTERN_TERMINAL_UPGRADE = ITEMS.register("pattern_terminal_upgrade", () ->
