@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA"
+  ],
+  "key": {
+    "A": {
+      "item": "expansionae:quantum_alloy_block"
+    }
+  },
+  "result": {
+    "item": "expansionae:quantum_alloy_slab",
+    "count": 6
+  }
+}
