@@ -284,15 +284,20 @@ public final class AssemblerMatrixTile extends AENetworkInvTileEntity
         }
 
         boolean tick(int ticks) {
-            flush();
-            if (plan == null) return !isFree();
+            if (plan == null) {
+                flush();
+                return !isFree();
+            }
+            if (!inv.getStackInSlot(9).isEmpty()) {
+                flush();
+                return true;
+            }
             for (int i = 0; i < 9; i++) crafting.setInventorySlotContents(i, inv.getStackInSlot(i));
             ItemStack result = plan.getOutput(crafting, world);
             if (result.isEmpty()) return true;
             progress += poweredProgress(ticks);
             if (progress < 100) return true;
             progress = 0;
-            if (!inv.getStackInSlot(9).isEmpty()) return true;
             inv.setStackInSlot(9, result.copy());
             for (int i = 0; i < 9; i++) {
                 inv.setStackInSlot(i, Platform.getContainerItem(crafting.getStackInSlot(i)));
@@ -303,7 +308,11 @@ public final class AssemblerMatrixTile extends AENetworkInvTileEntity
         }
 
         private void flush() {
-            if (plan == null && ItemHandlerUtil.isEmpty(inv)) return;
+            if (ItemHandlerUtil.isEmpty(inv)) {
+                plan = null;
+                progress = 0;
+                return;
+            }
             for (int i = 0; i < LANE_SLOTS; i++) {
                 ItemStack stack = inv.getStackInSlot(i);
                 if (stack.isEmpty()) continue;
