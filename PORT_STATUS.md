@@ -9,6 +9,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Expanded Interface em bloco e multipart, com 36 posições.
 - Advanced Pattern Provider e Small Advanced Pattern Provider, incluindo roteamento por face para padrões de processamento.
 - Expanded Pattern Access Terminal próprio para inventários maiores que os nove slots assumidos pelo terminal original do AE2 8.4.
+- Expanded Crafting Terminal em multipart com o núcleo de crafting 3×3, armazenamento ME, segurança e persistência do AE2 8.4; os modos extras modernos (stonecutter/smithing/anvil) continuam em adaptação.
 - Advanced Pattern Encoder portátil.
 - Pattern Modifier.
 - Persistência dos buffers de roteamento e devolução segura de itens pendentes.
@@ -65,7 +66,8 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 ### ExtendedAE
 - Terminais wireless estendidos. O Wireless Connector 1:1, Wireless Hub 1:N de 8 portas, a ferramenta básica de pareamento e a ferramenta avançada com fila já estão portados.
 - Assembler Matrix multiblock.
-- Expanded Crafting Terminal e variantes wireless.
+- Expanded Crafting Terminal: modos modernos adicionais Stonecutter/Smithing/Anvil; o modo Crafting 3×3 já está funcional.
+- Variantes wireless do Expanded Crafting Terminal.
 - Paridade específica do Oversize Interface além da adaptação item-only já coberta pelo Expanded Interface.
 - Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 

@@ -407,6 +407,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 9, true, "small_advanced_pattern_provider")));
     public static final RegistryObject<Item> PATTERN_TERMINAL = ITEMS.register("ex_pattern_access_terminal", () ->
             new PartItem<>(props(), ExpandedTerminalPart::new));
+    public static final RegistryObject<Item> EX_CRAFTING_TERMINAL = ITEMS.register("ex_crafting_terminal", () ->
+            new PartItem<>(props(), ExpandedCraftingTerminalPart::new));
 
     public static final RegistryObject<Item> INTERFACE_UPGRADE = ITEMS.register("interface_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.INTERFACE));
@@ -505,6 +507,8 @@ public final class ExpansionAE {
                 appeng.items.parts.PartModelsHelper.createModels(ExpandedInterfacePart.class));
         Api.instance().registries().partModels().registerModels(
                 appeng.items.parts.PartModelsHelper.createModels(ThroughputMonitorPart.class));
+        Api.instance().registries().partModels().registerModels(
+                appeng.items.parts.PartModelsHelper.createModels(ExpandedCraftingTerminalPart.class));
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         BLOCKS.register(bus);
         ITEMS.register(bus);
