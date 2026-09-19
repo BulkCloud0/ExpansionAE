@@ -3,10 +3,7 @@ package dev.bulkcloud.expansionae;
 import java.util.Iterator;
 
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.IContainerListener;
-import net.minecraft.inventory.container.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.wrapper.EmptyHandler;
@@ -142,18 +139,6 @@ public final class PortableWorkbenchContainer extends UpgradeableContainer {
         ItemStack current = getWorkbenchItem();
 
         if (isServer()) {
-            for (IContainerListener listener : listeners) {
-                if (!ItemStack.areItemStacksEqual(previousCell, current)) {
-                    for (Slot slot : inventorySlots) {
-                        if (slot instanceof OptionalRestrictedInputSlot) {
-                            listener.sendSlotContents(this, slot.slotNumber, slot.getStack());
-                        }
-                    }
-                    if (listener instanceof ServerPlayerEntity) {
-                        ((ServerPlayerEntity) listener).isChangingQuantityOnly = false;
-                    }
-                }
-            }
             copyMode = (CopyMode) workbench.getConfigManager().getSetting(Settings.COPY_MODE);
             setFuzzyMode(workbench.getCellFuzzyMode());
         }
