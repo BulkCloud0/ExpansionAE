@@ -10,6 +10,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
@@ -21,6 +22,8 @@ import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
@@ -59,6 +62,7 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
 
     private ReactionChamberRecipe cachedRecipe;
     private int processingTime;
+    private final EnumSet<Direction> allowedOutputs = EnumSet.noneOf(Direction.class);
 
     public ReactionChamberTile(TileEntityType<?> type) {
         super(type);
@@ -92,6 +96,79 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
     public int getMaxProcessingTime() { return PROCESSING_STEPS; }
     public FluidStack getInputFluid() { return inputTank.getFluid().copy(); }
     public FluidStack getOutputFluid() { return outputTank.getFluid().copy(); }
+
+    public int getOutputMask() {
+        int mask = 0;
+        for (Direction direction : allowedOutputs) mask |= 1 << direction.getIndex();
+        return mask;
+    }
+
+    public boolean isOutputAllowed(Direction direction) {
+        return allowedOutputs.contains(direction);
+    }
+
+    public void toggleOutput(Direction direction) {
+        if (direction == null) return;
+        if (!allowedOutputs.remove(direction)) allowedOutputs.add(direction);
+        chamberChanged();
+    }
+
+    private boolean hasAutoExportWork() {
+        return !allowedOutputs.isEmpty()
+                && (!inventory.getStackInSlot(OUTPUT_SLOT).isEmpty() || !outputTank.isEmpty());
+    }
+
+    private boolean pushOutResult() {
+        if (world == null || world.isRemote || !hasAutoExportWork()) return false;
+        boolean moved = false;
+
+        for (Direction direction : allowedOutputs) {
+            TileEntity target = world.getTileEntity(pos.offset(direction));
+            if (target == null) continue;
+
+            ItemStack output = inventory.getStackInSlot(OUTPUT_SLOT);
+            if (!output.isEmpty()) {
+                IItemHandler handler = target.getCapability(
+                        CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, direction.getOpposite()).orElse(null);
+                if (handler != null) {
+                    ItemStack extracted = inventory.extractItem(OUTPUT_SLOT, output.getCount(), false);
+                    ItemStack remainder = ItemHandlerHelper.insertItemStacked(handler, extracted, false);
+                    int inserted = extracted.getCount() - (remainder.isEmpty() ? 0 : remainder.getCount());
+                    if (!remainder.isEmpty()) inventory.insertItem(OUTPUT_SLOT, remainder, false);
+                    moved |= inserted > 0;
+                }
+            }
+
+            FluidStack fluid = outputTank.getFluid();
+            if (!fluid.isEmpty()) {
+                IFluidHandler handler = target.getCapability(
+                        CapabilityFluidHandler.FLUID_HANDLER_CAPABILITY, direction.getOpposite()).orElse(null);
+                if (handler != null) {
+                    int accepted = handler.fill(fluid.copy(), IFluidHandler.FluidAction.SIMULATE);
+                    if (accepted > 0) {
+                        FluidStack drained = outputTank.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
+                        if (!drained.isEmpty()) {
+                            int actuallyFilled = handler.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+                            if (actuallyFilled < drained.getAmount()) {
+                                FluidStack returnFluid = drained.copy();
+                                returnFluid.setAmount(drained.getAmount() - actuallyFilled);
+                                outputTank.fill(returnFluid, IFluidHandler.FluidAction.EXECUTE);
+                            }
+                            moved |= actuallyFilled > 0;
+                        }
+                    }
+                }
+            }
+
+            if (inventory.getStackInSlot(OUTPUT_SLOT).isEmpty() && outputTank.isEmpty()) break;
+        }
+
+        if (moved) {
+            saveChanges();
+            markForUpdate();
+        }
+        return moved;
+    }
 
     @Override
     public IItemHandler getInternalInventory() {
@@ -179,15 +256,16 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
 
     @Override
     public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(1, 20, !hasWork(), true);
+        return new TickingRequest(1, 20, !hasWork() && !hasAutoExportWork(), true);
     }
 
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
+        boolean exported = pushOutResult();
         ReactionChamberRecipe task = getTask();
         if (task == null) {
             processingTime = 0;
-            return TickRateModulation.SLEEP;
+            return hasAutoExportWork() || exported ? TickRateModulation.FASTER : TickRateModulation.SLEEP;
         }
 
         int installedSpeed = upgrades.getInstalledUpgrades(Upgrades.SPEED);
@@ -284,6 +362,7 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
         data.putInt("processingTime", processingTime);
         data.put("inputTank", inputTank.writeToNBT(new CompoundNBT()));
         data.put("outputTank", outputTank.writeToNBT(new CompoundNBT()));
+        data.putInt("outputMask", getOutputMask());
         return data;
     }
 
@@ -295,6 +374,11 @@ public final class ReactionChamberTile extends AENetworkPowerTileEntity
         processingTime = data.getInt("processingTime");
         inputTank.readFromNBT(data.getCompound("inputTank"));
         outputTank.readFromNBT(data.getCompound("outputTank"));
+        allowedOutputs.clear();
+        int outputMask = data.getInt("outputMask");
+        for (Direction direction : Direction.values()) {
+            if ((outputMask & (1 << direction.getIndex())) != 0) allowedOutputs.add(direction);
+        }
         cachedRecipe = null;
     }
 

@@ -11,6 +11,7 @@ import appeng.container.slot.OutputSlot;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraft.util.Direction;
 
 public final class ReactionChamberContainer extends UpgradeableContainer implements IProgressProvider {
     public static final ContainerType<ReactionChamberContainer> TYPE = ContainerTypeBuilder
@@ -24,10 +25,30 @@ public final class ReactionChamberContainer extends UpgradeableContainer impleme
     public int processingTime;
     @GuiSync(3)
     public int maxProcessingTime;
+    @GuiSync(4)
+    public int outputMask;
 
     public ReactionChamberContainer(int id, PlayerInventory player, ReactionChamberTile host) {
         super(TYPE, id, player, host);
         this.host = host;
+        registerClientAction("toggleOutput", Integer.class, this::toggleOutputServer);
+    }
+
+    public boolean isOutputEnabled(Direction direction) {
+        return (outputMask & (1 << direction.getIndex())) != 0;
+    }
+
+    public void toggleOutput(Direction direction) {
+        if (direction == null) return;
+        if (isRemote()) sendClientAction("toggleOutput", Integer.valueOf(direction.getIndex()));
+        else toggleOutputServer(Integer.valueOf(direction.getIndex()));
+    }
+
+    private void toggleOutputServer(Integer index) {
+        if (index == null) return;
+        Direction direction = Direction.byIndex(index.intValue());
+        host.toggleOutput(direction);
+        outputMask = host.getOutputMask();
     }
 
     @Override
@@ -49,6 +70,7 @@ public final class ReactionChamberContainer extends UpgradeableContainer impleme
         if (isServer()) {
             processingTime = host.getProcessingTime();
             maxProcessingTime = host.getMaxProcessingTime();
+            outputMask = host.getOutputMask();
         }
         standardDetectAndSendChanges();
     }
