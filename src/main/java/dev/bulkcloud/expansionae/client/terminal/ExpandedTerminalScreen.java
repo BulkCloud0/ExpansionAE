@@ -65,7 +65,7 @@ import appeng.helpers.DualityInterface;
 import appeng.helpers.InventoryAction;
 import appeng.util.Platform;
 
-public class ExpandedTerminalScreen extends AEBaseScreen<ExpandedTerminalContainer> {
+public class ExpandedTerminalScreen<C extends ExpandedTerminalContainer> extends AEBaseScreen<C> {
 
     private static final int GUI_WIDTH = 195;
 
@@ -135,7 +135,7 @@ public class ExpandedTerminalScreen extends AEBaseScreen<ExpandedTerminalContain
     private AETextField searchField;
     private int numLines = 0;
 
-    public ExpandedTerminalScreen(ExpandedTerminalContainer container, PlayerInventory playerInventory,
+    public ExpandedTerminalScreen(C container, PlayerInventory playerInventory,
             ITextComponent title, ScreenStyle style) {
         super(container, playerInventory, title, style);
         this.scrollbar = widgets.addScrollBar("scrollbar");

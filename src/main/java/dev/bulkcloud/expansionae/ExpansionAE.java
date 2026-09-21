@@ -450,6 +450,9 @@ public final class ExpansionAE {
             new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 9, true, "small_advanced_pattern_provider")));
     public static final RegistryObject<Item> PATTERN_TERMINAL = ITEMS.register("ex_pattern_access_terminal", () ->
             new PartItem<>(props(), ExpandedTerminalPart::new));
+    public static final RegistryObject<ExpansionWirelessTerminalItem> WIRELESS_PATTERN_TERMINAL =
+            ITEMS.register("wireless_ex_pat", () -> new ExpansionWirelessTerminalItem(
+                    props().maxStackSize(1), () -> WirelessExpandedTerminalContainer.TYPE));
     public static final RegistryObject<Item> EX_CRAFTING_TERMINAL = ITEMS.register("ex_crafting_terminal", () ->
             new PartItem<>(props(), ExpandedCraftingTerminalPart::new));
 
@@ -592,6 +595,7 @@ public final class ExpansionAE {
         event.getRegistry().register(ExpandedIOPortContainer.TYPE);
         event.getRegistry().register(ExpandedDriveContainer.TYPE);
         event.getRegistry().register(ExpandedTerminalContainer.TYPE);
+        event.getRegistry().register(WirelessExpandedTerminalContainer.TYPE);
         event.getRegistry().register(ReactionChamberContainer.TYPE);
         event.getRegistry().register(QuantumCrafterContainer.TYPE);
         event.getRegistry().register(PortableWorkbenchContainer.TYPE);
@@ -607,6 +611,7 @@ public final class ExpansionAE {
     private void setup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             Api.instance().registries().cell().addCellHandler(new InfinityCellHandler());
+            Api.instance().registries().wireless().registerWirelessHandler(WIRELESS_PATTERN_TERMINAL.get());
             Upgrades.CRAFTING.registerItem(INTERFACE_ITEM.get(), 1);
             Upgrades.CRAFTING.registerItem(PROVIDER_ITEM.get(), 1);
             for (Item item : new Item[]{PROVIDER_PART.get(), INTERFACE_PART.get(), ADV_PROVIDER_ITEM.get(),

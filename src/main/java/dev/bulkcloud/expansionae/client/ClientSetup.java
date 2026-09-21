@@ -29,6 +29,7 @@ import dev.bulkcloud.expansionae.IngredientBufferContainer;
 import dev.bulkcloud.expansionae.CanerContainer;
 import dev.bulkcloud.expansionae.StockExportBusContainer;
 import dev.bulkcloud.expansionae.ExpandedTerminalContainer;
+import dev.bulkcloud.expansionae.WirelessExpandedTerminalContainer;
 import dev.bulkcloud.expansionae.ExpansionNetwork;
 import dev.bulkcloud.expansionae.client.terminal.ExpandedTerminalScreen;
 import net.minecraft.client.gui.ScreenManager;
@@ -55,10 +56,15 @@ public final class ClientSetup {
                 return new AssemblerMatrixPatternScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_matrix_pattern.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load assembler matrix pattern screen", e); }
         }));
-        event.enqueueWork(() -> ScreenManager.<ExpandedTerminalContainer, ExpandedTerminalScreen>registerFactory(ExpandedTerminalContainer.TYPE, (container, inventory, title) -> {
+        event.enqueueWork(() -> ScreenManager.<ExpandedTerminalContainer, ExpandedTerminalScreen<ExpandedTerminalContainer>>registerFactory(ExpandedTerminalContainer.TYPE, (container, inventory, title) -> {
             try {
-                return new ExpandedTerminalScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_terminal.json"));
+                return new ExpandedTerminalScreen<>(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_terminal.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load pattern access terminal", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<WirelessExpandedTerminalContainer, ExpandedTerminalScreen<WirelessExpandedTerminalContainer>>registerFactory(WirelessExpandedTerminalContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ExpandedTerminalScreen<>(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_pattern_terminal.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load wireless pattern access terminal", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<PatternEncoderContainer, PatternEncoderScreen>registerFactory(PatternEncoderContainer.TYPE, (container, inventory, title) -> {
             try {

@@ -171,5 +171,6 @@
   "key.expansionae.portable_workbench": "Open Quantum Portable Workbench",
   "key.categories.expansionae": "ExpansionAE",
   "block.expansionae.oversize_interface": "ME Oversize Interface",
-  "item.expansionae.oversize_interface_part": "ME Oversize Interface"
+  "item.expansionae.oversize_interface_part": "ME Oversize Interface",
+  "item.expansionae.wireless_ex_pat": "Wireless Expanded Pattern Access Terminal"
 }

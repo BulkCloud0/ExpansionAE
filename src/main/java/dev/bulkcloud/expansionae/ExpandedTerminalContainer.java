@@ -69,7 +69,7 @@ import appeng.util.inv.filter.IAEItemFilter;
 /**
  * @see appeng.client.gui.me.interfaceterminal.InterfaceTerminalScreen
  */
-public final class ExpandedTerminalContainer extends AEBaseContainer {
+public class ExpandedTerminalContainer extends AEBaseContainer {
 
     public static final ContainerType<ExpandedTerminalContainer> TYPE = ContainerTypeBuilder
             .create(ExpandedTerminalContainer::new, ExpandedTerminalPart.class)
@@ -87,7 +87,12 @@ public final class ExpandedTerminalContainer extends AEBaseContainer {
     private final Long2ObjectOpenHashMap<InvTracker> byId = new Long2ObjectOpenHashMap<>();
 
     public ExpandedTerminalContainer(int id, final PlayerInventory ip, final ExpandedTerminalPart anchor) {
-        super(TYPE, id, ip, anchor);
+        this(TYPE, id, ip, anchor);
+    }
+
+    protected ExpandedTerminalContainer(ContainerType<?> type, int id, final PlayerInventory ip,
+            final IActionHost anchor) {
+        super(type, id, ip, anchor);
         this.createPlayerInventorySlots(ip);
     }
 
