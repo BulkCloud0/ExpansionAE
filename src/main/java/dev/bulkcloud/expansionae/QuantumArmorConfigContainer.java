@@ -42,6 +42,7 @@ public final class QuantumArmorConfigContainer extends AEBaseContainer {
                 value -> this.selectedArmor = clamp(value == null ? 0 : value.intValue(), 0, ARMOR_SLOTS.length - 1));
         registerClientAction("installOrToggle", Integer.class, this::installOrToggleServer);
         registerClientAction("uninstall", Integer.class, this::uninstallServer);
+        registerClientAction("captureAutoStock", this::captureAutoStockServer);
     }
 
     public EquipmentSlotType getSelectedEquipmentSlot() {
@@ -94,6 +95,20 @@ public final class QuantumArmorConfigContainer extends AEBaseContainer {
         }
         getPlayerInventory().markDirty();
         refreshMasks();
+    }
+
+    public void captureAutoStock() {
+        if (isRemote()) sendClientAction("captureAutoStock");
+        else captureAutoStockServer();
+    }
+
+    private void captureAutoStockServer() {
+        ItemStack stack = getSelectedArmorStack();
+        if (!(stack.getItem() instanceof QuantumArmorItem)) return;
+        QuantumArmorItem armor = (QuantumArmorItem) stack.getItem();
+        if (!armor.hasUpgrade(stack, QuantumUpgradeType.AUTO_STOCK)) return;
+        armor.captureAutoStockTargets(stack, getPlayerInventory());
+        getPlayerInventory().markDirty();
     }
 
     private void uninstallServer(Integer ordinal) {

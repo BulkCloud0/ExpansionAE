@@ -3,6 +3,7 @@ package dev.bulkcloud.expansionae.client;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import dev.bulkcloud.expansionae.QuantumArmorConfigContainer;
 import dev.bulkcloud.expansionae.QuantumUpgradeType;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.client.gui.widget.button.Button;
 import net.minecraft.entity.player.PlayerInventory;
@@ -35,7 +36,14 @@ public final class QuantumArmorConfigScreen extends ContainerScreen<QuantumArmor
         for (int i = 0; i < types.length; i++) {
             final QuantumUpgradeType type = types[i];
             upgradeButtons[i] = addButton(new Button(guiLeft + 8, guiTop + 44, 178, 17,
-                    label(type), b -> container.installOrToggle(type)));
+                    label(type), b -> {
+                        if (type == QuantumUpgradeType.AUTO_STOCK
+                                && container.isInstalled(type) && Screen.hasShiftDown()) {
+                            container.captureAutoStock();
+                        } else {
+                            container.installOrToggle(type);
+                        }
+                    }));
             removeButtons[i] = addButton(new Button(guiLeft + 188, guiTop + 44, 24, 17,
                     new StringTextComponent("X"), b -> container.uninstall(type)));
         }
@@ -72,7 +80,9 @@ public final class QuantumArmorConfigScreen extends ContainerScreen<QuantumArmor
         String state;
         if (!container.isInstalled(type)) state = "INSTALL";
         else state = container.isEnabled(type) ? "ON" : "OFF";
-        return new StringTextComponent("[" + state + "] " + pretty(type.id()));
+        String suffix = type == QuantumUpgradeType.AUTO_STOCK && container.isInstalled(type)
+                ? " (Shift: capture)" : "";
+        return new StringTextComponent("[" + state + "] " + pretty(type.id()) + suffix);
     }
 
     private static String pretty(String id) {

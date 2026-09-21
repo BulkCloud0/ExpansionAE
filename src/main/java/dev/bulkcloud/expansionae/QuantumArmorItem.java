@@ -1,5 +1,6 @@
 package dev.bulkcloud.expansionae;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -25,6 +26,7 @@ import appeng.container.ContainerOpener;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -33,6 +35,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.ListNBT;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
@@ -47,6 +50,7 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
     private static final String UPGRADES = "ExpansionAEQuantumUpgrades";
     private static final String DISABLED_UPGRADES = "ExpansionAEQuantumDisabledUpgrades";
     private static final String ENCRYPTION_KEY = "encryptionKey";
+    private static final String AUTO_STOCK_TARGETS = "ExpansionAEAutoStockTargets";
     private static final UUID REACH_MODIFIER = UUID.fromString("2083e57d-4744-4d2b-bad5-5517c13a1734");
     private final double capacity;
 
@@ -155,6 +159,71 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
         if (!isUpgradeUsable(stack, type)) return false;
         if (type.cost() > 0) extractAEPower(stack, type.cost(), Actionable.MODULATE);
         return true;
+    }
+
+    public void captureAutoStockTargets(ItemStack armorStack, PlayerInventory inventory) {
+        List<AutoStockTarget> targets = new ArrayList<AutoStockTarget>();
+        int slots = Math.min(36, inventory.getSizeInventory());
+        for (int i = 0; i < slots; i++) {
+            ItemStack carried = inventory.getStackInSlot(i);
+            if (carried.isEmpty()) continue;
+
+            AutoStockTarget existing = null;
+            for (AutoStockTarget target : targets) {
+                if (ItemStack.areItemsEqual(target.stack, carried)
+                        && ItemStack.areItemStackTagsEqual(target.stack, carried)) {
+                    existing = target;
+                    break;
+                }
+            }
+
+            if (existing != null) {
+                existing.amount = Math.min(Integer.MAX_VALUE, existing.amount + carried.getCount());
+            } else {
+                ItemStack identity = carried.copy();
+                identity.setCount(1);
+                targets.add(new AutoStockTarget(identity, carried.getCount()));
+            }
+        }
+
+        ListNBT serialized = new ListNBT();
+        for (AutoStockTarget target : targets) {
+            CompoundNBT entry = new CompoundNBT();
+            entry.put("stack", target.stack.write(new CompoundNBT()));
+            entry.putInt("amount", target.amount);
+            serialized.add(entry);
+        }
+        armorStack.getOrCreateTag().put(AUTO_STOCK_TARGETS, serialized);
+    }
+
+    public List<AutoStockTarget> getAutoStockTargets(ItemStack armorStack) {
+        List<AutoStockTarget> result = new ArrayList<AutoStockTarget>();
+        CompoundNBT root = armorStack.getTag();
+        if (root == null || !root.contains(AUTO_STOCK_TARGETS, 9)) return result;
+
+        ListNBT serialized = root.getList(AUTO_STOCK_TARGETS, 10);
+        for (int i = 0; i < serialized.size(); i++) {
+            CompoundNBT entry = serialized.getCompound(i);
+            ItemStack identity = ItemStack.read(entry.getCompound("stack"));
+            int amount = Math.max(0, entry.getInt("amount"));
+            if (identity.isEmpty() || amount <= 0) continue;
+            identity.setCount(1);
+            result.add(new AutoStockTarget(identity, amount));
+        }
+        return result;
+    }
+
+    public static final class AutoStockTarget {
+        private final ItemStack stack;
+        private int amount;
+
+        private AutoStockTarget(ItemStack stack, int amount) {
+            this.stack = stack;
+            this.amount = amount;
+        }
+
+        public ItemStack getStack() { return stack; }
+        public int getAmount() { return amount; }
     }
 
     @Override

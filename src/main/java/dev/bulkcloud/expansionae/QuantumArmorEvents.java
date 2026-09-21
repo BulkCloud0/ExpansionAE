@@ -6,6 +6,14 @@ import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.energy.IEnergyGrid;
+import appeng.api.networking.security.IActionSource;
+import appeng.api.networking.storage.IStorageGrid;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.channels.IItemStorageChannel;
+import appeng.api.storage.data.IAEItemStack;
+import appeng.core.Api;
+import appeng.me.helpers.PlayerSource;
+import appeng.util.Platform;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
@@ -25,7 +33,6 @@ import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.energy.CapabilityEnergy;
-import net.minecraftforge.energy.IEnergyStorage;
 
 @Mod.EventBusSubscriber(modid = ExpansionAE.ID)
 public final class QuantumArmorEvents {
@@ -47,6 +54,7 @@ public final class QuantumArmorEvents {
             buff(helmet, QuantumUpgradeType.NIGHT_VISION, player, Effects.NIGHT_VISION, 0);
             buff(helmet, QuantumUpgradeType.LUCK, player, Effects.LUCK, 0);
             autoFeed(helmet, player);
+            autoStock(helmet, player);
 
             buff(chest, QuantumUpgradeType.LAVA_IMMUNITY, player, Effects.FIRE_RESISTANCE, 0);
             buff(chest, QuantumUpgradeType.REGENERATION, player, Effects.REGENERATION, 0);
@@ -154,6 +162,93 @@ public final class QuantumArmorEvents {
             player.inventory.markDirty();
             return;
         }
+    }
+
+    private static void autoStock(ItemStack stack, PlayerEntity player) {
+        QuantumArmorItem armor = armor(stack);
+        if (armor == null || !armor.isUpgradeUsable(stack, QuantumUpgradeType.AUTO_STOCK)) return;
+
+        List<QuantumArmorItem.AutoStockTarget> targets = armor.getAutoStockTargets(stack);
+        if (targets.isEmpty()) return;
+
+        IGrid grid = armor.getLinkedGrid(stack);
+        if (grid == null) return;
+        IStorageGrid storage = grid.getCache(IStorageGrid.class);
+        IEnergyGrid energy = grid.getCache(IEnergyGrid.class);
+        if (storage == null || energy == null || !energy.isNetworkPowered()) return;
+
+        IItemStorageChannel channel = Api.instance().storage().getStorageChannel(IItemStorageChannel.class);
+        IMEMonitor<IAEItemStack> network = storage.getInventory(channel);
+        IActionSource source = new PlayerSource(player, null);
+        boolean moved = false;
+
+        for (QuantumArmorItem.AutoStockTarget target : targets) {
+            ItemStack identity = target.getStack();
+            int current = countInventory(player, identity);
+            int delta = target.getAmount() - current;
+
+            if (delta > 0) {
+                IAEItemStack request = channel.createStack(identity);
+                request.setStackSize(delta);
+                IAEItemStack extracted = Platform.poweredExtraction(energy, network, request, source);
+                if (extracted == null || extracted.getStackSize() <= 0) continue;
+
+                ItemStack delivered = extracted.createItemStack();
+                int extractedCount = delivered.getCount();
+                player.inventory.addItemStackToInventory(delivered);
+                int remainder = delivered.isEmpty() ? 0 : delivered.getCount();
+                if (remainder > 0) {
+                    IAEItemStack returnStack = channel.createStack(delivered);
+                    network.injectItems(returnStack, Actionable.MODULATE, source);
+                }
+                moved |= extractedCount > remainder;
+            } else if (delta < 0) {
+                int excess = -delta;
+                IAEItemStack insertion = channel.createStack(identity);
+                insertion.setStackSize(excess);
+                IAEItemStack failed = Platform.poweredInsert(energy, network, insertion, source);
+                int failedCount = failed == null ? 0
+                        : (int) Math.min(Integer.MAX_VALUE, failed.getStackSize());
+                int accepted = excess - failedCount;
+                if (accepted > 0) {
+                    removeFromInventory(player, identity, accepted);
+                    moved = true;
+                }
+            }
+        }
+
+        if (moved) {
+            player.inventory.markDirty();
+            armor.consumeUpgradeEnergy(stack, QuantumUpgradeType.AUTO_STOCK);
+        }
+    }
+
+    private static int countInventory(PlayerEntity player, ItemStack identity) {
+        int count = 0;
+        int slots = Math.min(36, player.inventory.getSizeInventory());
+        for (int i = 0; i < slots; i++) {
+            ItemStack candidate = player.inventory.getStackInSlot(i);
+            if (sameIdentity(candidate, identity)) count += candidate.getCount();
+        }
+        return count;
+    }
+
+    private static void removeFromInventory(PlayerEntity player, ItemStack identity, int amount) {
+        int remaining = amount;
+        int slots = Math.min(36, player.inventory.getSizeInventory());
+        for (int i = 0; i < slots && remaining > 0; i++) {
+            ItemStack candidate = player.inventory.getStackInSlot(i);
+            if (!sameIdentity(candidate, identity)) continue;
+            int remove = Math.min(remaining, candidate.getCount());
+            candidate.shrink(remove);
+            remaining -= remove;
+        }
+    }
+
+    private static boolean sameIdentity(ItemStack a, ItemStack b) {
+        return !a.isEmpty() && !b.isEmpty()
+                && ItemStack.areItemsEqual(a, b)
+                && ItemStack.areItemStackTagsEqual(a, b);
     }
 
     private static void magnet(ItemStack stack, PlayerEntity player) {

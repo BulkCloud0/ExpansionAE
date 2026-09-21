@@ -17,7 +17,7 @@ public enum QuantumUpgradeType {
     FLIGHT("flight", EquipmentSlotType.CHEST, 10, true),
     WATER_BREATHING("water_breathing", EquipmentSlotType.HEAD, 10, true),
     AUTO_FEED("auto_feed", EquipmentSlotType.HEAD, 5, true),
-    AUTO_STOCK("auto_stock", EquipmentSlotType.HEAD, 5, false),
+    AUTO_STOCK("auto_stock", EquipmentSlotType.HEAD, 5, true),
     MAGNET("magnet", EquipmentSlotType.HEAD, 5, true),
     HP_BUFFER("hp_buffer", EquipmentSlotType.CHEST, 10, true),
     EVASION("evasion", EquipmentSlotType.FEET, 10, true),
