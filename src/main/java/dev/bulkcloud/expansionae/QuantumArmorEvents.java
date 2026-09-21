@@ -55,6 +55,7 @@ public final class QuantumArmorEvents {
             if (player.isSprinting()) buff(legs, QuantumUpgradeType.SPRINT_SPEED, player, Effects.SPEED, 1);
             else buff(legs, QuantumUpgradeType.WALK_SPEED, player, Effects.SPEED, 0);
             if (player.isInWater()) buff(legs, QuantumUpgradeType.SWIM_SPEED, player, Effects.DOLPHINS_GRACE, 0);
+            consumePassive(legs, QuantumUpgradeType.REACH);
 
             buff(boots, QuantumUpgradeType.JUMP_HEIGHT, player, Effects.JUMP_BOOST, 1);
         }
@@ -99,6 +100,13 @@ public final class QuantumArmorEvents {
         QuantumArmorItem armor = armor(stack);
         if (armor == null || !armor.consumeUpgradeEnergy(stack, type)) return;
         player.addPotionEffect(new EffectInstance(effect, 40, amplifier, true, false));
+    }
+
+    private static void consumePassive(ItemStack stack, QuantumUpgradeType type) {
+        QuantumArmorItem armor = armor(stack);
+        if (armor != null && armor.isUpgradeUsable(stack, type)) {
+            armor.consumeUpgradeEnergy(stack, type);
+        }
     }
 
     private static void autoFeed(ItemStack stack, PlayerEntity player) {
