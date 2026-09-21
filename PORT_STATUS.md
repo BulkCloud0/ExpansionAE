@@ -62,6 +62,8 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Quantum Armor Auto Stock adaptado para 1.16.5: Shift no botão do upgrade captura um snapshot de itens/quantidades do inventário e o capacete mantém essas metas extraindo faltas/devolvendo excedentes pela rede ME.
 - Recharging Card ligado à rede ME: recarrega a própria armadura e, no peitoral, itens Forge Energy carregados no inventário principal e offhand.
 - Pick-Craft no peitoral com keybind configurável (V por padrão): resolve o bloco mirado, valida crafting na rede ME e submete um job de 1 unidade ao crafting grid do AE2 8.4.
+- Auto Feed usa primeiro alimentos carregados e, quando não há nenhum, extrai automaticamente um alimento disponível da rede ME ligada ao capacete.
+- Reaction Chamber com auto-export direcional de item e fluido para qualquer combinação das seis faces, configurável na tela da máquina.
 
 ### Recursos
 - Telas próprias para os containers já adaptados.
@@ -75,10 +77,10 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 
 ### AdvancedAE
 - Quantum Armor: ainda faltam a paridade dos submenus modernos de valores/filtros/tint/style e a configuração fina de alguns upgrades; Auto Stock, Recharging, Pick-Craft, menu de cards e Portable Workbench já possuem implementação 1.16.5.
-- Auto Feed ainda usa alimento local do inventário; falta a seleção por filtro e fallback completo via armazenamento ME do upstream moderno.
+- Auto Feed já possui fallback via armazenamento ME; falta apenas a seleção por filtro/quantidade equivalente ao submenu moderno.
 - Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos; o AE2 8.4 não possui AEKey/GenericStack e exige uma representação própria para fluidos em padrões.
 - Integrações opcionais.
-- Auto-export direcional e configuração visual completa do Reaction Chamber, além da auditoria fina de opções de GUI, lock reasons e comportamentos modernos.
+- Configuração visual completa/lock reasons do Reaction Chamber e auditoria fina de opções modernas; o auto-export direcional funcional já está portado.
 
 ## Diferenças arquiteturais inevitáveis
 
