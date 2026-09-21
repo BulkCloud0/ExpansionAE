@@ -633,28 +633,40 @@ public final class ExpansionAE {
                     SMALL_ADV_PROVIDER_ITEM.get(), ADV_PROVIDER_PART.get(), SMALL_ADV_PROVIDER_PART.get()}) {
                 Upgrades.CRAFTING.registerItem(item, 1);
             }
-            for (Item item : new Item[]{IMPORT_BUS.get(), EXPORT_BUS.get(), IMPORT_EXPORT_BUS.get()}) {
+            // ExtendedAE fast buses use five capacity cards. Import supports inverter,
+            // while export supports crafting, matching the upstream part capabilities.
+            for (Item item : new Item[]{IMPORT_BUS.get(), EXPORT_BUS.get()}) {
                 Upgrades.SPEED.registerItem(item, 4);
-                Upgrades.CAPACITY.registerItem(item, 2);
+                Upgrades.CAPACITY.registerItem(item, 5);
                 Upgrades.REDSTONE.registerItem(item, 1);
                 Upgrades.FUZZY.registerItem(item, 1);
             }
+            Upgrades.INVERTER.registerItem(IMPORT_BUS.get(), 1);
             Upgrades.CRAFTING.registerItem(EXPORT_BUS.get(), 1);
-            Upgrades.CRAFTING.registerItem(IMPORT_EXPORT_BUS.get(), 1);
-            Upgrades.INVERTER.registerItem(IMPORT_EXPORT_BUS.get(), 1);
-            Upgrades.SPEED.registerItem(STOCK_EXPORT_BUS.get(), 4);
-            Upgrades.CAPACITY.registerItem(STOCK_EXPORT_BUS.get(), 2);
-            Upgrades.REDSTONE.registerItem(STOCK_EXPORT_BUS.get(), 1);
-            Upgrades.FUZZY.registerItem(STOCK_EXPORT_BUS.get(), 1);
-            Upgrades.CRAFTING.registerItem(STOCK_EXPORT_BUS.get(), 1);
-            for (Item item : new Item[]{ADVANCED_IO_BUS.get(), THRESHOLD_EXPORT_BUS.get(), PRECISE_EXPORT_BUS.get()}) {
+
+            // AdvancedAE import/export family.
+            for (Item item : new Item[]{IMPORT_EXPORT_BUS.get(), STOCK_EXPORT_BUS.get(), ADVANCED_IO_BUS.get()}) {
                 Upgrades.SPEED.registerItem(item, 4);
-                Upgrades.CAPACITY.registerItem(item, 2);
+                Upgrades.CAPACITY.registerItem(item, 5);
                 Upgrades.REDSTONE.registerItem(item, 1);
                 Upgrades.FUZZY.registerItem(item, 1);
-                Upgrades.INVERTER.registerItem(item, 1);
                 Upgrades.CRAFTING.registerItem(item, 1);
             }
+            // The 1.16.5 adaptation exposes the upstream import-filter inversion behavior.
+            Upgrades.INVERTER.registerItem(IMPORT_EXPORT_BUS.get(), 1);
+            Upgrades.INVERTER.registerItem(ADVANCED_IO_BUS.get(), 1);
+
+            // ExtendedAE precise/threshold buses have five capacity slots. Their custom
+            // logic is exact/threshold based, so unsupported fuzzy/inverter cards are
+            // deliberately not advertised.
+            Upgrades.SPEED.registerItem(THRESHOLD_EXPORT_BUS.get(), 4);
+            Upgrades.CAPACITY.registerItem(THRESHOLD_EXPORT_BUS.get(), 5);
+            Upgrades.REDSTONE.registerItem(THRESHOLD_EXPORT_BUS.get(), 1);
+
+            Upgrades.SPEED.registerItem(PRECISE_EXPORT_BUS.get(), 4);
+            Upgrades.CAPACITY.registerItem(PRECISE_EXPORT_BUS.get(), 5);
+            Upgrades.REDSTONE.registerItem(PRECISE_EXPORT_BUS.get(), 1);
+            Upgrades.CRAFTING.registerItem(PRECISE_EXPORT_BUS.get(), 1);
             Upgrades.SPEED.registerItem(ACTIVE_FORMATION_PLANE.get(), 4);
             Upgrades.CAPACITY.registerItem(ACTIVE_FORMATION_PLANE.get(), 5);
             Upgrades.REDSTONE.registerItem(ACTIVE_FORMATION_PLANE.get(), 1);
