@@ -41,6 +41,9 @@ public final class ExpansionNetwork {
         CHANNEL.registerMessage(7, RenamerNameUpdate.class,
                 RenamerNameUpdate::encode, RenamerNameUpdate::decode,
                 RenamerNameUpdate::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+        CHANNEL.registerMessage(8, PickCraftAction.class,
+                PickCraftAction::encode, PickCraftAction::decode,
+                PickCraftAction::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
     }
     public static void send(ServerPlayerEntity player, TerminalUpdate update) {
         CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), update);
@@ -64,6 +67,9 @@ public final class ExpansionNetwork {
         CHANNEL.sendToServer(update);
     }
     public static void sendToServer(RenamerNameUpdate update) {
+        CHANNEL.sendToServer(update);
+    }
+    public static void sendToServer(PickCraftAction update) {
         CHANNEL.sendToServer(update);
     }
     private ExpansionNetwork() { }

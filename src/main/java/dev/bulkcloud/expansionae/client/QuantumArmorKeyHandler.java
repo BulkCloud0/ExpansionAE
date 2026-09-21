@@ -22,6 +22,10 @@ public final class QuantumArmorKeyHandler {
             "key.expansionae.quantum_armor_config",
             GLFW.GLFW_KEY_UNKNOWN,
             "key.categories.expansionae");
+    public static final KeyBinding PICK_CRAFT = new KeyBinding(
+            "key.expansionae.pick_craft",
+            GLFW.GLFW_KEY_V,
+            "key.categories.expansionae");
 
     @SubscribeEvent
     public static void onKeyInput(InputEvent.KeyInputEvent event) {
@@ -30,6 +34,9 @@ public final class QuantumArmorKeyHandler {
         }
         while (ARMOR_CONFIG.isPressed()) {
             ExpansionNetwork.sendToServer(new OpenQuantumArmorConfig());
+        }
+        while (PICK_CRAFT.isPressed()) {
+            ExpansionNetwork.sendToServer(new dev.bulkcloud.expansionae.PickCraftAction());
         }
     }
 

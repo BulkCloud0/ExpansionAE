@@ -52,6 +52,8 @@ public final class ClientSetup {
                 QuantumArmorKeyHandler.PORTABLE_WORKBENCH);
         net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
                 QuantumArmorKeyHandler.ARMOR_CONFIG);
+        net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
+                QuantumArmorKeyHandler.PICK_CRAFT);
         event.enqueueWork(() -> ScreenManager.registerFactory(
                 QuantumArmorConfigContainer.TYPE, QuantumArmorConfigScreen::new));
         event.enqueueWork(() -> ScreenManager.registerFactory(

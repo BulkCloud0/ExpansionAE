@@ -31,7 +31,7 @@ public enum QuantumUpgradeType {
     FLIGHT_DRIFT("flight_drift", EquipmentSlotType.FEET, 10, true),
     CHARGING("charging", null, 0, true),
     WORKBENCH("portable_workbench", EquipmentSlotType.HEAD, 0, true),
-    PICK_CRAFT("pick_craft", EquipmentSlotType.CHEST, 1000, false);
+    PICK_CRAFT("pick_craft", EquipmentSlotType.CHEST, 1000, true);
 
     private final String id;
     private final EquipmentSlotType slot;
