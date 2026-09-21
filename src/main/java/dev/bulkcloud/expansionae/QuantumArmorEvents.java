@@ -152,10 +152,11 @@ public final class QuantumArmorEvents {
     private static void autoFeed(ItemStack stack, PlayerEntity player) {
         QuantumArmorItem armor = armor(stack);
         if (armor == null || !player.getFoodStats().needFood() || !armor.isUpgradeUsable(stack, QuantumUpgradeType.AUTO_FEED)) return;
+        ItemStack preferredFood = armor.getAutoFeedFilter(stack);
         for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
             ItemStack foodStack = player.inventory.getStackInSlot(i);
             Food food = foodStack.getItem().getFood();
-            if (food == null) continue;
+            if (food == null || !matchesAutoFeedFilter(foodStack, preferredFood)) continue;
             player.getFoodStats().addStats(food.getHealing(), food.getSaturation());
             foodStack.shrink(1);
             armor.consumeUpgradeEnergy(stack, QuantumUpgradeType.AUTO_FEED);
@@ -178,7 +179,7 @@ public final class QuantumArmorEvents {
             if (candidate == null || candidate.getStackSize() <= 0) continue;
             ItemStack representation = candidate.createItemStack();
             Food food = representation.getItem().getFood();
-            if (food == null) continue;
+            if (food == null || !matchesAutoFeedFilter(representation, preferredFood)) continue;
 
             IAEItemStack request = candidate.copy();
             request.setStackSize(1);
@@ -189,6 +190,12 @@ public final class QuantumArmorEvents {
             armor.consumeUpgradeEnergy(stack, QuantumUpgradeType.AUTO_FEED);
             return;
         }
+    }
+
+    private static boolean matchesAutoFeedFilter(ItemStack candidate, ItemStack filter) {
+        if (filter.isEmpty()) return true;
+        return ItemStack.areItemsEqual(candidate, filter)
+                && ItemStack.areItemStackTagsEqual(candidate, filter);
     }
 
     private static void autoStock(ItemStack stack, PlayerEntity player) {

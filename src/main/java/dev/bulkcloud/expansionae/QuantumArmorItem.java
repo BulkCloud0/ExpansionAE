@@ -51,6 +51,7 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
     private static final String DISABLED_UPGRADES = "ExpansionAEQuantumDisabledUpgrades";
     private static final String ENCRYPTION_KEY = "encryptionKey";
     private static final String AUTO_STOCK_TARGETS = "ExpansionAEAutoStockTargets";
+    private static final String AUTO_FEED_FILTER = "ExpansionAEAutoFeedFilter";
     private static final UUID REACH_MODIFIER = UUID.fromString("2083e57d-4744-4d2b-bad5-5517c13a1734");
     private final double capacity;
 
@@ -159,6 +160,26 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
         if (!isUpgradeUsable(stack, type)) return false;
         if (type.cost() > 0) extractAEPower(stack, type.cost(), Actionable.MODULATE);
         return true;
+    }
+
+    public void setAutoFeedFilter(ItemStack armorStack, ItemStack food) {
+        CompoundNBT root = armorStack.getOrCreateTag();
+        if (food.isEmpty() || food.getItem().getFood() == null) {
+            root.remove(AUTO_FEED_FILTER);
+            return;
+        }
+        ItemStack identity = food.copy();
+        identity.setCount(1);
+        root.put(AUTO_FEED_FILTER, identity.write(new CompoundNBT()));
+    }
+
+    public ItemStack getAutoFeedFilter(ItemStack armorStack) {
+        CompoundNBT root = armorStack.getTag();
+        if (root == null || !root.contains(AUTO_FEED_FILTER, 10)) return ItemStack.EMPTY;
+        ItemStack filter = ItemStack.read(root.getCompound(AUTO_FEED_FILTER));
+        if (filter.isEmpty() || filter.getItem().getFood() == null) return ItemStack.EMPTY;
+        filter.setCount(1);
+        return filter;
     }
 
     public void captureAutoStockTargets(ItemStack armorStack, PlayerInventory inventory) {

@@ -37,12 +37,17 @@ public final class QuantumArmorConfigScreen extends ContainerScreen<QuantumArmor
             final QuantumUpgradeType type = types[i];
             upgradeButtons[i] = addButton(new Button(guiLeft + 8, guiTop + 44, 178, 17,
                     label(type), b -> {
-                        if (type == QuantumUpgradeType.AUTO_STOCK
-                                && container.isInstalled(type) && Screen.hasShiftDown()) {
-                            container.captureAutoStock();
-                        } else {
-                            container.installOrToggle(type);
+                        if (container.isInstalled(type) && Screen.hasShiftDown()) {
+                            if (type == QuantumUpgradeType.AUTO_STOCK) {
+                                container.captureAutoStock();
+                                return;
+                            }
+                            if (type == QuantumUpgradeType.AUTO_FEED) {
+                                container.captureAutoFeed();
+                                return;
+                            }
                         }
+                        container.installOrToggle(type);
                     }));
             removeButtons[i] = addButton(new Button(guiLeft + 188, guiTop + 44, 24, 17,
                     new StringTextComponent("X"), b -> container.uninstall(type)));
@@ -80,8 +85,11 @@ public final class QuantumArmorConfigScreen extends ContainerScreen<QuantumArmor
         String state;
         if (!container.isInstalled(type)) state = "INSTALL";
         else state = container.isEnabled(type) ? "ON" : "OFF";
-        String suffix = type == QuantumUpgradeType.AUTO_STOCK && container.isInstalled(type)
-                ? " (Shift: capture)" : "";
+        String suffix = "";
+        if (container.isInstalled(type)) {
+            if (type == QuantumUpgradeType.AUTO_STOCK) suffix = " (Shift: capture)";
+            if (type == QuantumUpgradeType.AUTO_FEED) suffix = " (Shift: held filter)";
+        }
         return new StringTextComponent("[" + state + "] " + pretty(type.id()) + suffix);
     }
 
