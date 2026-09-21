@@ -170,5 +170,7 @@
   "item.expansionae.portable_workbench_card": "Card de Bancada Portátil",
   "item.expansionae.pick_craft_card": "Card Pick-Craft",
   "key.expansionae.portable_workbench": "Abrir Bancada Portátil Quântica",
-  "key.categories.expansionae": "ExpansionAE"
+  "key.categories.expansionae": "ExpansionAE",
+  "block.expansionae.oversize_interface": "Interface ME Superdimensionada",
+  "item.expansionae.oversize_interface_part": "Interface ME Superdimensionada"
 }

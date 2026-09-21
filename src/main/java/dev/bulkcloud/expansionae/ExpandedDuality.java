@@ -145,10 +145,20 @@ public class ExpandedDuality extends appeng.helpers.DualityInterface implements 
 
     public ExpandedDuality(final AENetworkProxy networkProxy, final IInterfaceHost ih,
             int storageSlots, int patternSlots) {
+        this(networkProxy, ih, storageSlots, patternSlots, 64);
+    }
+
+    public ExpandedDuality(final AENetworkProxy networkProxy, final IInterfaceHost ih,
+            int storageSlots, int patternSlots, int storageStackLimit) {
         super(networkProxy, ih);
         this.requireWork = new IAEItemStack[storageSlots];
-        this.config = new AppEngInternalAEInventory(this, storageSlots);
-        this.storage = new AppEngInternalInventory(this, storageSlots);
+        if (storageStackLimit > 64) {
+            this.config = new OversizeConfigInventory(this, storageSlots, storageStackLimit);
+            this.storage = new OversizeItemInventory(this, storageSlots, storageStackLimit);
+        } else {
+            this.config = new AppEngInternalAEInventory(this, storageSlots);
+            this.storage = new AppEngInternalInventory(this, storageSlots);
+        }
         this.patterns = new AppEngInternalInventory(this, patternSlots);
         this.gridProxy = networkProxy;
         this.gridProxy.setFlags(GridFlags.REQUIRE_CHANNEL);

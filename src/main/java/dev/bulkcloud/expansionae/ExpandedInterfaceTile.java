@@ -83,9 +83,14 @@ public class ExpandedInterfaceTile extends AENetworkInvTileEntity
     }
 
     public ExpandedInterfaceTile(TileEntityType<?> tileEntityTypeIn, int storageSlots, int patternSlots, boolean advanced) {
+        this(tileEntityTypeIn, storageSlots, patternSlots, advanced, 64);
+    }
+
+    public ExpandedInterfaceTile(TileEntityType<?> tileEntityTypeIn, int storageSlots, int patternSlots,
+            boolean advanced, int storageStackLimit) {
         super(tileEntityTypeIn);
         this.advanced = advanced;
-        duality = new ExpandedDuality(getProxy(), this, storageSlots, patternSlots);
+        duality = new ExpandedDuality(getProxy(), this, storageSlots, patternSlots, storageStackLimit);
     }
 
     @Override public boolean supportsAdvancedRouting() { return advanced; }

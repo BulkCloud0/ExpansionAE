@@ -82,7 +82,7 @@ public class ExpandedInterfacePart extends BasicStatePart implements IGridTickab
     private final IPartModel[] models;
     private static final java.util.Map<String, IPartModel[]> MODELS = new java.util.LinkedHashMap<>();
     static {
-        for (String id : new String[]{"ex_pattern_provider", "ex_interface", "advanced_pattern_provider", "small_advanced_pattern_provider"}) {
+        for (String id : new String[]{"ex_pattern_provider", "ex_interface", "oversize_interface", "advanced_pattern_provider", "small_advanced_pattern_provider"}) {
             ResourceLocation base = new ResourceLocation(ExpansionAE.ID, "part/" + id);
             MODELS.put(id, new IPartModel[]{
                 new PartModel(base, new ResourceLocation(AppEng.MOD_ID, "part/interface_off")),
@@ -99,10 +99,15 @@ public class ExpandedInterfacePart extends BasicStatePart implements IGridTickab
     }
 
     public ExpandedInterfacePart(ItemStack stack, int storageSlots, int patternSlots, boolean advanced, String model) {
+        this(stack, storageSlots, patternSlots, advanced, model, 64);
+    }
+
+    public ExpandedInterfacePart(ItemStack stack, int storageSlots, int patternSlots, boolean advanced,
+            String model, int storageStackLimit) {
         super(stack);
         this.advanced = advanced;
         this.models = MODELS.get(model);
-        this.duality = new ExpandedDuality(getProxy(), this, storageSlots, patternSlots);
+        this.duality = new ExpandedDuality(getProxy(), this, storageSlots, patternSlots, storageStackLimit);
     }
 
     @Override public boolean supportsAdvancedRouting() { return advanced; }

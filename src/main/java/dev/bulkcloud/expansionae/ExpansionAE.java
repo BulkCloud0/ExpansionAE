@@ -54,12 +54,21 @@ public final class ExpansionAE {
         block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newInterface);
         return block;
     });
+    public static final RegistryObject<ExpandedInterfaceBlock> OVERSIZE_INTERFACE = BLOCKS.register("oversize_interface", () -> {
+        ExpandedInterfaceBlock block = new ExpandedInterfaceBlock();
+        block.setTileEntity(ExpandedInterfaceTile.class, ExpansionAE::newOversizeInterface);
+        return block;
+    });
     public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> PROVIDER_TILE = TILES.register("ex_pattern_provider",
             () -> TileEntityType.Builder.create(ExpansionAE::newProvider, PROVIDER.get()).build(null));
     public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> INTERFACE_TILE = TILES.register("ex_interface",
             () -> TileEntityType.Builder.create(ExpansionAE::newInterface, INTERFACE.get()).build(null));
+    public static final RegistryObject<TileEntityType<ExpandedInterfaceTile>> OVERSIZE_INTERFACE_TILE = TILES.register("oversize_interface",
+            () -> TileEntityType.Builder.create(ExpansionAE::newOversizeInterface, OVERSIZE_INTERFACE.get()).build(null));
     public static final RegistryObject<Item> PROVIDER_ITEM = ITEMS.register("ex_pattern_provider", () -> new BlockItem(PROVIDER.get(), props()));
     public static final RegistryObject<Item> INTERFACE_ITEM = ITEMS.register("ex_interface", () -> new BlockItem(INTERFACE.get(), props()));
+    public static final RegistryObject<Item> OVERSIZE_INTERFACE_ITEM = ITEMS.register("oversize_interface",
+            () -> new BlockItem(OVERSIZE_INTERFACE.get(), props()));
     public static final RegistryObject<Item> WATER_CELL = ITEMS.register("infinity_water_cell", () -> new Item(props().maxStackSize(1)));
     public static final RegistryObject<Item> COBBLE_CELL = ITEMS.register("infinity_cobblestone_cell", () -> new Item(props().maxStackSize(1)));
     public static final RegistryObject<Item> IMPORT_BUS = ITEMS.register("ex_import_bus", () -> new PartItem<>(props(), FastImportBus::new));
@@ -433,6 +442,8 @@ public final class ExpansionAE {
             new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 36, false, "ex_pattern_provider")));
     public static final RegistryObject<Item> INTERFACE_PART = ITEMS.register("ex_interface_part", () ->
             new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 36, 0, false, "ex_interface")));
+    public static final RegistryObject<Item> OVERSIZE_INTERFACE_PART = ITEMS.register("oversize_interface_part", () ->
+            new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 36, 0, false, "oversize_interface", 1024)));
     public static final RegistryObject<Item> ADV_PROVIDER_PART = ITEMS.register("advanced_pattern_provider_part", () ->
             new PartItem<>(props(), stack -> new ExpandedInterfacePart(stack, 9, 36, true, "advanced_pattern_provider")));
     public static final RegistryObject<Item> SMALL_ADV_PROVIDER_PART = ITEMS.register("small_advanced_pattern_provider_part", () ->
@@ -458,6 +469,9 @@ public final class ExpansionAE {
 
     private static ExpandedInterfaceTile newProvider() { return new ExpandedInterfaceTile(PROVIDER_TILE.get(), 9, 36); }
     private static ExpandedInterfaceTile newInterface() { return new ExpandedInterfaceTile(INTERFACE_TILE.get(), 36, 0); }
+    private static ExpandedInterfaceTile newOversizeInterface() {
+        return new ExpandedInterfaceTile(OVERSIZE_INTERFACE_TILE.get(), 36, 0, false, 1024);
+    }
     private static ExpandedInterfaceTile newAdvancedProvider() { return new ExpandedInterfaceTile(ADV_PROVIDER_TILE.get(), 9, 36, true); }
     private static ExpandedInterfaceTile newSmallAdvancedProvider() { return new ExpandedInterfaceTile(SMALL_ADV_PROVIDER_TILE.get(), 9, 9, true); }
     private static ExpandedDriveTile newExpandedDrive() { return new ExpandedDriveTile(EX_DRIVE_TILE.get()); }
