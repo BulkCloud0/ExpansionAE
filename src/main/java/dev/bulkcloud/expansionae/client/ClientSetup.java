@@ -23,6 +23,7 @@ import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.ReactionChamberContainer;
 import dev.bulkcloud.expansionae.QuantumCrafterContainer;
+import dev.bulkcloud.expansionae.QuantumArmorConfigContainer;
 import dev.bulkcloud.expansionae.PortableWorkbenchContainer;
 import dev.bulkcloud.expansionae.CircuitCutterContainer;
 import dev.bulkcloud.expansionae.IngredientBufferContainer;
@@ -46,6 +47,10 @@ public final class ClientSetup {
         ExpansionNetwork.clientReceiver = ClientPackets::receive;
         net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
                 QuantumArmorKeyHandler.PORTABLE_WORKBENCH);
+        net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
+                QuantumArmorKeyHandler.ARMOR_CONFIG);
+        event.enqueueWork(() -> ScreenManager.registerFactory(
+                QuantumArmorConfigContainer.TYPE, QuantumArmorConfigScreen::new));
         event.enqueueWork(() -> ScreenManager.<ExpandedCraftingTerminalContainer, ExpandedCraftingTerminalScreen<ExpandedCraftingTerminalContainer>>registerFactory(ExpandedCraftingTerminalContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new ExpandedCraftingTerminalScreen<>(container, inventory, title,

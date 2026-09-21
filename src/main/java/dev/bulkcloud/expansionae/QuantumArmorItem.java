@@ -32,6 +32,7 @@ import net.minecraft.world.World;
 public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerStorage, IGuiItem {
     private static final String POWER = "ExpansionAEQuantumPower";
     private static final String UPGRADES = "ExpansionAEQuantumUpgrades";
+    private static final String DISABLED_UPGRADES = "ExpansionAEQuantumDisabledUpgrades";
     private final double capacity;
 
     public QuantumArmorItem(EquipmentSlotType slot, double capacity, Item.Properties properties) {
@@ -41,7 +42,7 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
 
     @Override
     public IGuiItemObject getGuiObject(ItemStack stack, int playerInventorySlot, World world, @Nullable BlockPos pos) {
-        if (slot == EquipmentSlotType.HEAD && hasUpgrade(stack, QuantumUpgradeType.WORKBENCH)) {
+        if (slot == EquipmentSlotType.HEAD && isUpgradeEnabled(stack, QuantumUpgradeType.WORKBENCH)) {
             return new PortableWorkbenchGuiObject(stack, world.isRemote);
         }
         return null;
@@ -71,11 +72,36 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
     public boolean installUpgrade(ItemStack stack, QuantumUpgradeType type) {
         if (!canInstall(type) || hasUpgrade(stack, type)) return false;
         stack.getOrCreateChildTag(UPGRADES).putBoolean(type.id(), true);
+        CompoundNBT disabled = stack.getChildTag(DISABLED_UPGRADES);
+        if (disabled != null) disabled.remove(type.id());
         return true;
     }
 
+    public boolean removeUpgrade(ItemStack stack, QuantumUpgradeType type) {
+        if (!hasUpgrade(stack, type)) return false;
+        CompoundNBT upgrades = stack.getChildTag(UPGRADES);
+        if (upgrades != null) upgrades.remove(type.id());
+        CompoundNBT disabled = stack.getChildTag(DISABLED_UPGRADES);
+        if (disabled != null) disabled.remove(type.id());
+        return true;
+    }
+
+    public boolean isUpgradeEnabled(ItemStack stack, QuantumUpgradeType type) {
+        if (!hasUpgrade(stack, type)) return false;
+        CompoundNBT disabled = stack.getChildTag(DISABLED_UPGRADES);
+        return disabled == null || !disabled.getBoolean(type.id());
+    }
+
+    public void toggleUpgrade(ItemStack stack, QuantumUpgradeType type) {
+        if (!hasUpgrade(stack, type)) return;
+        CompoundNBT disabled = stack.getOrCreateChildTag(DISABLED_UPGRADES);
+        boolean enabled = isUpgradeEnabled(stack, type);
+        if (enabled) disabled.putBoolean(type.id(), true);
+        else disabled.remove(type.id());
+    }
+
     public boolean isUpgradeUsable(ItemStack stack, QuantumUpgradeType type) {
-        return hasUpgrade(stack, type) && getAECurrentPower(stack) + 0.0001 >= type.cost();
+        return isUpgradeEnabled(stack, type) && getAECurrentPower(stack) + 0.0001 >= type.cost();
     }
 
     public boolean consumeUpgradeEnergy(ItemStack stack, QuantumUpgradeType type) {

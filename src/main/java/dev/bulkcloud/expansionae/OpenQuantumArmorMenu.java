@@ -31,7 +31,7 @@ public final class OpenQuantumArmorMenu {
             if (!(helmet.getItem() instanceof QuantumArmorItem)) return;
 
             QuantumArmorItem armor = (QuantumArmorItem) helmet.getItem();
-            if (!armor.hasUpgrade(helmet, QuantumUpgradeType.WORKBENCH)) return;
+            if (!armor.isUpgradeEnabled(helmet, QuantumUpgradeType.WORKBENCH)) return;
 
             int inventorySlot = findInventorySlot(player, helmet);
             if (inventorySlot < 0) return;

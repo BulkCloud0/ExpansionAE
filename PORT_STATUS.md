@@ -55,7 +55,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Regras de formação 7×7×7 adaptadas do upstream: vidro estrutural na borda, um Core interno, no máximo um Data Entangler e um Multi-Threader.
 - O cluster continua usando a engine de jobs do AE2 8.4; os contadores de storage/threads são escalados para os valores padrão do AdvancedAE (8 threads, multiplicadores 4×).
 - Quantum Crafter funcional no núcleo item-only do AE2 8.4: 9 padrões de crafting, buffer de 18 saídas, consumo direto do armazenamento ME, retorno automático para a rede e aceleração 1×/8×/16×/32×/64× com Speed Cards. O buffer local garante fallback sem perda quando a inserção na rede falha.
-- Quantum Armor energizada: helmet/chestplate/leggings/boots com capacidades 200M/300M/250M/200M AE, material Quantum Alloy, instalação por cards e núcleo 1.16.5 para voo, respiração aquática, visão noturna, magnet, auto-feed local, regeneração, força, attack-speed, HP buffer, walk/sprint/swim, jump, step assist, evasion, flight drift e proteção contra queda. Todos os 23 cards foram registrados; os dependentes de link ME/GUI ficam preservados mas marcados como integração pendente.
+- Quantum Armor energizada: helmet/chestplate/leggings/boots com capacidades 200M/300M/250M/200M AE, material Quantum Alloy, instalação por cards e menu de configuração para selecionar a peça equipada, instalar, ativar/desativar e desinstalar upgrades. O núcleo 1.16.5 cobre voo, respiração aquática, visão noturna, magnet, auto-feed local, regeneração, força, attack-speed, HP buffer, walk/sprint/swim, jump, step assist, evasion, flight drift e proteção contra queda. Todos os 23 cards estão registrados.
 - Portable Workbench funcional no capacete com card instalado: host persistente em NBT, 1 célula editável, 63 filtros, até 24 upgrades da célula, fuzzy mode, partition, clear e copy mode. Pode abrir ao segurar o capacete ou pelo keybind configurável diretamente enquanto ele está equipado.
 
 ### Recursos
@@ -71,7 +71,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 
 ### AdvancedAE
 - Quantum Crafter: configuração avançada por padrão (estoque mínimo/máximo), seleção direcional e integração ao terminal; o núcleo da máquina já está portado. Terminal e terminal wireless continuam pendentes.
-- Quantum Armor, upgrades, energia, filtros e telas de configuração.
+- Quantum Armor: ainda faltam os submenus modernos de filtros/valores/tint/style e as funções dependentes de link ME (Auto Stock, Recharging e Pick-Craft); instalação, toggle e desinstalação de cards já possuem menu 1.16.5.
 - Portable Workbench e utilitários associados.
 - Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos.
 - Integrações opcionais.

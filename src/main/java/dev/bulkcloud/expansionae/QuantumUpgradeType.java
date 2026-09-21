@@ -30,7 +30,7 @@ public enum QuantumUpgradeType {
     NIGHT_VISION("night_vision", EquipmentSlotType.HEAD, 10, true),
     FLIGHT_DRIFT("flight_drift", EquipmentSlotType.FEET, 10, true),
     CHARGING("charging", null, 0, false),
-    WORKBENCH("portable_workbench", EquipmentSlotType.HEAD, 0, false),
+    WORKBENCH("portable_workbench", EquipmentSlotType.HEAD, 0, true),
     PICK_CRAFT("pick_craft", EquipmentSlotType.CHEST, 1000, false);
 
     private final String id;
