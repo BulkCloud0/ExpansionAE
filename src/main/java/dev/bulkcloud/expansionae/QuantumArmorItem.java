@@ -7,9 +7,14 @@ import javax.annotation.Nullable;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.Actionable;
+import appeng.api.features.ILocatable;
+import appeng.api.features.INetworkEncodable;
 import appeng.api.implementations.items.IAEItemPowerStorage;
 import appeng.api.implementations.guiobjects.IGuiItem;
 import appeng.api.implementations.guiobjects.IGuiItemObject;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.IGridNode;
+import appeng.api.networking.security.IActionHost;
 import appeng.container.ContainerLocator;
 import appeng.container.ContainerOpener;
 import net.minecraft.client.util.ITooltipFlag;
@@ -29,10 +34,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
 
-public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerStorage, IGuiItem {
+public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerStorage, IGuiItem, INetworkEncodable {
     private static final String POWER = "ExpansionAEQuantumPower";
     private static final String UPGRADES = "ExpansionAEQuantumUpgrades";
     private static final String DISABLED_UPGRADES = "ExpansionAEQuantumDisabledUpgrades";
+    private static final String ENCRYPTION_KEY = "encryptionKey";
     private final double capacity;
 
     public QuantumArmorItem(EquipmentSlotType slot, double capacity, Item.Properties properties) {
@@ -62,6 +68,38 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
 
     public boolean canInstall(QuantumUpgradeType type) {
         return type.supports(this.slot);
+    }
+
+    @Override
+    public String getEncryptionKey(ItemStack stack) {
+        CompoundNBT tag = stack.getTag();
+        return tag == null ? "" : tag.getString(ENCRYPTION_KEY);
+    }
+
+    @Override
+    public void setEncryptionKey(ItemStack stack, String encKey, String name) {
+        CompoundNBT tag = stack.getOrCreateTag();
+        if (encKey == null || encKey.isEmpty()) tag.remove(ENCRYPTION_KEY);
+        else tag.putString(ENCRYPTION_KEY, encKey);
+    }
+
+    @Nullable
+    public IGrid getLinkedGrid(ItemStack stack) {
+        String key = getEncryptionKey(stack);
+        if (key.isEmpty()) return null;
+
+        try {
+            ILocatable locatable = Api.instance().registries().locatable().getLocatableBy(Long.parseLong(key));
+            if (!(locatable instanceof IActionHost)) return null;
+            IGridNode node = ((IActionHost) locatable).getActionableNode();
+            return node == null ? null : node.getGrid();
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
+    }
+
+    public boolean isLinked(ItemStack stack) {
+        return !getEncryptionKey(stack).isEmpty();
     }
 
     public boolean hasUpgrade(ItemStack stack, QuantumUpgradeType type) {
@@ -154,6 +192,7 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
             if (hasUpgrade(stack, type)) installed++;
         }
         lines.add(new StringTextComponent("Quantum upgrades: " + installed));
+        lines.add(new StringTextComponent(isLinked(stack) ? "ME network: Linked" : "ME network: Unlinked"));
     }
 
     @Override
