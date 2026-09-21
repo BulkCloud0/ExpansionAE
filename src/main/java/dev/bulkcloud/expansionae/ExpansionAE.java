@@ -432,6 +432,8 @@ public final class ExpansionAE {
     public static final RegistryObject<Item> ADV_PROVIDER_ITEM = ITEMS.register("advanced_pattern_provider", () -> new BlockItem(ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> SMALL_ADV_PROVIDER_ITEM = ITEMS.register("small_advanced_pattern_provider", () -> new BlockItem(SMALL_ADV_PROVIDER.get(), props()));
     public static final RegistryObject<Item> PATTERN_ENCODER = ITEMS.register("advanced_pattern_encoder", () -> new PatternEncoderItem(props()));
+    public static final RegistryObject<Item> ADV_PROCESSING_PATTERN = ITEMS.register("adv_processing_pattern",
+            () -> new AdvancedProcessingPatternItem(props().maxStackSize(1)));
     public static final RegistryObject<Item> PATTERN_MODIFIER = ITEMS.register("pattern_modifier", () ->
             new PatternModifierItem(props()));
     public static final RegistryObject<Item> PACKING_TAPE = ITEMS.register("me_packing_tape", () ->

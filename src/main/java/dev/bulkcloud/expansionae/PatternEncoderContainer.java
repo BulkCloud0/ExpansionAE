@@ -21,8 +21,38 @@ public final class PatternEncoderContainer extends AEBaseContainer {
         addSlot(new RestrictedInputSlot(RestrictedInputSlot.PlacableItemType.ENCODED_PATTERN, host.inventory, 0), SlotSemantic.ENCODED_PATTERN);
         createPlayerInventorySlots(player);
         registerClientAction("cycleFace", Integer.class, index -> { if (index != null) cycleFace(index); });
+        registerClientAction("convertPattern", this::convertPatternServer);
     }
     public ItemStack pattern() { return host.inventory.getStackInSlot(0); }
+    public boolean isAdvancedPattern() {
+        return !pattern().isEmpty() && pattern().getItem() == ExpansionAE.ADV_PROCESSING_PATTERN.get();
+    }
+
+    public void convertPattern() {
+        if (isRemote()) sendClientAction("convertPattern");
+        else convertPatternServer();
+    }
+
+    private void convertPatternServer() {
+        if (!holdingEncoder()) { setValidContainer(false); return; }
+        ItemStack current = pattern();
+        ICraftingPatternDetails details = details();
+        if (current.isEmpty() || details == null || details.isCraftable()) return;
+
+        ItemStack replacement;
+        if (current.getItem() == ExpansionAE.ADV_PROCESSING_PATTERN.get()) {
+            replacement = Api.instance().definitions().items().encodedPattern().maybeStack(1).orElse(ItemStack.EMPTY);
+        } else {
+            replacement = new ItemStack(ExpansionAE.ADV_PROCESSING_PATTERN.get());
+        }
+        if (replacement.isEmpty()) return;
+        if (current.hasTag()) replacement.setTag(current.getTag().copy());
+        if (current.hasDisplayName()) replacement.setDisplayName(current.getDisplayName());
+        host.inventory.setStackInSlot(0, replacement);
+        host.saveChanges();
+        detectAndSendChanges();
+    }
+
     public ICraftingPatternDetails details() { return Api.instance().crafting().decodePattern(pattern(), getPlayerInventory().player.world); }
     public void cycleFace(int inputIndex) {
         if (inputIndex < 0 || inputIndex >= 9) return;

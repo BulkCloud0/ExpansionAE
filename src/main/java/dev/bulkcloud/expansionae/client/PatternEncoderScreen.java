@@ -16,11 +16,14 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public final class PatternEncoderScreen extends AEBaseScreen<PatternEncoderContainer> {
     private final Button[] faces = new Button[9];
+    private Button convert;
     public PatternEncoderScreen(PatternEncoderContainer container, PlayerInventory inv, ITextComponent title, ScreenStyle style) {
         super(container, inv, title, style);
     }
     @Override protected void init() {
         super.init();
+        convert = addButton(new Button(guiLeft + 40, guiTop + 28, 140, 18,
+                StringTextComponent.EMPTY, button -> container.convertPattern()));
         for (int i = 0; i < 9; i++) {
             final int input = i;
             faces[i] = addButton(new Button(guiLeft + 40, guiTop + 48 + 18 * i, 140, 18,
@@ -30,6 +33,12 @@ public final class PatternEncoderScreen extends AEBaseScreen<PatternEncoderConta
     @Override protected void updateBeforeRender() {
         super.updateBeforeRender();
         ICraftingPatternDetails details = container.details();
+        if (convert != null) {
+            convert.active = details != null && !details.isCraftable();
+            convert.setMessage(new TranslationTextComponent(container.isAdvancedPattern()
+                    ? "gui.expansionae.pattern_encoder.normal"
+                    : "gui.expansionae.pattern_encoder.advanced"));
+        }
         for (int i = 0; i < 9; i++) if (faces[i] != null) {
             int face = RoutingBuffer.face(container.pattern(), i);
             faces[i].setMessage(new TranslationTextComponent(face == -1 ? "gui.expansionae.face.auto"
