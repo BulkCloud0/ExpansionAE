@@ -162,6 +162,33 @@ public final class QuantumArmorEvents {
             player.inventory.markDirty();
             return;
         }
+
+        // If no carried food is available, use the linked ME network as a
+        // 1.16.5 fallback for AdvancedAE's filtered auto-feed behavior.
+        IGrid grid = armor.getLinkedGrid(stack);
+        if (grid == null) return;
+        IStorageGrid storage = grid.getCache(IStorageGrid.class);
+        IEnergyGrid energy = grid.getCache(IEnergyGrid.class);
+        if (storage == null || energy == null || !energy.isNetworkPowered()) return;
+
+        IItemStorageChannel channel = Api.instance().storage().getStorageChannel(IItemStorageChannel.class);
+        IMEMonitor<IAEItemStack> network = storage.getInventory(channel);
+        IActionSource source = new PlayerSource(player, null);
+        for (IAEItemStack candidate : network.getStorageList()) {
+            if (candidate == null || candidate.getStackSize() <= 0) continue;
+            ItemStack representation = candidate.createItemStack();
+            Food food = representation.getItem().getFood();
+            if (food == null) continue;
+
+            IAEItemStack request = candidate.copy();
+            request.setStackSize(1);
+            IAEItemStack extracted = Platform.poweredExtraction(energy, network, request, source);
+            if (extracted == null || extracted.getStackSize() <= 0) continue;
+
+            player.getFoodStats().addStats(food.getHealing(), food.getSaturation());
+            armor.consumeUpgradeEnergy(stack, QuantumUpgradeType.AUTO_FEED);
+            return;
+        }
     }
 
     private static void autoStock(ItemStack stack, PlayerEntity player) {
