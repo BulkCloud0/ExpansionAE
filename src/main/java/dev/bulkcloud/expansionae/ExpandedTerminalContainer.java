@@ -72,7 +72,8 @@ import appeng.util.inv.filter.IAEItemFilter;
 public class ExpandedTerminalContainer extends AEBaseContainer {
 
     public static final ContainerType<ExpandedTerminalContainer> TYPE = ContainerTypeBuilder
-            .create(ExpandedTerminalContainer::new, ExpandedTerminalPart.class)
+            .create((ContainerTypeBuilder.ContainerFactory<ExpandedTerminalContainer, ExpandedTerminalPart>) ExpandedTerminalContainer::new,
+                    ExpandedTerminalPart.class)
             .requirePermission(SecurityPermissions.BUILD)
             .build("expansionae_pattern_terminal");
 
