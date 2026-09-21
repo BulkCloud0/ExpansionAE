@@ -24,6 +24,8 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.event.entity.living.LivingHurtEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.energy.CapabilityEnergy;
+import net.minecraftforge.energy.IEnergyStorage;
 
 @Mod.EventBusSubscriber(modid = ExpansionAE.ID)
 public final class QuantumArmorEvents {
@@ -60,10 +62,10 @@ public final class QuantumArmorEvents {
             buff(boots, QuantumUpgradeType.JUMP_HEIGHT, player, Effects.JUMP_BOOST, 1);
         }
 
-        recharge(helmet);
-        recharge(chest);
-        recharge(legs);
-        recharge(boots);
+        recharge(helmet, player, false);
+        recharge(chest, player, true);
+        recharge(legs, player, false);
+        recharge(boots, player, false);
 
         magnet(helmet, player);
         updateFlight(chest, player);
@@ -75,12 +77,9 @@ public final class QuantumArmorEvents {
         return stack.getItem() instanceof QuantumArmorItem ? (QuantumArmorItem) stack.getItem() : null;
     }
 
-    private static void recharge(ItemStack stack) {
+    private static void recharge(ItemStack stack, PlayerEntity player, boolean rechargeInventory) {
         QuantumArmorItem armor = armor(stack);
         if (armor == null || !armor.isUpgradeEnabled(stack, QuantumUpgradeType.CHARGING)) return;
-
-        double missing = armor.getAEMaxPower(stack) - armor.getAECurrentPower(stack);
-        if (missing <= 0.0001) return;
 
         IGrid grid = armor.getLinkedGrid(stack);
         if (grid == null) return;
@@ -88,12 +87,45 @@ public final class QuantumArmorEvents {
         IEnergyGrid energy = grid.getCache(IEnergyGrid.class);
         if (energy == null || !energy.isNetworkPowered()) return;
 
-        double request = Math.min(10000.0, missing);
-        double extracted = energy.extractAEPower(request, Actionable.MODULATE, PowerMultiplier.CONFIG);
-        if (extracted <= 0) return;
+        double missing = armor.getAEMaxPower(stack) - armor.getAECurrentPower(stack);
+        if (missing > 0.0001) {
+            double request = Math.min(10000.0, missing);
+            double extracted = energy.extractAEPower(request, Actionable.MODULATE, PowerMultiplier.CONFIG);
+            if (extracted > 0) {
+                double remainder = armor.injectAEPower(stack, extracted, Actionable.MODULATE);
+                if (remainder > 0) energy.injectPower(remainder, Actionable.MODULATE);
+            }
+        }
 
-        double remainder = armor.injectAEPower(stack, extracted, Actionable.MODULATE);
-        if (remainder > 0) energy.injectPower(remainder, Actionable.MODULATE);
+        // AdvancedAE's chestplate charging upgrade also services carried Forge Energy
+        // items. Keep the same behavior here without introducing an RF/FE dependency:
+        // Forge's native IEnergyStorage capability is available in 1.16.5.
+        if (rechargeInventory) {
+            for (int slot = 0; slot < 36; slot++) {
+                rechargeForgeEnergy(player.inventory.getStackInSlot(slot), energy);
+            }
+            rechargeForgeEnergy(player.getHeldItemOffhand(), energy);
+        }
+    }
+
+    private static void rechargeForgeEnergy(ItemStack stack, IEnergyGrid energy) {
+        if (stack.isEmpty()) return;
+
+        stack.getCapability(CapabilityEnergy.ENERGY).ifPresent(storage -> {
+            if (!storage.canReceive()) return;
+
+            int missing = Math.max(0, storage.getMaxEnergyStored() - storage.getEnergyStored());
+            if (missing <= 0) return;
+
+            double request = Math.min(10000.0, missing);
+            double extracted = energy.extractAEPower(request, Actionable.MODULATE, PowerMultiplier.CONFIG);
+            if (extracted <= 0) return;
+
+            int offered = (int) Math.min(Integer.MAX_VALUE, Math.floor(extracted));
+            int accepted = offered <= 0 ? 0 : storage.receiveEnergy(offered, false);
+            double remainder = extracted - accepted;
+            if (remainder > 0) energy.injectPower(remainder, Actionable.MODULATE);
+        });
     }
 
     private static void buff(ItemStack stack, QuantumUpgradeType type, PlayerEntity player, Effect effect, int amplifier) {
