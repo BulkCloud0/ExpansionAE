@@ -25,7 +25,7 @@ public enum QuantumUpgradeType {
     STRENGTH("strength", EquipmentSlotType.CHEST, 10, true),
     ATTACK_SPEED("attack_speed", EquipmentSlotType.CHEST, 10, true),
     LUCK("luck", EquipmentSlotType.HEAD, 10, true),
-    REACH("reach", EquipmentSlotType.LEGS, 10, false),
+    REACH("reach", EquipmentSlotType.LEGS, 10, true),
     SWIM_SPEED("swim_speed", EquipmentSlotType.LEGS, 5, true),
     NIGHT_VISION("night_vision", EquipmentSlotType.HEAD, 10, true),
     FLIGHT_DRIFT("flight_drift", EquipmentSlotType.FEET, 10, true),
