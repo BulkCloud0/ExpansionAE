@@ -58,6 +58,10 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Quantum Crafter Terminal cabeado e wireless para gerenciar remotamente os Quantum Crafters ativos da mesma rede, com paginação por máquina, edição dos 9 padrões, enable/disable, mínimos de entrada, máximo de saída, ME export e faces de saída.
 - Quantum Armor energizada: helmet/chestplate/leggings/boots com capacidades 200M/300M/250M/200M AE, material Quantum Alloy, instalação por cards e menu de configuração para selecionar a peça equipada, instalar, ativar/desativar e desinstalar upgrades. O núcleo 1.16.5 cobre voo, respiração aquática, visão noturna, magnet, auto-feed local, regeneração, força, attack-speed, HP buffer, walk/sprint/swim, jump, step assist, evasion, flight drift e proteção contra queda. Todos os 23 cards estão registrados.
 - Portable Workbench funcional no capacete com card instalado: host persistente em NBT, 1 célula editável, 63 filtros, até 24 upgrades da célula, fuzzy mode, partition, clear e copy mode. Pode abrir ao segurar o capacete ou pelo keybind configurável diretamente enquanto ele está equipado.
+- Wireless Expanded Pattern Access Terminal e Wireless Expanded Crafting Terminal usando alcance, bateria, segurança e registro wireless nativos do AE2 8.4.
+- Quantum Armor Auto Stock adaptado para 1.16.5: Shift no botão do upgrade captura um snapshot de itens/quantidades do inventário e o capacete mantém essas metas extraindo faltas/devolvendo excedentes pela rede ME.
+- Recharging Card ligado à rede ME: recarrega a própria armadura e, no peitoral, itens Forge Energy carregados no inventário principal e offhand.
+- Pick-Craft no peitoral com keybind configurável (V por padrão): resolve o bloco mirado, valida crafting na rede ME e submete um job de 1 unidade ao crafting grid do AE2 8.4.
 
 ### Recursos
 - Telas próprias para os containers já adaptados.
@@ -67,14 +71,12 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 ## Ainda pendente ou sem paridade completa
 
 ### ExtendedAE
-- Wireless Expanded Pattern Access Terminal e Wireless Expanded Crafting Terminal, ambos sobre o sistema nativo de WAP, segurança, alcance e bateria do AE2 8.4. O Wireless Connector 1:1, Wireless Hub 1:N de 8 portas e as ferramentas de pareamento também estão portados.
 - Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 
 ### AdvancedAE
-- Quantum Crafter: configuração avançada por padrão (estoque mínimo/máximo), seleção direcional e integração ao terminal; o núcleo da máquina já está portado. Terminal e terminal wireless continuam pendentes.
-- Quantum Armor: ainda faltam os submenus modernos de filtros/valores/tint/style e as funções dependentes de link ME (Auto Stock, Recharging e Pick-Craft); instalação, toggle e desinstalação de cards já possuem menu 1.16.5.
-- Portable Workbench e utilitários associados.
-- Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos.
+- Quantum Armor: ainda faltam a paridade dos submenus modernos de valores/filtros/tint/style e a configuração fina de alguns upgrades; Auto Stock, Recharging, Pick-Craft, menu de cards e Portable Workbench já possuem implementação 1.16.5.
+- Auto Feed ainda usa alimento local do inventário; falta a seleção por filtro e fallback completo via armazenamento ME do upstream moderno.
+- Formato moderno de Advanced Processing Pattern com stacks genéricos/fluidos; o AE2 8.4 não possui AEKey/GenericStack e exige uma representação própria para fluidos em padrões.
 - Integrações opcionais.
 - Auto-export direcional e configuração visual completa do Reaction Chamber, além da auditoria fina de opções de GUI, lock reasons e comportamentos modernos.
 
