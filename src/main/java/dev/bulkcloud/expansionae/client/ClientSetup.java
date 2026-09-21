@@ -30,6 +30,7 @@ import dev.bulkcloud.expansionae.CanerContainer;
 import dev.bulkcloud.expansionae.StockExportBusContainer;
 import dev.bulkcloud.expansionae.ExpandedTerminalContainer;
 import dev.bulkcloud.expansionae.WirelessExpandedTerminalContainer;
+import dev.bulkcloud.expansionae.WirelessExpandedCraftingTerminalContainer;
 import dev.bulkcloud.expansionae.ExpansionNetwork;
 import dev.bulkcloud.expansionae.client.terminal.ExpandedTerminalScreen;
 import net.minecraft.client.gui.ScreenManager;
@@ -45,11 +46,17 @@ public final class ClientSetup {
         ExpansionNetwork.clientReceiver = ClientPackets::receive;
         net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
                 QuantumArmorKeyHandler.PORTABLE_WORKBENCH);
-        event.enqueueWork(() -> ScreenManager.<ExpandedCraftingTerminalContainer, ExpandedCraftingTerminalScreen>registerFactory(ExpandedCraftingTerminalContainer.TYPE, (container, inventory, title) -> {
+        event.enqueueWork(() -> ScreenManager.<ExpandedCraftingTerminalContainer, ExpandedCraftingTerminalScreen<ExpandedCraftingTerminalContainer>>registerFactory(ExpandedCraftingTerminalContainer.TYPE, (container, inventory, title) -> {
             try {
-                return new ExpandedCraftingTerminalScreen(container, inventory, title,
+                return new ExpandedCraftingTerminalScreen<>(container, inventory, title,
                         StyleManager.loadStyleDoc("/screens/terminals/crafting_terminal.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load expanded crafting terminal", e); }
+        }));
+        event.enqueueWork(() -> ScreenManager.<WirelessExpandedCraftingTerminalContainer, ExpandedCraftingTerminalScreen<WirelessExpandedCraftingTerminalContainer>>registerFactory(WirelessExpandedCraftingTerminalContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ExpandedCraftingTerminalScreen<>(container, inventory, title,
+                        StyleManager.loadStyleDoc("/screens/terminals/crafting_terminal.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load wireless expanded crafting terminal", e); }
         }));
         event.enqueueWork(() -> ScreenManager.<AssemblerMatrixPatternContainer, AssemblerMatrixPatternScreen>registerFactory(AssemblerMatrixPatternContainer.TYPE, (container, inventory, title) -> {
             try {

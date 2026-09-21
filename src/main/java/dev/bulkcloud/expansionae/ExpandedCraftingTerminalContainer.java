@@ -42,14 +42,14 @@ import net.minecraftforge.items.IItemHandlerModifiable;
  * AE2 8.4's terminal style. Slots outside the active recipe inventory are
  * disabled by the delegating item handler.
  */
-public final class ExpandedCraftingTerminalContainer extends ItemTerminalContainer
+public class ExpandedCraftingTerminalContainer extends ItemTerminalContainer
         implements IContainerCraftingPacket {
     public static final ContainerType<ExpandedCraftingTerminalContainer> TYPE = ContainerTypeBuilder
             .create(ExpandedCraftingTerminalContainer::new, ExpandedCraftingTerminalPart.class)
             .requirePermission(SecurityPermissions.CRAFT)
             .build("expansionae_crafting_terminal");
 
-    private final ExpandedCraftingTerminalPart host;
+    private final ExpandedCraftingInventoryHost host;
     private final ModeInventory modeInventory;
     private final CraftingMatrixSlot[] craftingSlots = new CraftingMatrixSlot[9];
     private final ExpandedOutputSlot outputSlot;
@@ -61,7 +61,12 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
     @GuiSync(24) public String anvilName = "";
 
     public ExpandedCraftingTerminalContainer(int id, PlayerInventory player, ExpandedCraftingTerminalPart host) {
-        super(TYPE, id, player, (ITerminalHost) host, false);
+        this(TYPE, id, player, host, host);
+    }
+
+    protected ExpandedCraftingTerminalContainer(ContainerType<?> type, int id, PlayerInventory player,
+            ITerminalHost terminalHost, ExpandedCraftingInventoryHost host) {
+        super(type, id, player, terminalHost, false);
         this.host = host;
         this.mode = host.getCraftingMode();
         this.modeInventory = new ModeInventory();
@@ -72,7 +77,7 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
         }
 
         addSlot(outputSlot = new ExpandedOutputSlot(
-                player.player, getActionSource(), powerSource, host,
+                player.player, getActionSource(), powerSource, terminalHost,
                 modeInventory, modeInventory, this), SlotSemantic.CRAFTING_RESULT);
 
         createPlayerInventorySlots(player);

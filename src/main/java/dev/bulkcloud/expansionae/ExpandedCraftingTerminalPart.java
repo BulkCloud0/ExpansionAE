@@ -25,7 +25,7 @@ import net.minecraftforge.items.IItemHandler;
  * inputs. Crafting, smithing, stonecutting and anvil inventories are persisted
  * independently and share the ME terminal view.
  */
-public final class ExpandedCraftingTerminalPart extends CraftingTerminalPart {
+public final class ExpandedCraftingTerminalPart extends CraftingTerminalPart implements ExpandedCraftingInventoryHost {
     @PartModels
     public static final ResourceLocation MODEL_OFF =
             new ResourceLocation(ExpansionAE.ID, "part/ex_crafting_terminal_off");

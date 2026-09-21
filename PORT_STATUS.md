@@ -10,7 +10,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 - Oversize Interface em bloco e multipart, com 36 posições e capacidade 16× (até 1024 itens por posição), com persistência própria para contagens acima do limite vanilla do ItemStack 1.16.5.
 - Advanced Pattern Provider e Small Advanced Pattern Provider, incluindo roteamento por face para padrões de processamento.
 - Expanded Pattern Access Terminal próprio para inventários maiores que os nove slots assumidos pelo terminal original do AE2 8.4.
-- Expanded Crafting Terminal em multipart com o núcleo de crafting 3×3, armazenamento ME, segurança e persistência do AE2 8.4; os modos extras modernos (stonecutter/smithing/anvil) continuam em adaptação.
+- Expanded Crafting Terminal em multipart com Crafting 3×3, Stonecutter, Smithing e Anvil, com inventários persistentes por modo, armazenamento ME e segurança do AE2 8.4.
 - Advanced Pattern Encoder portátil.
 - Pattern Modifier.
 - Persistência dos buffers de roteamento e devolução segura de itens pendentes.
@@ -66,9 +66,7 @@ Este arquivo descreve o estado real do branch `port/1.16.5`. A meta continua sen
 ## Ainda pendente ou sem paridade completa
 
 ### ExtendedAE
-- Terminais wireless estendidos. O Wireless Connector 1:1, Wireless Hub 1:N de 8 portas, a ferramenta básica de pareamento e a ferramenta avançada com fila já estão portados.
-- Expanded Crafting Terminal: modos modernos adicionais Stonecutter/Smithing/Anvil; o modo Crafting 3×3 já está funcional.
-- Variantes wireless do Expanded Crafting Terminal.
+- Wireless Expanded Pattern Access Terminal e Wireless Expanded Crafting Terminal, ambos sobre o sistema nativo de WAP, segurança, alcance e bateria do AE2 8.4. O Wireless Connector 1:1, Wireless Hub 1:N de 8 portas e as ferramentas de pareamento também estão portados.
 - Integrações opcionais que existam e sejam viáveis no ecossistema 1.16.5.
 
 ### AdvancedAE

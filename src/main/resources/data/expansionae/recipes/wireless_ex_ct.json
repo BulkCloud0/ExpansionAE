@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": ["A", "B", "C"],
+  "key": {
+    "A": { "item": "appliedenergistics2:wireless_receiver" },
+    "B": { "item": "expansionae:ex_crafting_terminal" },
+    "C": { "item": "appliedenergistics2:dense_energy_cell" }
+  },
+  "result": { "item": "expansionae:wireless_ex_ct" }
+}

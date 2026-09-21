@@ -173,5 +173,6 @@
   "key.categories.expansionae": "ExpansionAE",
   "block.expansionae.oversize_interface": "Interface ME Superdimensionada",
   "item.expansionae.oversize_interface_part": "Interface ME Superdimensionada",
-  "item.expansionae.wireless_ex_pat": "Terminal Wireless de Acesso a Padrões Expandido"
+  "item.expansionae.wireless_ex_pat": "Terminal Wireless de Acesso a Padrões Expandido",
+  "item.expansionae.wireless_ex_ct": "Terminal de Fabricação Estendido Wireless"
 }

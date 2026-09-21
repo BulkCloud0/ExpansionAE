@@ -172,5 +172,6 @@
   "key.categories.expansionae": "ExpansionAE",
   "block.expansionae.oversize_interface": "ME Oversize Interface",
   "item.expansionae.oversize_interface_part": "ME Oversize Interface",
-  "item.expansionae.wireless_ex_pat": "Wireless Expanded Pattern Access Terminal"
+  "item.expansionae.wireless_ex_pat": "Wireless Expanded Pattern Access Terminal",
+  "item.expansionae.wireless_ex_ct": "Wireless Expanded Crafting Terminal"
 }

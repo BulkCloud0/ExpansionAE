@@ -455,6 +455,9 @@ public final class ExpansionAE {
                     props().maxStackSize(1), () -> WirelessExpandedTerminalContainer.TYPE));
     public static final RegistryObject<Item> EX_CRAFTING_TERMINAL = ITEMS.register("ex_crafting_terminal", () ->
             new PartItem<>(props(), ExpandedCraftingTerminalPart::new));
+    public static final RegistryObject<ExpansionWirelessTerminalItem> WIRELESS_CRAFTING_TERMINAL =
+            ITEMS.register("wireless_ex_ct", () -> new ExpansionWirelessTerminalItem(
+                    props().maxStackSize(1), () -> WirelessExpandedCraftingTerminalContainer.TYPE));
 
     public static final RegistryObject<Item> INTERFACE_UPGRADE = ITEMS.register("interface_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.INTERFACE));
@@ -577,6 +580,7 @@ public final class ExpansionAE {
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().register(ExpandedContainer.TYPE);
         event.getRegistry().register(ExpandedCraftingTerminalContainer.TYPE);
+        event.getRegistry().register(WirelessExpandedCraftingTerminalContainer.TYPE);
         event.getRegistry().register(AssemblerMatrixPatternContainer.TYPE);
         event.getRegistry().register(PatternEncoderContainer.TYPE);
         event.getRegistry().register(PatternModifierContainer.TYPE);
@@ -612,6 +616,7 @@ public final class ExpansionAE {
         event.enqueueWork(() -> {
             Api.instance().registries().cell().addCellHandler(new InfinityCellHandler());
             Api.instance().registries().wireless().registerWirelessHandler(WIRELESS_PATTERN_TERMINAL.get());
+            Api.instance().registries().wireless().registerWirelessHandler(WIRELESS_CRAFTING_TERMINAL.get());
             Upgrades.CRAFTING.registerItem(INTERFACE_ITEM.get(), 1);
             Upgrades.CRAFTING.registerItem(PROVIDER_ITEM.get(), 1);
             for (Item item : new Item[]{PROVIDER_PART.get(), INTERFACE_PART.get(), ADV_PROVIDER_ITEM.get(),

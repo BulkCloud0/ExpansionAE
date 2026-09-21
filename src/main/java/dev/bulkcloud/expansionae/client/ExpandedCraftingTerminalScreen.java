@@ -12,15 +12,15 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 
-public final class ExpandedCraftingTerminalScreen
-        extends ItemTerminalScreen<ExpandedCraftingTerminalContainer> {
+public final class ExpandedCraftingTerminalScreen<C extends ExpandedCraftingTerminalContainer>
+        extends ItemTerminalScreen<C> {
     private Button modeButton;
     private Button previousRecipe;
     private Button nextRecipe;
     private TextFieldWidget anvilName;
     private boolean updatingName;
 
-    public ExpandedCraftingTerminalScreen(ExpandedCraftingTerminalContainer container,
+    public ExpandedCraftingTerminalScreen(C container,
             PlayerInventory playerInventory, ITextComponent title, ScreenStyle style) {
         super(container, playerInventory, title, style);
         ActionButton clear = new ActionButton(ActionItems.STASH, btn -> container.clearCraftingGrid());
