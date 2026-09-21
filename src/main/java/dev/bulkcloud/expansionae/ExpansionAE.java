@@ -615,6 +615,7 @@ public final class ExpansionAE {
         event.getRegistry().register(CircuitCutterContainer.TYPE);
         event.getRegistry().register(IngredientBufferContainer.TYPE);
         event.getRegistry().register(CanerContainer.TYPE);
+        event.getRegistry().register(RenamerContainer.TYPE);
     }
 
     private void registerRecipeSerializers(RegistryEvent.Register<IRecipeSerializer<?>> event) {
