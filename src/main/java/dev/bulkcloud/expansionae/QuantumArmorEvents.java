@@ -2,6 +2,11 @@ package dev.bulkcloud.expansionae;
 
 import java.util.List;
 
+import appeng.api.config.Actionable;
+import appeng.api.config.PowerMultiplier;
+import appeng.api.networking.IGrid;
+import appeng.api.networking.energy.IEnergyGrid;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ExperienceOrbEntity;
 import net.minecraft.entity.item.ItemEntity;
@@ -54,6 +59,11 @@ public final class QuantumArmorEvents {
             buff(boots, QuantumUpgradeType.JUMP_HEIGHT, player, Effects.JUMP_BOOST, 1);
         }
 
+        recharge(helmet);
+        recharge(chest);
+        recharge(legs);
+        recharge(boots);
+
         magnet(helmet, player);
         updateFlight(chest, player);
         updateStepAssist(boots, player);
@@ -62,6 +72,27 @@ public final class QuantumArmorEvents {
 
     private static QuantumArmorItem armor(ItemStack stack) {
         return stack.getItem() instanceof QuantumArmorItem ? (QuantumArmorItem) stack.getItem() : null;
+    }
+
+    private static void recharge(ItemStack stack) {
+        QuantumArmorItem armor = armor(stack);
+        if (armor == null || !armor.isUpgradeEnabled(stack, QuantumUpgradeType.CHARGING)) return;
+
+        double missing = armor.getAEMaxPower(stack) - armor.getAECurrentPower(stack);
+        if (missing <= 0.0001) return;
+
+        IGrid grid = armor.getLinkedGrid(stack);
+        if (grid == null) return;
+
+        IEnergyGrid energy = grid.getCache(IEnergyGrid.class);
+        if (energy == null || !energy.isNetworkPowered()) return;
+
+        double request = Math.min(10000.0, missing);
+        double extracted = energy.extractAEPower(request, Actionable.MODULATE, PowerMultiplier.CONFIG);
+        if (extracted <= 0) return;
+
+        double remainder = armor.injectAEPower(stack, extracted, Actionable.MODULATE);
+        if (remainder > 0) energy.injectPower(remainder, Actionable.MODULATE);
     }
 
     private static void buff(ItemStack stack, QuantumUpgradeType type, PlayerEntity player, Effect effect, int amplifier) {
