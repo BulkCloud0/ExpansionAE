@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [" Q ", " T ", " Q "],
+  "key": {
+    "Q": { "item": "expansionae:quantum_processor" },
+    "T": { "item": "appliedenergistics2:interface_terminal" }
+  },
+  "result": { "item": "expansionae:quantum_crafter_terminal" }
+}

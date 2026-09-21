@@ -23,6 +23,8 @@ import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.ReactionChamberContainer;
 import dev.bulkcloud.expansionae.QuantumCrafterContainer;
+import dev.bulkcloud.expansionae.QuantumCrafterTerminalContainer;
+import dev.bulkcloud.expansionae.WirelessQuantumCrafterTerminalContainer;
 import dev.bulkcloud.expansionae.QuantumArmorConfigContainer;
 import dev.bulkcloud.expansionae.PortableWorkbenchContainer;
 import dev.bulkcloud.expansionae.CircuitCutterContainer;
@@ -183,6 +185,10 @@ public final class ClientSetup {
                 return new QuantumCrafterScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_quantum_crafter.json"));
             } catch (IOException e) { throw new IllegalStateException("Cannot load quantum crafter screen", e); }
         }));
+        event.enqueueWork(() -> ScreenManager.<QuantumCrafterTerminalContainer, QuantumCrafterTerminalScreen<QuantumCrafterTerminalContainer>>registerFactory(
+                QuantumCrafterTerminalContainer.TYPE, QuantumCrafterTerminalScreen::new));
+        event.enqueueWork(() -> ScreenManager.<WirelessQuantumCrafterTerminalContainer, QuantumCrafterTerminalScreen<WirelessQuantumCrafterTerminalContainer>>registerFactory(
+                WirelessQuantumCrafterTerminalContainer.TYPE, QuantumCrafterTerminalScreen::new));
         event.enqueueWork(() -> ScreenManager.<PortableWorkbenchContainer, PortableWorkbenchScreen>registerFactory(PortableWorkbenchContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new PortableWorkbenchScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/cell_workbench.json"));

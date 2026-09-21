@@ -176,5 +176,8 @@
   "item.expansionae.wireless_ex_pat": "Terminal Wireless de Acesso a Padrões Expandido",
   "item.expansionae.wireless_ex_ct": "Terminal de Fabricação Estendido Wireless",
   "key.expansionae.quantum_armor_config": "Abrir Configuração da Armadura Quântica",
-  "gui.expansionae.quantum_armor_config": "Configuração da Armadura Quântica"
+  "gui.expansionae.quantum_armor_config": "Configuração da Armadura Quântica",
+  "item.expansionae.quantum_crafter_terminal": "Terminal de Fabricadores Quânticos",
+  "item.expansionae.wireless_quantum_crafter_terminal": "Terminal Wireless de Fabricadores Quânticos",
+  "gui.expansionae.quantum_crafter_terminal": "Terminal de Fabricadores Quânticos"
 }

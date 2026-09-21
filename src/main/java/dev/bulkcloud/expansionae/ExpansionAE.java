@@ -458,6 +458,12 @@ public final class ExpansionAE {
     public static final RegistryObject<ExpansionWirelessTerminalItem> WIRELESS_CRAFTING_TERMINAL =
             ITEMS.register("wireless_ex_ct", () -> new ExpansionWirelessTerminalItem(
                     props().maxStackSize(1), () -> WirelessExpandedCraftingTerminalContainer.TYPE));
+    public static final RegistryObject<Item> QUANTUM_CRAFTER_TERMINAL =
+            ITEMS.register("quantum_crafter_terminal", () ->
+                    new PartItem<>(props(), QuantumCrafterTerminalPart::new));
+    public static final RegistryObject<ExpansionWirelessTerminalItem> WIRELESS_QUANTUM_CRAFTER_TERMINAL =
+            ITEMS.register("wireless_quantum_crafter_terminal", () -> new ExpansionWirelessTerminalItem(
+                    props().maxStackSize(1), () -> WirelessQuantumCrafterTerminalContainer.TYPE));
 
     public static final RegistryObject<Item> INTERFACE_UPGRADE = ITEMS.register("interface_upgrade", () ->
             new UpgradeItem(props().maxStackSize(16), UpgradeItem.Target.INTERFACE));
@@ -602,6 +608,8 @@ public final class ExpansionAE {
         event.getRegistry().register(WirelessExpandedTerminalContainer.TYPE);
         event.getRegistry().register(ReactionChamberContainer.TYPE);
         event.getRegistry().register(QuantumCrafterContainer.TYPE);
+        event.getRegistry().register(QuantumCrafterTerminalContainer.TYPE);
+        event.getRegistry().register(WirelessQuantumCrafterTerminalContainer.TYPE);
         event.getRegistry().register(PortableWorkbenchContainer.TYPE);
         event.getRegistry().register(QuantumArmorConfigContainer.TYPE);
         event.getRegistry().register(CircuitCutterContainer.TYPE);
@@ -618,6 +626,7 @@ public final class ExpansionAE {
             Api.instance().registries().cell().addCellHandler(new InfinityCellHandler());
             Api.instance().registries().wireless().registerWirelessHandler(WIRELESS_PATTERN_TERMINAL.get());
             Api.instance().registries().wireless().registerWirelessHandler(WIRELESS_CRAFTING_TERMINAL.get());
+            Api.instance().registries().wireless().registerWirelessHandler(WIRELESS_QUANTUM_CRAFTER_TERMINAL.get());
             Upgrades.CRAFTING.registerItem(INTERFACE_ITEM.get(), 1);
             Upgrades.CRAFTING.registerItem(PROVIDER_ITEM.get(), 1);
             for (Item item : new Item[]{PROVIDER_PART.get(), INTERFACE_PART.get(), ADV_PROVIDER_ITEM.get(),
