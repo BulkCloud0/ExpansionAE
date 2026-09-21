@@ -40,9 +40,10 @@ public final class RenamerHook {
             Vector3d worldHit = hit.getHitVec();
             Vector3d localHit = worldHit.subtract(pos.getX(), pos.getY(), pos.getZ());
             appeng.api.parts.SelectedPart selected = ((CableBusTileEntity) tile).selectPart(localHit);
-            if (selected.part instanceof ICustomNameObject) {
-                target = (ICustomNameObject) selected.part;
-                locator = ContainerLocator.forPart(selected.part);
+            if (selected.part instanceof appeng.parts.AEBasePart) {
+                appeng.parts.AEBasePart part = (appeng.parts.AEBasePart) selected.part;
+                target = part;
+                locator = ContainerLocator.forPart(part);
             }
         } else if (tile instanceof AEBaseTileEntity && tile instanceof ICustomNameObject) {
             target = (ICustomNameObject) tile;
