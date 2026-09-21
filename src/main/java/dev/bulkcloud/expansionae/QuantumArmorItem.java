@@ -1,7 +1,11 @@
 package dev.bulkcloud.expansionae;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
+
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.Multimap;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +25,8 @@ import appeng.container.ContainerOpener;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
@@ -34,12 +40,14 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeMod;
 
 public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerStorage, IGuiItem, INetworkEncodable {
     private static final String POWER = "ExpansionAEQuantumPower";
     private static final String UPGRADES = "ExpansionAEQuantumUpgrades";
     private static final String DISABLED_UPGRADES = "ExpansionAEQuantumDisabledUpgrades";
     private static final String ENCRYPTION_KEY = "encryptionKey";
+    private static final UUID REACH_MODIFIER = UUID.fromString("2083e57d-4744-4d2b-bad5-5517c13a1734");
     private final double capacity;
 
     public QuantumArmorItem(EquipmentSlotType slot, double capacity, Item.Properties properties) {
@@ -176,6 +184,20 @@ public final class QuantumArmorItem extends ArmorItem implements IAEItemPowerSto
         return stack.hasTag() ? stack.getTag().getDouble(POWER) : 0;
     }
     @Override public AccessRestriction getPowerFlow(ItemStack stack) { return AccessRestriction.WRITE; }
+
+    @Override
+    public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType equipmentSlot, ItemStack stack) {
+        Multimap<Attribute, AttributeModifier> base = super.getAttributeModifiers(equipmentSlot, stack);
+        if (equipmentSlot != EquipmentSlotType.LEGS || !isUpgradeUsable(stack, QuantumUpgradeType.REACH)) {
+            return base;
+        }
+
+        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
+        builder.putAll(base);
+        builder.put(ForgeMod.REACH_DISTANCE.get(), new AttributeModifier(
+                REACH_MODIFIER, "expansionae_quantum_reach", 1.0D, AttributeModifier.Operation.ADDITION));
+        return builder.build();
+    }
 
     @Override
     public <T extends LivingEntity> int damageItem(ItemStack stack, int amount,
