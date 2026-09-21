@@ -29,7 +29,7 @@ public final class ExpandedCraftingTerminalScreen
     }
 
     @Override
-    protected void init() {
+    public void init() {
         super.init();
 
         modeButton = addButton(new Button(guiLeft + 112, guiTop + 3, 76, 16,

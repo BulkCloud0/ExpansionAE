@@ -184,9 +184,11 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
                 anvilCost = 0;
                 break;
             case ANVIL:
-                AnvilPreview preview = anvilPreview(getPlayerInventory());
-                result = preview.output;
-                anvilCost = preview.cost;
+                result = anvilPreview(getPlayerInventory());
+                // The MCP 1.16.5 cost holder is intentionally not server-public.
+                // Actual XP validation and charging are delegated to the vanilla
+                // RepairContainer output slot when the craft is taken.
+                anvilCost = 0;
                 stonecutRecipeCount = 0;
                 break;
             case CRAFTING:
@@ -228,14 +230,17 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
         return inv;
     }
 
-    private AnvilPreview anvilPreview(PlayerInventory playerInventory) {
+    private RepairContainer createAnvil(PlayerInventory playerInventory) {
         RepairContainer repair = new RepairContainer(0, playerInventory);
         repair.getSlot(0).putStack(modeInventory.getStackInSlot(0).copy());
         repair.getSlot(1).putStack(modeInventory.getStackInSlot(1).copy());
-        repair.setItemName(anvilName);
-        repair.createResult();
-        return new AnvilPreview(repair.getSlot(2).getStack().copy(),
-                repair.getCost(), repair.repairItemCountCost);
+        repair.updateItemName(anvilName);
+        repair.updateRepairOutput();
+        return repair;
+    }
+
+    private ItemStack anvilPreview(PlayerInventory playerInventory) {
+        return createAnvil(playerInventory).getSlot(2).getStack().copy();
     }
 
     void performSpecialCraft(InventoryAction action, ServerPlayerEntity player) {
@@ -251,21 +256,28 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
             ItemStack result = outputSlot.getStack().copy();
             if (result.isEmpty() || !destination.simulateAdd(result).isEmpty()) break;
 
+            int firstCost = 1;
             int secondCost = 1;
-            int xpCost = 0;
             if (mode == ExpandedCraftingMode.ANVIL) {
-                AnvilPreview preview = anvilPreview(player.inventory);
-                result = preview.output;
-                xpCost = preview.cost;
-                secondCost = Math.max(1, preview.materialCost);
-                if (result.isEmpty()) break;
-                if (!player.abilities.isCreativeMode && (xpCost <= 0 || player.experienceLevel < xpCost)) break;
+                RepairContainer repair = createAnvil(player.inventory);
+                result = repair.getSlot(2).getStack().copy();
+                if (result.isEmpty() || !repair.getSlot(2).canTakeStack(player)) break;
+
+                int beforeFirst = repair.getSlot(0).getStack().getCount();
+                int beforeSecond = repair.getSlot(1).getStack().getCount();
+
+                // Let vanilla apply the exact XP cost and repair-material rules
+                // against the temporary copy, then mirror its input deltas back
+                // into this terminal's persistent grid.
+                repair.getSlot(2).onTake(player, result.copy());
+
+                firstCost = beforeFirst - repair.getSlot(0).getStack().getCount();
+                secondCost = beforeSecond - repair.getSlot(1).getStack().getCount();
+                if (firstCost <= 0) firstCost = beforeFirst;
+                if (secondCost < 0) secondCost = 0;
             }
 
-            if (!consumeInputs(secondCost)) break;
-            if (mode == ExpandedCraftingMode.ANVIL && !player.abilities.isCreativeMode) {
-                player.addExperienceLevel(-xpCost);
-            }
+            if (!consumeInputs(firstCost, secondCost)) break;
 
             ItemStack failed = destination.addItems(result.copy());
             if (!failed.isEmpty()) {
@@ -276,14 +288,15 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
         recalculateOutput();
     }
 
-    private boolean consumeInputs(int anvilSecondCost) {
+    private boolean consumeInputs(int anvilFirstCost, int anvilSecondCost) {
         switch (mode) {
             case STONECUTTING:
                 return consume(0, 1);
             case SMITHING:
                 return consume(0, 1) && consume(1, 1);
             case ANVIL:
-                return consume(0, 1) && consume(1, anvilSecondCost);
+                return consume(0, anvilFirstCost)
+                        && (anvilSecondCost <= 0 || consume(1, anvilSecondCost));
             default:
                 return false;
         }
@@ -399,15 +412,4 @@ public final class ExpandedCraftingTerminalContainer extends ItemTerminalContain
         }
     }
 
-    private static final class AnvilPreview {
-        private final ItemStack output;
-        private final int cost;
-        private final int materialCost;
-
-        private AnvilPreview(ItemStack output, int cost, int materialCost) {
-            this.output = output;
-            this.cost = cost;
-            this.materialCost = materialCost;
-        }
-    }
 }
