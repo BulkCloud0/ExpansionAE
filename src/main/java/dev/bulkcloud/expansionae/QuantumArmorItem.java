@@ -16,6 +16,7 @@ import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.security.IActionHost;
 import appeng.container.ContainerLocator;
+import appeng.core.Api;
 import appeng.container.ContainerOpener;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
