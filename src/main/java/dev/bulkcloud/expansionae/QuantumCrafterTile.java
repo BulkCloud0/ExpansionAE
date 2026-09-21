@@ -37,32 +37,43 @@ import net.minecraft.block.BlockState;
 import net.minecraft.inventory.CraftingInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
 
 /**
  * AdvancedAE Quantum Crafter backport for AE2 8.4.
  *
- * <p>AE2 8.4 only exposes item crafting patterns, so this implementation
- * executes vanilla/AE2 crafting patterns directly against ME item storage. It
- * preserves the upstream 9 pattern slots, 18 output-buffer slots and speed-card
- * factors. Modern per-pattern GenericStack/fluid configuration is intentionally
- * kept separate from this core backport.</p>
+ * AE2 8.4 only exposes item crafting patterns, so generic fluid-key inputs from
+ * newer AdvancedAE cannot be represented here. Item-pattern semantics are kept:
+ * nine independently enabled jobs, per-input reserve amounts, per-job output
+ * caps, 18 oversized output slots, ME/adjacent export and speed-card factors.
  */
 public final class QuantumCrafterTile extends AENetworkPowerTileEntity
         implements IGridTickable, IUpgradeableHost {
     public static final int PATTERN_SLOTS = 9;
     public static final int OUTPUT_SLOTS = 18;
+    public static final int INPUT_CONFIG_SLOTS = 9;
+    public static final int OUTPUT_SLOT_LIMIT = 1024;
     private static final double ENERGY_PER_CRAFT = 10.0;
 
     private final AppEngInternalInventory patterns = new AppEngInternalInventory(this, PATTERN_SLOTS, 1);
-    private final AppEngInternalInventory outputs = new AppEngInternalInventory(this, OUTPUT_SLOTS, 64);
+    private final OversizeItemInventory outputs =
+            new OversizeItemInventory(this, OUTPUT_SLOTS, OUTPUT_SLOT_LIMIT);
     private final IItemHandler internal = new WrapperChainedItemHandler(patterns, outputs);
     private final UpgradeInventory upgrades;
     private final IActionSource source = new MachineSource(this);
+
+    private final boolean[] enabledPatterns = new boolean[PATTERN_SLOTS];
+    private final long[][] minimumInputStock = new long[PATTERN_SLOTS][INPUT_CONFIG_SLOTS];
+    private final long[] maximumOutputStock = new long[PATTERN_SLOTS];
+    private boolean exportToME = true;
+    private int outputSideMask;
 
     public QuantumCrafterTile(TileEntityType<?> type) {
         super(type);
@@ -80,6 +91,71 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
 
     public IItemHandler getPatternInventory() { return patterns; }
     public IItemHandler getOutputInventory() { return outputs; }
+
+    public boolean isPatternEnabled(int slot) {
+        return validPatternSlot(slot) && enabledPatterns[slot];
+    }
+
+    public void togglePatternEnabled(int slot) {
+        if (!validPatternSlot(slot)) return;
+        enabledPatterns[slot] = !enabledPatterns[slot];
+        configChanged();
+    }
+
+    public long getMinimumInputStock(int patternSlot, int inputSlot) {
+        if (!validPatternSlot(patternSlot) || inputSlot < 0 || inputSlot >= INPUT_CONFIG_SLOTS) return 0;
+        return minimumInputStock[patternSlot][inputSlot];
+    }
+
+    public void adjustMinimumInputStock(int patternSlot, int inputSlot, long delta) {
+        if (!validPatternSlot(patternSlot) || inputSlot < 0 || inputSlot >= INPUT_CONFIG_SLOTS) return;
+        minimumInputStock[patternSlot][inputSlot] =
+                addClamped(minimumInputStock[patternSlot][inputSlot], delta);
+        configChanged();
+    }
+
+    public long getMaximumOutputStock(int patternSlot) {
+        return validPatternSlot(patternSlot) ? maximumOutputStock[patternSlot] : 0;
+    }
+
+    public void adjustMaximumOutputStock(int patternSlot, long delta) {
+        if (!validPatternSlot(patternSlot)) return;
+        maximumOutputStock[patternSlot] = addClamped(maximumOutputStock[patternSlot], delta);
+        configChanged();
+    }
+
+    public boolean isExportToME() { return exportToME; }
+
+    public void toggleExportToME() {
+        exportToME = !exportToME;
+        configChanged();
+    }
+
+    public int getOutputSideMask() { return outputSideMask; }
+
+    public void toggleOutputSide(int ordinal) {
+        if (ordinal < 0 || ordinal >= Direction.values().length) return;
+        outputSideMask ^= 1 << ordinal;
+        configChanged();
+    }
+
+    private static long addClamped(long value, long delta) {
+        if (delta > 0 && value > Long.MAX_VALUE - delta) return Long.MAX_VALUE;
+        if (delta < 0 && value < -delta) return 0;
+        return Math.max(0L, value + delta);
+    }
+
+    private boolean validPatternSlot(int slot) {
+        return slot >= 0 && slot < PATTERN_SLOTS;
+    }
+
+    private void configChanged() {
+        saveChanges();
+        try {
+            getProxy().getTick().wakeDevice(getProxy().getNode());
+        } catch (GridAccessException ignored) {
+        }
+    }
 
     @Override
     public IItemHandler getInternalInventory() { return internal; }
@@ -105,16 +181,35 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
     @Override
     public void onChangeInventory(IItemHandler inv, int slot, InvOperation operation,
             ItemStack removed, ItemStack added) {
-        saveChanges();
-        try {
-            getProxy().getTick().wakeDevice(getProxy().getNode());
-        } catch (GridAccessException ignored) {
+        if (inv == patterns && validPatternSlot(slot)
+                && !sameStackIdentity(removed, added)) {
+            enabledPatterns[slot] = false;
+            maximumOutputStock[slot] = 0;
+            for (int i = 0; i < INPUT_CONFIG_SLOTS; i++) {
+                minimumInputStock[slot][i] = 0;
+            }
         }
+        configChanged();
     }
 
-    private boolean hasPatterns() {
+    private static boolean sameStackIdentity(ItemStack a, ItemStack b) {
+        if (a.isEmpty() && b.isEmpty()) return true;
+        return !a.isEmpty() && !b.isEmpty()
+                && ItemStack.areItemsEqual(a, b)
+                && ItemStack.areItemStackTagsEqual(a, b);
+    }
+
+    private boolean hasWork() {
+        if (!exportToME && hasBufferedOutput()) return true;
         for (int i = 0; i < PATTERN_SLOTS; i++) {
-            if (!patterns.getStackInSlot(i).isEmpty()) return true;
+            if (enabledPatterns[i] && !patterns.getStackInSlot(i).isEmpty()) return true;
+        }
+        return exportToME && hasBufferedOutput();
+    }
+
+    private boolean hasBufferedOutput() {
+        for (int i = 0; i < OUTPUT_SLOTS; i++) {
+            if (!outputs.getStackInSlot(i).isEmpty()) return true;
         }
         return false;
     }
@@ -131,12 +226,12 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
 
     @Override
     public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(1, 20, !hasPatterns(), true);
+        return new TickingRequest(1, 20, !hasWork(), true);
     }
 
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int ticksSinceLastCall) {
-        if (!getProxy().isActive() || !hasPatterns() || world == null) {
+        if (!getProxy().isActive() || world == null) {
             return TickRateModulation.IDLE;
         }
 
@@ -144,10 +239,13 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
             IItemStorageChannel channel = Api.instance().storage().getStorageChannel(IItemStorageChannel.class);
             IMEMonitor<IAEItemStack> network = getProxy().getStorage().getInventory(channel);
             IEnergyGrid energy = getProxy().getEnergy();
+            boolean worked = exportToME
+                    ? flushBufferToME(network, energy, channel)
+                    : pushBufferToAdjacent();
             int factor = speedFactor();
-            boolean worked = false;
 
             for (int slot = 0; slot < PATTERN_SLOTS; slot++) {
+                if (!enabledPatterns[slot]) continue;
                 ItemStack encoded = patterns.getStackInSlot(slot);
                 if (encoded.isEmpty()) continue;
 
@@ -155,21 +253,25 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
                 if (details == null || !details.isCraftable()) continue;
 
                 for (int attempt = 0; attempt < factor; attempt++) {
-                    if (!tryCraft(details, network, energy, channel)) break;
+                    if (!tryCraft(slot, details, network, energy, channel)) break;
                     worked = true;
                 }
             }
 
-            return worked ? TickRateModulation.URGENT : TickRateModulation.SLOWER;
+            return worked ? TickRateModulation.URGENT
+                    : hasWork() ? TickRateModulation.SLOWER : TickRateModulation.SLEEP;
         } catch (GridAccessException ignored) {
             return TickRateModulation.IDLE;
         }
     }
 
-    private boolean tryCraft(ICraftingPatternDetails details, IMEMonitor<IAEItemStack> network,
-            IEnergyGrid energy, IItemStorageChannel channel) {
-        CraftPlan plan = planCraft(details, network);
-        if (plan == null || !canBufferAll(plan.produced)) return false;
+    private boolean tryCraft(int patternSlot, ICraftingPatternDetails details,
+            IMEMonitor<IAEItemStack> network, IEnergyGrid energy, IItemStorageChannel channel) {
+        CraftPlan plan = planCraft(patternSlot, details, network);
+        if (plan == null || !withinOutputLimit(patternSlot, plan, network, channel)
+                || !canBufferAll(plan.produced)) {
+            return false;
+        }
 
         double availablePower = energy.extractAEPower(
                 ENERGY_PER_CRAFT, Actionable.SIMULATE, PowerMultiplier.CONFIG);
@@ -190,11 +292,15 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
 
         for (ItemStack stack : plan.produced) {
             if (stack.isEmpty()) continue;
-            IAEItemStack ae = channel.createStack(stack);
-            IAEItemStack failed = Platform.poweredInsert(energy, network, ae, source);
-            ItemStack remainder = failed == null ? ItemStack.EMPTY : failed.createItemStack();
-            if (!remainder.isEmpty() && !buffer(remainder)) {
-                network.injectItems(channel.createStack(remainder), Actionable.MODULATE, source);
+            if (exportToME) {
+                IAEItemStack ae = channel.createStack(stack);
+                IAEItemStack failed = Platform.poweredInsert(energy, network, ae, source);
+                ItemStack remainder = failed == null ? ItemStack.EMPTY : failed.createItemStack();
+                if (!remainder.isEmpty() && !buffer(remainder)) {
+                    network.injectItems(channel.createStack(remainder), Actionable.MODULATE, source);
+                }
+            } else {
+                buffer(stack);
             }
         }
 
@@ -203,9 +309,10 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
     }
 
     @Nullable
-    private CraftPlan planCraft(ICraftingPatternDetails details, IMEMonitor<IAEItemStack> network) {
+    private CraftPlan planCraft(int patternSlot, ICraftingPatternDetails details,
+            IMEMonitor<IAEItemStack> network) {
         IAEItemStack[] sparse = details.getSparseInputs();
-        if (sparse == null || sparse.length != 9) return null;
+        if (sparse == null || sparse.length != INPUT_CONFIG_SLOTS) return null;
 
         CraftingInventory table = new CraftingInventory(new ContainerNull(), 3, 3);
         List<IAEItemStack> requests = new ArrayList<IAEItemStack>();
@@ -224,11 +331,12 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
 
             IAEItemStack chosen = null;
             long amount = Math.max(1L, encodedInput.getStackSize());
+            long reserve = minimumInputStock[patternSlot][slot];
             for (IAEItemStack option : options) {
                 IAEItemStack inNetwork = network.getStorageList().findPrecise(option);
                 if (inNetwork == null) continue;
-                long reserved = reservedAmount(requests, option);
-                if (inNetwork.getStackSize() - reserved >= amount) {
+                long alreadyReserved = reservedAmount(requests, option);
+                if (inNetwork.getStackSize() - alreadyReserved - reserve >= amount) {
                     chosen = option.copy();
                     chosen.setStackSize(amount);
                     break;
@@ -254,6 +362,33 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
         }
 
         return new CraftPlan(requests, produced);
+    }
+
+    private boolean withinOutputLimit(int patternSlot, CraftPlan plan,
+            IMEMonitor<IAEItemStack> network, IItemStorageChannel channel) {
+        long limit = maximumOutputStock[patternSlot];
+        if (limit <= 0 || plan.produced.isEmpty()) return true;
+
+        ItemStack primary = plan.produced.get(0);
+        if (primary.isEmpty()) return true;
+        IAEItemStack key = channel.createStack(primary);
+        long stored = 0;
+        IAEItemStack networkStack = network.getStorageList().findPrecise(key);
+        if (networkStack != null) stored += networkStack.getStackSize();
+        stored += bufferedAmount(primary);
+        return stored <= limit - primary.getCount();
+    }
+
+    private long bufferedAmount(ItemStack type) {
+        long total = 0;
+        for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
+            ItemStack stack = outputs.getStackInSlot(slot);
+            if (!stack.isEmpty() && ItemStack.areItemsEqual(stack, type)
+                    && ItemStack.areItemStackTagsEqual(stack, type)) {
+                total += stack.getCount();
+            }
+        }
+        return total;
     }
 
     private long reservedAmount(List<IAEItemStack> requests, IAEItemStack type) {
@@ -282,15 +417,15 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
             for (int slot = 0; slot < shadow.length && !remaining.isEmpty(); slot++) {
                 ItemStack current = shadow[slot];
                 if (current.isEmpty()) {
-                    int moved = Math.min(remaining.getCount(), Math.min(64, remaining.getMaxStackSize()));
+                    int moved = Math.min(remaining.getCount(), OUTPUT_SLOT_LIMIT);
                     ItemStack placed = remaining.copy();
                     placed.setCount(moved);
                     shadow[slot] = placed;
                     remaining.shrink(moved);
                 } else if (ItemStack.areItemsEqual(current, remaining)
                         && ItemStack.areItemStackTagsEqual(current, remaining)) {
-                    int limit = Math.min(64, current.getMaxStackSize());
-                    int moved = Math.min(remaining.getCount(), Math.max(0, limit - current.getCount()));
+                    int moved = Math.min(remaining.getCount(),
+                            Math.max(0, OUTPUT_SLOT_LIMIT - current.getCount()));
                     if (moved > 0) {
                         current.grow(moved);
                         remaining.shrink(moved);
@@ -310,12 +445,69 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
         return remaining.isEmpty();
     }
 
+    private boolean flushBufferToME(IMEMonitor<IAEItemStack> network, IEnergyGrid energy,
+            IItemStorageChannel channel) {
+        boolean moved = false;
+        for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
+            ItemStack stored = outputs.getStackInSlot(slot);
+            if (stored.isEmpty()) continue;
+
+            ItemStack extracted = outputs.extractItem(slot, stored.getCount(), false);
+            IAEItemStack failed = Platform.poweredInsert(
+                    energy, network, channel.createStack(extracted), source);
+            if (failed == null || failed.getStackSize() < extracted.getCount()) moved = true;
+            if (failed != null && failed.getStackSize() > 0) {
+                buffer(failed.createItemStack());
+            }
+        }
+        return moved;
+    }
+
+    private boolean pushBufferToAdjacent() {
+        if (outputSideMask == 0 || world == null) return false;
+        boolean moved = false;
+
+        for (Direction direction : Direction.values()) {
+            if ((outputSideMask & (1 << direction.ordinal())) == 0) continue;
+            TileEntity adjacent = world.getTileEntity(pos.offset(direction));
+            if (adjacent == null) continue;
+            IItemHandler target = adjacent
+                    .getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, direction.getOpposite())
+                    .orElse(null);
+            if (target == null) continue;
+
+            for (int slot = 0; slot < OUTPUT_SLOTS; slot++) {
+                ItemStack stored = outputs.getStackInSlot(slot);
+                if (stored.isEmpty()) continue;
+                ItemStack simulatedRemainder = ItemHandlerHelper.insertItem(target, stored.copy(), true);
+                int transferable = stored.getCount() - simulatedRemainder.getCount();
+                if (transferable <= 0) continue;
+
+                ItemStack extracted = outputs.extractItem(slot, transferable, false);
+                ItemStack failed = ItemHandlerHelper.insertItem(target, extracted, false);
+                if (!failed.isEmpty()) buffer(failed);
+                if (failed.getCount() < extracted.getCount()) moved = true;
+            }
+        }
+        return moved;
+    }
+
     @Override
     public CompoundNBT write(CompoundNBT data) {
         super.write(data);
         patterns.writeToNBT(data, "patterns");
         outputs.writeToNBT(data, "outputs");
         upgrades.writeToNBT(data, "upgrades");
+        data.putBoolean("quantumExportToME", exportToME);
+        data.putInt("quantumOutputSideMask", outputSideMask);
+
+        for (int pattern = 0; pattern < PATTERN_SLOTS; pattern++) {
+            CompoundNBT config = new CompoundNBT();
+            config.putBoolean("enabled", enabledPatterns[pattern]);
+            config.putLong("maxOutput", maximumOutputStock[pattern]);
+            config.putLongArray("minInputs", minimumInputStock[pattern]);
+            data.put("quantumPatternConfig" + pattern, config);
+        }
         return data;
     }
 
@@ -325,6 +517,19 @@ public final class QuantumCrafterTile extends AENetworkPowerTileEntity
         patterns.readFromNBT(data, "patterns");
         outputs.readFromNBT(data, "outputs");
         upgrades.readFromNBT(data, "upgrades");
+        exportToME = !data.contains("quantumExportToME") || data.getBoolean("quantumExportToME");
+        outputSideMask = data.getInt("quantumOutputSideMask") & 0x3F;
+
+        for (int pattern = 0; pattern < PATTERN_SLOTS; pattern++) {
+            CompoundNBT config = data.getCompound("quantumPatternConfig" + pattern);
+            if (config.isEmpty()) continue;
+            enabledPatterns[pattern] = config.getBoolean("enabled");
+            maximumOutputStock[pattern] = Math.max(0L, config.getLong("maxOutput"));
+            long[] mins = config.getLongArray("minInputs");
+            for (int input = 0; input < Math.min(INPUT_CONFIG_SLOTS, mins.length); input++) {
+                minimumInputStock[pattern][input] = Math.max(0L, mins[input]);
+            }
+        }
     }
 
     @Override
