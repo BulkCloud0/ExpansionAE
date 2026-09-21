@@ -22,6 +22,7 @@ import dev.bulkcloud.expansionae.ExpandedIOPortContainer;
 import dev.bulkcloud.expansionae.PatternEncoderContainer;
 import dev.bulkcloud.expansionae.PatternModifierContainer;
 import dev.bulkcloud.expansionae.ReactionChamberContainer;
+import dev.bulkcloud.expansionae.RenamerContainer;
 import dev.bulkcloud.expansionae.QuantumCrafterContainer;
 import dev.bulkcloud.expansionae.QuantumCrafterTerminalContainer;
 import dev.bulkcloud.expansionae.WirelessQuantumCrafterTerminalContainer;
@@ -53,6 +54,8 @@ public final class ClientSetup {
                 QuantumArmorKeyHandler.ARMOR_CONFIG);
         event.enqueueWork(() -> ScreenManager.registerFactory(
                 QuantumArmorConfigContainer.TYPE, QuantumArmorConfigScreen::new));
+        event.enqueueWork(() -> ScreenManager.registerFactory(
+                RenamerContainer.TYPE, RenamerScreen::new));
         event.enqueueWork(() -> ScreenManager.<ExpandedCraftingTerminalContainer, ExpandedCraftingTerminalScreen<ExpandedCraftingTerminalContainer>>registerFactory(ExpandedCraftingTerminalContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new ExpandedCraftingTerminalScreen<>(container, inventory, title,
