@@ -14,6 +14,7 @@ import dev.bulkcloud.expansionae.TagStorageBusContainer;
 import dev.bulkcloud.expansionae.PreciseStorageBusContainer;
 import dev.bulkcloud.expansionae.ThresholdLevelEmitterContainer;
 import dev.bulkcloud.expansionae.ExpandedContainer;
+import dev.bulkcloud.expansionae.ExpandedCraftingTerminalContainer;
 import dev.bulkcloud.expansionae.ExpandedDriveContainer;
 import dev.bulkcloud.expansionae.ExpandedInscriberContainer;
 import dev.bulkcloud.expansionae.ExpandedMolecularAssemblerContainer;
@@ -43,6 +44,12 @@ public final class ClientSetup {
         ExpansionNetwork.clientReceiver = ClientPackets::receive;
         net.minecraftforge.fml.client.registry.ClientRegistry.registerKeyBinding(
                 QuantumArmorKeyHandler.PORTABLE_WORKBENCH);
+        event.enqueueWork(() -> ScreenManager.<ExpandedCraftingTerminalContainer, ExpandedCraftingTerminalScreen>registerFactory(ExpandedCraftingTerminalContainer.TYPE, (container, inventory, title) -> {
+            try {
+                return new ExpandedCraftingTerminalScreen(container, inventory, title,
+                        StyleManager.loadStyleDoc("/screens/terminals/crafting_terminal.json"));
+            } catch (IOException e) { throw new IllegalStateException("Cannot load expanded crafting terminal", e); }
+        }));
         event.enqueueWork(() -> ScreenManager.<AssemblerMatrixPatternContainer, AssemblerMatrixPatternScreen>registerFactory(AssemblerMatrixPatternContainer.TYPE, (container, inventory, title) -> {
             try {
                 return new AssemblerMatrixPatternScreen(container, inventory, title, StyleManager.loadStyleDoc("/screens/expansionae_matrix_pattern.json"));

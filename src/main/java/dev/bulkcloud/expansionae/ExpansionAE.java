@@ -573,6 +573,7 @@ public final class ExpansionAE {
     }
     private void registerContainers(RegistryEvent.Register<ContainerType<?>> event) {
         event.getRegistry().register(ExpandedContainer.TYPE);
+        event.getRegistry().register(ExpandedCraftingTerminalContainer.TYPE);
         event.getRegistry().register(AssemblerMatrixPatternContainer.TYPE);
         event.getRegistry().register(PatternEncoderContainer.TYPE);
         event.getRegistry().register(PatternModifierContainer.TYPE);

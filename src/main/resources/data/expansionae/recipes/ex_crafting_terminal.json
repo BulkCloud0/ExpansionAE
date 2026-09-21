@@ -1,16 +1,12 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    "PEP",
-    "CTC",
-    "PEP"
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "appliedenergistics2:crafting_terminal" },
+    { "item": "minecraft:anvil" },
+    { "item": "minecraft:smithing_table" },
+    { "item": "minecraft:stonecutter" },
+    { "item": "appliedenergistics2:engineering_processor" }
   ],
-  "key": {
-    "P": { "item": "appliedenergistics2:logic_processor" },
-    "E": { "item": "appliedenergistics2:engineering_processor" },
-    "C": { "item": "appliedenergistics2:calculation_processor" },
-    "T": { "item": "appliedenergistics2:crafting_terminal" }
-  },
   "result": {
     "item": "expansionae:ex_crafting_terminal",
     "count": 1
