@@ -171,6 +171,7 @@ jobs:
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "Cranked growth runtime validated" run/logs/latest.log \
+                && grep -q "Boosted growth runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
                 validated=1
                 break
