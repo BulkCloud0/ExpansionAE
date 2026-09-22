@@ -252,9 +252,13 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         long typeCount = getStoredItemTypes();
         DiskStorageData storage = DiskStorageService.getCurrent();
 
+        if (storage == null) {
+            return;
+        }
+
         if (itemCount <= 0) {
             UUID uuid = getUuid();
-            if (storage != null && uuid != null) {
+            if (uuid != null) {
                 storage.remove(uuid);
             }
 
@@ -290,9 +294,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             amounts = trimmed;
         }
 
-        if (storage != null) {
-            storage.put(uuid, keys, amounts, itemCount);
-        }
+        storage.put(uuid, keys, amounts, itemCount);
 
         CompoundNBT tag = cellStack.getOrCreateTag();
         tag.putLong(TAG_ITEM_COUNT, itemCount);
