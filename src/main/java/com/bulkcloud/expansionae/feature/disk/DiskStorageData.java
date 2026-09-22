@@ -1,5 +1,6 @@
 package com.bulkcloud.expansionae.feature.disk;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -34,19 +35,54 @@ public final class DiskStorageData extends WorldSavedData {
         disks.clear();
         revisionCounter = 0;
 
+        boolean repaired = false;
         ListNBT list = nbt.getList(TAG_DISKS, 10);
         for (int i = 0; i < list.size(); i++) {
             CompoundNBT diskTag = list.getCompound(i);
             if (!diskTag.hasUUID(TAG_UUID)) {
+                repaired = true;
                 continue;
             }
 
             UUID uuid = diskTag.getUUID(TAG_UUID);
-            ListNBT keys = diskTag.getList(TAG_KEYS, 10);
-            long[] amounts = diskTag.getLongArray(TAG_AMOUNTS);
-            long itemCount = diskTag.getLong(TAG_ITEM_COUNT);
+            ListNBT rawKeys = diskTag.getList(TAG_KEYS, 10);
+            long[] rawAmounts = diskTag.getLongArray(TAG_AMOUNTS);
+
+            int readableEntries = Math.min(rawKeys.size(), rawAmounts.length);
+            if (rawKeys.size() != rawAmounts.length) {
+                repaired = true;
+            }
+
+            ListNBT keys = new ListNBT();
+            long[] amounts = new long[readableEntries];
+            int writeIndex = 0;
+            long itemCount = 0;
+
+            for (int entryIndex = 0; entryIndex < readableEntries; entryIndex++) {
+                long amount = rawAmounts[entryIndex];
+                if (amount <= 0) {
+                    repaired = true;
+                    continue;
+                }
+
+                keys.add(rawKeys.getCompound(entryIndex).copy());
+                amounts[writeIndex++] = amount;
+                itemCount = saturatedAdd(itemCount, amount);
+            }
+
+            if (writeIndex != amounts.length) {
+                amounts = Arrays.copyOf(amounts, writeIndex);
+            }
+
+            if (diskTag.getLong(TAG_ITEM_COUNT) != itemCount) {
+                repaired = true;
+            }
 
             disks.put(uuid, new DiskRecord(keys, amounts, itemCount, nextRevision()));
+        }
+
+        if (repaired) {
+            setDirty();
         }
     }
 
@@ -102,6 +138,13 @@ public final class DiskStorageData extends WorldSavedData {
 
     private long nextRevision() {
         return ++revisionCounter;
+    }
+
+    private static long saturatedAdd(long left, long right) {
+        if (right > 0 && left > Long.MAX_VALUE - right) {
+            return Long.MAX_VALUE;
+        }
+        return left + right;
     }
 
     public static final class DiskRecord {
