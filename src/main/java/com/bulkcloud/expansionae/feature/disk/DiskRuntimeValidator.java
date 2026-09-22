@@ -5,15 +5,26 @@ import java.util.UUID;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 
 import appeng.api.config.Actionable;
+import appeng.api.storage.IMEMonitor;
+import appeng.api.storage.cells.CellState;
 import appeng.api.storage.cells.ICellInventoryHandler;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
+import appeng.core.Api;
+import appeng.tile.storage.ChestTileEntity;
+import appeng.tile.storage.DriveTileEntity;
 
 public final class DiskRuntimeValidator {
     private static final String PERSISTENCE_PHASE_ENV = "EXPANSIONAE_PERSISTENCE_PHASE";
@@ -34,6 +45,7 @@ public final class DiskRuntimeValidator {
                 ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
 
         validateTransientStorage(storage, channel);
+        validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
     }
 
@@ -92,6 +104,133 @@ public final class DiskRuntimeValidator {
 
         ExpansionAE.LOGGER.info(
                 "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record)");
+    }
+
+    private static void validateAe2StorageHosts(IItemStorageChannel channel) {
+        if (ServerLifecycleHooks.getCurrentServer() == null) {
+            throw new IllegalStateException("Dedicated server is not available for AE2 host validation");
+        }
+
+        ServerWorld world = ServerLifecycleHooks.getCurrentServer().getWorld(World.OVERWORLD);
+        if (world == null) {
+            throw new IllegalStateException("Overworld is not available for AE2 host validation");
+        }
+
+        BlockPos base = world.getSpawnPoint().up(8);
+        BlockPos drivePos = base;
+        BlockPos chestPos = base.east(2);
+
+        world.removeBlock(drivePos, false);
+        world.removeBlock(chestPos, false);
+
+        try {
+            validateDriveHost(world, drivePos, channel);
+            validateChestHost(world, chestPos, channel);
+        } finally {
+            world.removeBlock(drivePos, false);
+            world.removeBlock(chestPos, false);
+        }
+
+        ExpansionAE.LOGGER.info(
+                "DISK AE2 host validation passed (ME Drive acceptance/state + ME Chest terminal monitor)");
+    }
+
+    private static void validateDriveHost(
+            ServerWorld world,
+            BlockPos pos,
+            IItemStorageChannel channel) {
+        world.setBlockState(
+                pos,
+                Api.instance().definitions().blocks().drive().block().getDefaultState(),
+                3);
+
+        TileEntity tile = world.getTileEntity(pos);
+        if (!(tile instanceof DriveTileEntity)) {
+            throw new IllegalStateException("Placed AE2 ME Drive did not create DriveTileEntity");
+        }
+
+        DriveTileEntity drive = (DriveTileEntity) tile;
+        drive.onReady();
+
+        ItemStack diskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        ICellInventoryHandler<IAEItemStack> handler = open(diskStack, channel, "ME Drive test DISK");
+        IAEItemStack remainder =
+                handler.injectItems(stone(channel, 37), Actionable.MODULATE, null);
+        if (remainder != null) {
+            throw new IllegalStateException("ME Drive test DISK rejected its preparation payload");
+        }
+
+        IItemHandler driveInventory = drive.getInternalInventory();
+        ItemStack rejected = driveInventory.insertItem(0, diskStack, false);
+        if (!rejected.isEmpty()) {
+            throw new IllegalStateException("AE2 ME Drive rejected the ExpansionAE DISK");
+        }
+
+        if (drive.getCellItem(0) != ExpansionAEItems.DISK_1K.get()) {
+            throw new IllegalStateException("AE2 ME Drive did not retain the ExpansionAE DISK in slot 0");
+        }
+
+        CellState state = drive.getCellStatus(0);
+        if (state != CellState.NOT_EMPTY) {
+            throw new IllegalStateException(
+                    "AE2 ME Drive reported unexpected DISK state: " + state);
+        }
+
+        ICellInventoryHandler<IAEItemStack> driveHandler =
+                ExpansionAEApi.get().registries().cell()
+                        .getCellInventory(driveInventory.getStackInSlot(0), drive, channel);
+        if (driveHandler == null || driveHandler.getCellInv() == null) {
+            throw new IllegalStateException("AE2 ME Drive could not reopen the inserted DISK");
+        }
+        requireStoredCount(driveHandler, 37);
+    }
+
+    private static void validateChestHost(
+            ServerWorld world,
+            BlockPos pos,
+            IItemStorageChannel channel) {
+        world.setBlockState(
+                pos,
+                Api.instance().definitions().blocks().chest().block().getDefaultState(),
+                3);
+
+        TileEntity tile = world.getTileEntity(pos);
+        if (!(tile instanceof ChestTileEntity)) {
+            throw new IllegalStateException("Placed AE2 ME Chest did not create ChestTileEntity");
+        }
+
+        ChestTileEntity chest = (ChestTileEntity) tile;
+        chest.onReady();
+
+        ItemStack diskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        ICellInventoryHandler<IAEItemStack> handler = open(diskStack, channel, "ME Chest test DISK");
+        IAEItemStack remainder =
+                handler.injectItems(stone(channel, 41), Actionable.MODULATE, null);
+        if (remainder != null) {
+            throw new IllegalStateException("ME Chest test DISK rejected its preparation payload");
+        }
+
+        IItemHandler chestInventory = chest.getInternalInventory();
+        ItemStack rejected = chestInventory.insertItem(1, diskStack, false);
+        if (!rejected.isEmpty()) {
+            // Chest internal inventory layout can vary; retry the storage-cell slot explicitly.
+            rejected = chestInventory.insertItem(0, diskStack, false);
+        }
+        if (!rejected.isEmpty()) {
+            throw new IllegalStateException("AE2 ME Chest rejected the ExpansionAE DISK");
+        }
+
+        IMEMonitor<IAEItemStack> monitor = chest.getInventory(channel);
+        if (monitor == null) {
+            throw new IllegalStateException("AE2 ME Chest did not expose an item monitor for the DISK");
+        }
+
+        IAEItemStack precise = monitor.getAvailableItems(channel.createList())
+                .findPrecise(stone(channel, 1));
+        if (precise == null || precise.getStackSize() != 41) {
+            throw new IllegalStateException(
+                    "AE2 ME Chest terminal monitor did not expose the expected 41 stored items");
+        }
     }
 
     private static void validatePersistencePhase(
