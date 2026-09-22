@@ -359,8 +359,12 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         ListNBT keys = new ListNBT();
         long[] amounts = new long[(int) typeCount];
 
+        // Persist the already-loaded dirty snapshot directly. Calling contents()
+        // here is unsafe for the first write: ensureUuid() gives the ItemStack a
+        // UUID before a backing record exists, so contents() would interpret that
+        // as a cache miss and replace the dirty in-memory list with an empty one.
         int index = 0;
-        for (IAEItemStack stack : contents()) {
+        for (IAEItemStack stack : contents) {
             if (stack.getStackSize() <= 0) {
                 continue;
             }
