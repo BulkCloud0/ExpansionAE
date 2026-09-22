@@ -46,3 +46,16 @@ Partes da API do AE2 8.4.x usadas no planejamento incluem `IStorageChannel`, `IA
 - Não copiar texturas/modelos/gui sem verificar a licença dos assets separadamente.
 - Não misturar código sem rastreabilidade de origem.
 - Manter integrações opcionais desacopladas do core.
+
+
+## Implementação do DISK
+
+A implementação inicial de `feature/disk` é uma reimplementação para a API do AE2 8.4.x inspirada no conceito e comportamento do Deep Item Storage disK de AE2Things-Forge (branch 1.18, licença MIT).
+
+Referência estudada:
+- `item/DISKDrive.java`
+- `storage/DISKCellHandler.java`
+- `storage/DISKCellInventory.java`
+- `util/StorageManager.java`
+
+O código do ExpansionAE foi escrito para as interfaces 1.16.5 (`ICellHandler`, `ICellInventoryHandler`, `IAEItemStack`, `WorldSavedData`) e não é uma cópia direta das classes 1.18.

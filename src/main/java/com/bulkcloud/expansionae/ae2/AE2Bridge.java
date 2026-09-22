@@ -3,6 +3,7 @@ package com.bulkcloud.expansionae.ae2;
 import java.util.Objects;
 
 import com.bulkcloud.expansionae.ExpansionAE;
+import com.bulkcloud.expansionae.feature.disk.DiskCellHandler;
 
 import appeng.api.AEAddon;
 import appeng.api.IAEAddon;
@@ -20,9 +21,12 @@ public final class AE2Bridge implements IAEAddon {
     public void onAPIAvailable(IAppEngApi api) {
         AE2Bridge.api = Objects.requireNonNull(api, "api");
 
+        api.registries().cell().addCellHandler(DiskCellHandler.INSTANCE);
+
         ExpansionAE.LOGGER.info(
                 "Applied Energistics 2 API is available with {} registered storage channel(s)",
                 api.storage().storageChannels().size());
+        ExpansionAE.LOGGER.info("Registered ExpansionAE DISK cell handler");
     }
 
     public static IAppEngApi api() {

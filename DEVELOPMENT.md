@@ -26,3 +26,17 @@ The scaffold is considered usable only when all of the following are true:
 - no client-only class is referenced from common bootstrap code.
 
 After this gate passes, the next implementation target is the first isolated AE2 feature rather than an external-mod integration.
+
+
+## First gameplay vertical slice: DISK
+
+The first gameplay feature is a custom item storage cell inspired by AE2Things' DISK.
+
+Initial scope:
+- 1k, 4k, 16k and 64k item-capacity tiers;
+- no item-type limit;
+- custom AE2 cell handler;
+- contents persisted in overworld `WorldSavedData` under a UUID rather than embedded in the item NBT;
+- only the UUID and cached total item count remain on the item;
+- storage cells are rejected as DISK contents to prevent recursive/nested storage in the first implementation;
+- no fuzzy/inverter workbench configuration yet.
