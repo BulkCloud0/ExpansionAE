@@ -28,10 +28,10 @@ final class DiskStorageDataTest {
         long revision = data.put(id, keys, new long[] { 37L }, 37L);
         assertTrue(revision > 0L);
 
-        CompoundNBT saved = data.save(new CompoundNBT());
+        CompoundNBT saved = data.write(new CompoundNBT());
 
         DiskStorageData loaded = new DiskStorageData();
-        loaded.load(saved);
+        loaded.read(saved);
 
         DiskStorageData.DiskRecord record = loaded.get(id);
         assertNotNull(record);
@@ -92,10 +92,10 @@ final class DiskStorageDataTest {
 
         data.put(id, new ListNBT(), new long[0], 0L);
 
-        CompoundNBT saved = data.save(new CompoundNBT());
+        CompoundNBT saved = data.write(new CompoundNBT());
 
         DiskStorageData loaded = new DiskStorageData();
-        loaded.load(saved);
+        loaded.read(saved);
 
         DiskStorageData.DiskRecord record = loaded.get(id);
         assertNotNull(record);
@@ -118,7 +118,7 @@ final class DiskStorageDataTest {
         keys.add(dirt);
 
         CompoundNBT disk = new CompoundNBT();
-        disk.putUUID("uuid", id);
+        disk.putUniqueId("uuid", id);
         disk.put("keys", keys);
         disk.putLongArray("amounts", new long[] { 5L, -3L, 99L });
         disk.putLong("item_count", 12345L);
@@ -130,7 +130,7 @@ final class DiskStorageDataTest {
         root.put("disks", disks);
 
         DiskStorageData loaded = new DiskStorageData();
-        loaded.load(root);
+        loaded.read(root);
 
         DiskStorageData.DiskRecord record = loaded.get(id);
         assertNotNull(record);
@@ -140,7 +140,7 @@ final class DiskStorageDataTest {
         assertEquals(1, record.getAmounts().length);
         assertEquals(5L, record.getAmounts()[0]);
 
-        CompoundNBT normalized = loaded.save(new CompoundNBT());
+        CompoundNBT normalized = loaded.write(new CompoundNBT());
         CompoundNBT normalizedDisk = normalized.getList("disks", 10).getCompound(0);
         assertEquals(5L, normalizedDisk.getLong("item_count"));
         assertEquals(1, normalizedDisk.getList("keys", 10).size());
