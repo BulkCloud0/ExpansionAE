@@ -158,7 +158,7 @@ O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem
 1. validar o `1k_disk` dentro de um ME Drive real;
 2. testar inserção/extração pelo terminal e configuração no Cell Workbench;
 3. validar save/reload, unload/reload de chunk e quebra/recolocação do Drive;
-4. definir a política definitiva para UUID duplicado/creative cloning;
+4. validar em runtime a política já definida para UUID duplicado/creative cloning;
 5. somente depois expandir o DISK para outros tiers e iniciar a próxima feature P1.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
@@ -179,6 +179,9 @@ Estado atual:
 - receita experimental disponível;
 - GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
 - registros externos malformados são sanitizados durante o load;
-- se o ItemStack indicar conteúdo mas o registro externo estiver ausente, o DISK bloqueia leitura/escrita em vez de sobrescrever silenciosamente os dados.
+- se o ItemStack indicar conteúdo mas o registro externo estiver ausente, o DISK bloqueia leitura/escrita em vez de sobrescrever silenciosamente os dados;
+- UUID é a identidade do armazenamento: cópias exatas do ItemStack com o mesmo UUID são aliases do mesmo conteúdo, não discos independentes;
+- quando um DISK com UUID fica vazio, o registro vazio e o UUID são preservados para que aliases existentes continuem sincronizados;
+- o CI possui smoke test de dedicated server no evento de pull request.
 
-Antes de promover a feature para concluída ainda faltam testes manuais de ME Drive, inserção/extração, Cell Workbench, save/reload, quebra/recolocação, servidor dedicado e duplicação/clonagem de UUID.
+Antes de promover a feature para concluída ainda faltam testes manuais de ME Drive, inserção/extração, Cell Workbench, save/reload, quebra/recolocação e validação prática dos aliases de UUID.
