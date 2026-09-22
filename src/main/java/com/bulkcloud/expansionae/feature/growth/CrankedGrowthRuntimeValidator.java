@@ -19,6 +19,8 @@ import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
 
 import appeng.api.implementations.tiles.ICrankable;
 import appeng.api.implementations.tiles.ICrystalGrowthAccelerator;
+import appeng.core.Api;
+import appeng.tile.grindstone.CrankTileEntity;
 import appeng.entity.GrowingCrystalEntity;
 import appeng.items.misc.CrystalSeedItem;
 
@@ -82,7 +84,41 @@ public final class CrankedGrowthRuntimeValidator {
                 }
             }
 
-            for (int i = 0; i < 20; i++) {
+            // Prove interoperability with AE2's real crank tile instead of only
+            // exercising ICrankable directly. The crank is placed east of the
+            // accelerator and oriented so its working face points west.
+            BlockPos crankPos = pos.east();
+            world.removeBlock(crankPos, false);
+            world.setBlockState(
+                    crankPos,
+                    Api.instance().definitions().blocks().crank().block().getDefaultState(),
+                    3);
+
+            TileEntity rawCrank = world.getTileEntity(crankPos);
+            if (!(rawCrank instanceof CrankTileEntity)) {
+                throw new IllegalStateException("AE2 crank did not create CrankTileEntity");
+            }
+
+            CrankTileEntity crank = (CrankTileEntity) rawCrank;
+            crank.setOrientation(Direction.SOUTH, Direction.EAST);
+
+            if (!crank.power()) {
+                throw new IllegalStateException(
+                        "AE2 crank refused to turn the Cranked Growth Accelerator");
+            }
+
+            for (int i = 0; i < 18; i++) {
+                crank.tick();
+            }
+
+            if (tile.getStoredPower() != CrankedGrowthAcceleratorTileEntity.POWER_PER_CRANK_TURN) {
+                throw new IllegalStateException(
+                        "AE2 crank turn did not inject exactly 160 AE into the Cranked Growth Accelerator");
+            }
+
+            world.removeBlock(crankPos, false);
+
+            for (int i = 1; i < 20; i++) {
                 if (!tile.canTurn()) {
                     throw new IllegalStateException(
                             "Cranked Growth Accelerator stopped accepting turns before its buffer was full");
