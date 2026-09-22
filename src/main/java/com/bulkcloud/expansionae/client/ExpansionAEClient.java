@@ -1,9 +1,16 @@
 package com.bulkcloud.expansionae.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
@@ -13,6 +20,7 @@ import net.minecraftforge.fml.common.Mod;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 
 import appeng.api.client.ICellModelRegistry;
 import appeng.core.Api;
@@ -61,9 +69,94 @@ public final class ExpansionAEClient {
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_4K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_16K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_64K.get());
+        validateDiskTooltips();
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
+    }
+
+    private static void validateDiskTooltips() {
+        validateDiskTooltip((DiskStorageCellItem) ExpansionAEItems.DISK_1K.get());
+        validateDiskTooltip((DiskStorageCellItem) ExpansionAEItems.DISK_4K.get());
+        validateDiskTooltip((DiskStorageCellItem) ExpansionAEItems.DISK_16K.get());
+        validateDiskTooltip((DiskStorageCellItem) ExpansionAEItems.DISK_64K.get());
+
+        ExpansionAE.LOGGER.info(
+                "DISK client tooltip validation passed (cached item/type counts + tier capacities)");
+    }
+
+    private static void validateDiskTooltip(DiskStorageCellItem disk) {
+        ItemStack stack = new ItemStack(disk);
+        stack.getOrCreateTag().putLong("expansionae_disk_item_count", 321L);
+        stack.getOrCreateTag().putLong("expansionae_disk_type_count", 7L);
+
+        List<ITextComponent> tooltip = new ArrayList<>();
+        disk.addInformation(stack, null, tooltip, ITooltipFlag.TooltipFlags.NORMAL);
+
+        if (tooltip.size() != 3) {
+            throw new IllegalStateException(
+                    "DISK tooltip must expose exactly 3 lines for " + disk.getRegistryName());
+        }
+
+        requireTranslation(
+                tooltip.get(0),
+                "tooltip.expansionae.disk.items",
+                new long[] { 321L, disk.getCapacity() },
+                disk);
+        requireTranslation(
+                tooltip.get(1),
+                "tooltip.expansionae.disk.types",
+                new long[] { 7L },
+                disk);
+        requireTranslation(
+                tooltip.get(2),
+                "tooltip.expansionae.disk.no_type_limit",
+                new long[0],
+                disk);
+    }
+
+    private static void requireTranslation(
+            ITextComponent component,
+            String expectedKey,
+            long[] expectedNumericArgs,
+            DiskStorageCellItem disk) {
+        if (!(component instanceof TranslationTextComponent)) {
+            throw new IllegalStateException(
+                    "DISK tooltip line is not translatable for " + disk.getRegistryName());
+        }
+
+        TranslationTextComponent translated = (TranslationTextComponent) component;
+        if (!expectedKey.equals(translated.getKey())) {
+            throw new IllegalStateException(
+                    "DISK tooltip key mismatch for "
+                            + disk.getRegistryName()
+                            + ": expected "
+                            + expectedKey
+                            + " but got "
+                            + translated.getKey());
+        }
+
+        Object[] args = translated.getFormatArgs();
+        if (args.length != expectedNumericArgs.length) {
+            throw new IllegalStateException(
+                    "DISK tooltip argument count mismatch for "
+                            + disk.getRegistryName()
+                            + " / "
+                            + expectedKey);
+        }
+
+        for (int i = 0; i < args.length; i++) {
+            if (!(args[i] instanceof Number)
+                    || ((Number) args[i]).longValue() != expectedNumericArgs[i]) {
+                throw new IllegalStateException(
+                        "DISK tooltip argument mismatch for "
+                                + disk.getRegistryName()
+                                + " / "
+                                + expectedKey
+                                + " at index "
+                                + i);
+            }
+        }
     }
 
     private static void validateBakedDiskModels(
