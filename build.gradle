@@ -36,6 +36,7 @@ minecraft {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.disableRefMap', 'true'
             mods {
                 expansionae {
                     source sourceSets.main
@@ -46,6 +47,7 @@ minecraft {
         server {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.disableRefMap', 'true'
             mods {
                 expansionae {
                     source sourceSets.main
@@ -56,6 +58,7 @@ minecraft {
         data {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.disableRefMap', 'true'
             args '--mod', 'expansionae',
                     '--all',
                     '--output', file('src/generated/resources/'),
