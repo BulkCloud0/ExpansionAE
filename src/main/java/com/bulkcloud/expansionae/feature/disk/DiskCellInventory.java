@@ -38,7 +38,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     private UUID loadedUuid;
     private long loadedRevision = NO_RECORD_REVISION;
     private boolean dirty;
-    private boolean missingRecordWarningLogged;
+    private boolean invalidRecordWarningLogged;
 
     public DiskCellInventory(DiskStorageCellItem cellType, ItemStack cellStack, ISaveProvider saveProvider) {
         this.cellType = cellType;
@@ -100,7 +100,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return null;
         }
 
-        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
+        if (DiskStorageService.getCurrent() == null || hasInvalidBackingRecord()) {
             // Fail closed when the authoritative server-side backing store is unavailable.
             return input;
         }
@@ -176,7 +176,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return null;
         }
 
-        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
+        if (DiskStorageService.getCurrent() == null || hasInvalidBackingRecord()) {
             return null;
         }
 
@@ -204,7 +204,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     @Override
     public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
         if (DiskStorageService.getCurrent() == null
-                || hasMissingBackingRecord()
+                || hasInvalidBackingRecord()
                 || !DiskAliasExposure.shouldExposeToGrid(cellStack, saveProvider)) {
             return out;
         }
@@ -254,7 +254,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public boolean canHoldNewItem() {
-        return !hasMissingBackingRecord() && getRemainingItemCount() > 0;
+        return !hasInvalidBackingRecord() && getRemainingItemCount() > 0;
     }
 
     @Override
@@ -279,7 +279,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public long getStoredItemCount() {
-        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
+        if (DiskStorageService.getCurrent() == null || hasInvalidBackingRecord()) {
             return cachedCount(TAG_ITEM_COUNT);
         }
 
@@ -294,7 +294,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public long getStoredItemTypes() {
-        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
+        if (DiskStorageService.getCurrent() == null || hasInvalidBackingRecord()) {
             return cachedCount(TAG_TYPE_COUNT);
         }
 
@@ -337,7 +337,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public void persist() {
-        if (!dirty || hasMissingBackingRecord()) {
+        if (!dirty || hasInvalidBackingRecord()) {
             return;
         }
 
@@ -367,7 +367,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                 // clones with the same UUID intentionally remain aliases of the same DISK.
                 // Keep an empty record instead of deleting it so every alias observes the
                 // transition to empty and no clone becomes an orphan.
-                long revision = storage.put(uuid, new ListNBT(), new long[0], 0);
+                long revision = storage.put(uuid, new ListNBT(), new long[0], 0, cellType.getCapacity());
 
                 CompoundNBT tag = cellStack.getOrCreateTag();
                 tag.putLong(TAG_ITEM_COUNT, 0);
@@ -377,7 +377,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                 loadedRevision = revision;
             }
 
-            missingRecordWarningLogged = false;
+            invalidRecordWarningLogged = false;
             dirty = false;
             return;
         }
@@ -408,7 +408,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             amounts = trimmed;
         }
 
-        long revision = storage.put(uuid, keys, amounts, itemCount);
+        long revision = storage.put(uuid, keys, amounts, itemCount, cellType.getCapacity());
 
         CompoundNBT tag = cellStack.getOrCreateTag();
         tag.putLong(TAG_ITEM_COUNT, itemCount);
@@ -416,7 +416,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
         loadedUuid = uuid;
         loadedRevision = revision;
-        missingRecordWarningLogged = false;
+        invalidRecordWarningLogged = false;
         dirty = false;
     }
 
@@ -460,24 +460,60 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         }
     }
 
-    private boolean hasMissingBackingRecord() {
+    private boolean hasInvalidBackingRecord() {
         UUID uuid = getUuid();
         DiskStorageData storage = DiskStorageService.getCurrent();
-        if (uuid == null || storage == null || storage.get(uuid) != null) {
+        if (uuid == null || storage == null) {
             return false;
         }
 
-        // Once a DISK has a UUID, its backing record is permanent, including when
-        // empty. A missing record therefore always means corrupted/incomplete
-        // persistence. Never recreate it implicitly: aliases may have stale cached
-        // counts and must not be able to overwrite the missing authoritative state.
-        if (!missingRecordWarningLogged) {
-            ExpansionAE.LOGGER.error(
-                    "DISK {} references missing backing data. Blocking reads/writes to avoid silently recreating or overwriting storage.",
-                    uuid);
-            missingRecordWarningLogged = true;
+        DiskStorageData.DiskRecord record = storage.get(uuid);
+        if (record == null) {
+            // Once a DISK has a UUID, its backing record is permanent, including
+            // when empty. Never recreate a missing authoritative record implicitly.
+            if (!invalidRecordWarningLogged) {
+                ExpansionAE.LOGGER.error(
+                        "DISK {} references missing backing data. Blocking reads/writes to avoid silently recreating or overwriting storage.",
+                        uuid);
+                invalidRecordWarningLogged = true;
+            }
+            return true;
         }
-        return true;
+
+        long expectedCapacity = cellType.getCapacity();
+
+        if (record.getCapacity() == 0) {
+            // Migration path for records created before tiers were bound to UUIDs.
+            // Do not bind an over-capacity legacy record to a smaller tier.
+            if (record.getItemCount() > expectedCapacity) {
+                if (!invalidRecordWarningLogged) {
+                    ExpansionAE.LOGGER.error(
+                            "Legacy DISK {} contains {} items, which exceeds the {}-item capacity of this DISK tier. Blocking access.",
+                            uuid,
+                            record.getItemCount(),
+                            expectedCapacity);
+                    invalidRecordWarningLogged = true;
+                }
+                return true;
+            }
+
+            record = storage.bindCapacity(uuid, expectedCapacity);
+        }
+
+        if (record == null || record.getCapacity() != expectedCapacity) {
+            if (!invalidRecordWarningLogged) {
+                ExpansionAE.LOGGER.error(
+                        "DISK {} is bound to capacity {} but was opened as capacity {}. Blocking cross-tier UUID alias access.",
+                        uuid,
+                        record == null ? 0 : record.getCapacity(),
+                        expectedCapacity);
+                invalidRecordWarningLogged = true;
+            }
+            return true;
+        }
+
+        invalidRecordWarningLogged = false;
+        return false;
     }
 
     UUID getUuidForAliasSync() {
