@@ -31,13 +31,12 @@ repositories {
 }
 
 minecraft {
-    mappings channel: 'official', version: project.minecraft_version
+    mappings channel: project.mappings_channel, version: project.mappings_version
 
     runs {
         client {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
-            property 'mixin.env.disableRefMap', 'true'
 
             mods {
                 expansionae {
@@ -49,7 +48,6 @@ minecraft {
         server {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
-            property 'mixin.env.disableRefMap', 'true'
 
             mods {
                 expansionae {
@@ -61,7 +59,6 @@ minecraft {
         data {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
-            property 'mixin.env.disableRefMap', 'true'
             args '--mod', project.mod_id, '--all',
                     '--output', file('src/generated/resources/'),
                     '--existing', file('src/main/resources/')
