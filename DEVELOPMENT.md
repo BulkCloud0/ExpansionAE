@@ -63,4 +63,4 @@ The UUID identifies the backing storage, not the physical ItemStack. Exact copie
 
 Once assigned, a UUID remains assigned even when the DISK becomes empty. Its empty backing record is preserved so existing aliases continue to resolve to the same logical storage.
 
-If an ItemStack indicates stored content but its backing record is missing, reads and writes fail closed instead of silently recreating an empty record.
+Once an ItemStack has a DISK UUID, its backing record is mandatory, including for an empty DISK. If that record is missing, reads and writes fail closed instead of silently recreating or overwriting storage.
