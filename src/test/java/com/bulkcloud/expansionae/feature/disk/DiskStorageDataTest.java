@@ -25,7 +25,7 @@ final class DiskStorageDataTest {
         stone.putString("id", "minecraft:stone");
         keys.add(stone);
 
-        long revision = data.put(id, keys, new long[] { 37L }, 37L);
+        long revision = data.put(id, keys, new long[] { 37L }, 37L, 4_000L);
         assertTrue(revision > 0L);
 
         CompoundNBT saved = data.write(new CompoundNBT());
@@ -36,9 +36,27 @@ final class DiskStorageDataTest {
         DiskStorageData.DiskRecord record = loaded.get(id);
         assertNotNull(record);
         assertEquals(37L, record.getItemCount());
+        assertEquals(4_000L, record.getCapacity());
         assertEquals(37L, record.getAmounts()[0]);
         assertEquals("minecraft:stone", record.getKeys().getCompound(0).getString("id"));
         assertTrue(record.getRevision() > 0L);
+    }
+
+    @Test
+    void legacyRecordBindsCapacityOnlyOnce() {
+        DiskStorageData data = new DiskStorageData();
+        UUID id = UUID.randomUUID();
+
+        data.put(id, new ListNBT(), new long[0], 0L);
+        assertEquals(0L, data.get(id).getCapacity());
+
+        DiskStorageData.DiskRecord bound = data.bindCapacity(id, 1_000L);
+        assertNotNull(bound);
+        assertEquals(1_000L, bound.getCapacity());
+
+        DiskStorageData.DiskRecord secondAttempt = data.bindCapacity(id, 4_000L);
+        assertNotNull(secondAttempt);
+        assertEquals(1_000L, secondAttempt.getCapacity());
     }
 
     @Test
