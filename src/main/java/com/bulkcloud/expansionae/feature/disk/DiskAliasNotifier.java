@@ -24,11 +24,13 @@ final class DiskAliasNotifier {
     }
 
     static synchronized void track(DiskCellInventory inventory) {
-        if (!(inventory.getSaveProviderForAliasSync() instanceof IActionHost)) {
-            return;
-        }
-
         cleanupCollected();
+
+        // Metadata aliases are relevant even outside an active AE2 host (for example,
+        // a copied DISK opened from an inventory or workbench). Grid notifications
+        // remain restricted by activeGrid(), but every live inventory view should
+        // keep its cached tooltip counts aligned with the authoritative backing record.
+        inventory.refreshCachedMetadataFromBacking();
         TRACKED.add(new WeakReference<>(inventory));
     }
 
