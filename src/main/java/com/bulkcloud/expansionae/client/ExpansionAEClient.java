@@ -1,8 +1,12 @@
 package com.bulkcloud.expansionae.client;
 
+import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -45,6 +49,49 @@ public final class ExpansionAEClient {
 
         ExpansionAE.LOGGER.info(
                 "Registered and queued 1k/4k/16k/64k DISK drive models with the AE2 client cell registry");
+    }
+
+    @SubscribeEvent
+    public static void onModelBake(ModelBakeEvent event) {
+        ICellModelRegistry cells = ExpansionAEApi.get().client().cells();
+
+        validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_1K.get());
+        validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_4K.get());
+        validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_16K.get());
+        validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_64K.get());
+
+        ExpansionAE.LOGGER.info(
+                "DISK client model bake validation passed (item inventory + ME Drive models)");
+    }
+
+    private static void validateBakedDiskModels(
+            ModelBakeEvent event,
+            ICellModelRegistry cells,
+            Item item) {
+        IBakedModel missing =
+                event.getModelRegistry().get(ModelBakery.MISSING_MODEL_LOCATION);
+
+        ResourceLocation driveModel = cells.model(item);
+        if (driveModel == null) {
+            throw new IllegalStateException(
+                    "No AE2 ME Drive model is registered for " + item.getRegistryName());
+        }
+
+        IBakedModel bakedDrive = event.getModelRegistry().get(driveModel);
+        if (bakedDrive == null || bakedDrive == missing) {
+            throw new IllegalStateException(
+                    "AE2 ME Drive model was not baked for "
+                            + item.getRegistryName() + ": " + driveModel);
+        }
+
+        ModelResourceLocation itemModel =
+                new ModelResourceLocation(item.getRegistryName(), "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "Inventory model was not baked for "
+                            + item.getRegistryName() + ": " + itemModel);
+        }
     }
 
     private static void registerDiskModel(
