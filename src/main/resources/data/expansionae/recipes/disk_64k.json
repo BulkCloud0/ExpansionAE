@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "QRQ",
+    "RCR",
+    "NFN"
+  ],
+  "key": {
+    "Q": {
+      "item": "appliedenergistics2:quartz_glass"
+    },
+    "R": {
+      "tag": "forge:dusts/redstone"
+    },
+    "C": {
+      "item": "appliedenergistics2:64k_cell_component"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "F": {
+      "item": "appliedenergistics2:fluix_crystal"
+    }
+  },
+  "result": {
+    "item": "expansionae:disk_64k"
+  }
+}
