@@ -20,7 +20,7 @@ import appeng.tile.networking.CreativeEnergyCellTileEntity;
 
 public final class BoostedGrowthRuntimeValidator {
     private static final int MIN_TICKS_BEFORE_VALIDATION = 70;
-    private static final int GROWTH_VALIDATION_TICKS = 25;
+    private static final int GROWTH_VALIDATION_TICKS = 30;
 
     private static Session session;
 
