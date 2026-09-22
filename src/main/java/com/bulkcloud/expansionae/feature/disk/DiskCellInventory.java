@@ -516,6 +516,38 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         return false;
     }
 
+    void refreshCachedMetadataFromBacking() {
+        UUID uuid = getUuid();
+        DiskStorageData storage = DiskStorageService.getCurrent();
+        if (uuid == null || storage == null) {
+            return;
+        }
+
+        DiskStorageData.DiskRecord record = storage.get(uuid);
+        if (record == null
+                || record.getCapacity() != cellType.getCapacity()) {
+            return;
+        }
+
+        long itemCount = record.getItemCount();
+        long typeCount = record.getAmounts().length;
+
+        CompoundNBT tag = cellStack.getOrCreateTag();
+        boolean changed = tag.getLong(TAG_ITEM_COUNT) != itemCount
+                || tag.getLong(TAG_TYPE_COUNT) != typeCount;
+
+        if (!changed) {
+            return;
+        }
+
+        tag.putLong(TAG_ITEM_COUNT, itemCount);
+        tag.putLong(TAG_TYPE_COUNT, typeCount);
+
+        if (saveProvider != null) {
+            saveProvider.saveChanges(this);
+        }
+    }
+
     UUID getUuidForAliasSync() {
         return getUuid();
     }
