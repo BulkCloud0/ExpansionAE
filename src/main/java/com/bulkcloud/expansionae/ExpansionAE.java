@@ -54,7 +54,7 @@ public final class ExpansionAE {
     private void onCommonSetup(FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
             ExpansionAEItems.registerAE2Upgrades();
-            if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
+            if (DEV_RUNTIME_VALIDATION) {
                 ExpansionAEItems.validateDiskWorkbenchContract();
             }
         });
@@ -62,7 +62,7 @@ public final class ExpansionAE {
 
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
-        if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
+        if (DEV_RUNTIME_VALIDATION) {
             DiskRuntimeValidator.validate();
         }
     }
@@ -70,7 +70,7 @@ public final class ExpansionAE {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase == TickEvent.Phase.END
-                && Boolean.getBoolean("expansionae.validateDevRuntime")) {
+                && DEV_RUNTIME_VALIDATION) {
             DiskGridRuntimeValidator.tick();
         }
     }
