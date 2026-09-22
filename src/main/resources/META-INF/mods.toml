@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="All Rights Reserved (temporary; see NOTICE.md)"
+
+[[mods]]
+modId="expansionae"
+version="${version}"
+displayName="ExpansionAE"
+authors="BulkCloud0"
+description='''
+A unified Applied Energistics 2 expansion for Minecraft 1.16.5.
+ExpansionAE selectively reimplements useful systems inspired by multiple AE2 addons
+behind one coherent core and optional compatibility modules.
+'''
+
+[[dependencies.expansionae]]
+modId="forge"
+mandatory=true
+versionRange="[${forge_version},37)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.expansionae]]
+modId="minecraft"
+mandatory=true
+versionRange="[${minecraft_version},1.17)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.expansionae]]
+modId="appliedenergistics2"
+mandatory=true
+versionRange="[${ae2_version},9.0.0)"
+ordering="AFTER"
+side="BOTH"
