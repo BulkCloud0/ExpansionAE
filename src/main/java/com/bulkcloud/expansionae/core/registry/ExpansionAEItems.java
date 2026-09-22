@@ -9,6 +9,8 @@ import net.minecraftforge.fml.RegistryObject;
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 
+import appeng.api.config.Upgrades;
+
 public final class ExpansionAEItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, ExpansionAE.MOD_ID);
@@ -22,5 +24,11 @@ public final class ExpansionAEItems {
 
     public static void register(IEventBus modBus) {
         ITEMS.register(modBus);
+    }
+
+    public static void registerAE2Upgrades() {
+        Item disk = DISK_1K.get();
+        Upgrades.FUZZY.registerItem(disk, 1);
+        Upgrades.INVERTER.registerItem(disk, 1);
     }
 }
