@@ -16,7 +16,7 @@ public final class DiskStorageCellItem extends Item implements ICellWorkbenchIte
     private final double idleDrain;
 
     public DiskStorageCellItem(Properties properties, int capacity, double idleDrain) {
-        super(properties.stacksTo(1));
+        super(properties.maxStackSize(1));
         this.capacity = capacity;
         this.idleDrain = idleDrain;
     }
