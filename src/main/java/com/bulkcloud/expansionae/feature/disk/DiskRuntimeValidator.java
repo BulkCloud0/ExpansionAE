@@ -49,6 +49,7 @@ public final class DiskRuntimeValidator {
                 ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
 
         validateTierCapacities(storage, channel);
+        validateCrossTierUuidRejection(storage, channel);
         validateTransientStorage(storage, channel);
         validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
@@ -107,6 +108,63 @@ public final class DiskRuntimeValidator {
 
         requireStoredCount(handler, 0);
         storage.remove(uuid);
+    }
+
+    private static void validateCrossTierUuidRejection(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        ItemStack oneK = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        ICellInventoryHandler<IAEItemStack> oneKHandler =
+                open(oneK, channel, "cross-tier source");
+
+        IAEItemStack initial = stone(channel, 200);
+        if (oneKHandler.injectItems(initial, Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException("Cross-tier validation could not prepare the 1k DISK");
+        }
+
+        if (!oneK.hasTag() || !oneK.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
+            throw new IllegalStateException("Cross-tier source DISK did not receive a UUID");
+        }
+        UUID uuid = oneK.getTag().getUniqueId(DiskCellInventory.TAG_UUID);
+
+        DiskStorageData.DiskRecord record = storage.get(uuid);
+        if (record == null || record.getCapacity() != 1_000L) {
+            throw new IllegalStateException("1k DISK backing record was not bound to capacity 1000");
+        }
+
+        ItemStack forgedFourK = new ItemStack(ExpansionAEItems.DISK_4K.get());
+        forgedFourK.setTag(oneK.getTag().copy());
+
+        ICellInventoryHandler<IAEItemStack> forgedHandler =
+                open(forgedFourK, channel, "cross-tier forged alias");
+
+        IAEItemStack rejected =
+                forgedHandler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (rejected == null || rejected.getStackSize() != 1) {
+            throw new IllegalStateException("Cross-tier 4k alias was allowed to inject into a 1k backing record");
+        }
+
+        IAEItemStack extracted =
+                forgedHandler.extractItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (extracted != null) {
+            throw new IllegalStateException("Cross-tier 4k alias was allowed to extract from a 1k backing record");
+        }
+
+        if (!forgedHandler.getAvailableItems(channel.createList()).isEmpty()) {
+            throw new IllegalStateException("Cross-tier 4k alias exposed contents from a 1k backing record");
+        }
+
+        DiskStorageData.DiskRecord unchanged = storage.get(uuid);
+        if (unchanged == null
+                || unchanged.getCapacity() != 1_000L
+                || unchanged.getItemCount() != 200L) {
+            throw new IllegalStateException("Cross-tier alias attempt mutated the authoritative 1k backing record");
+        }
+
+        storage.remove(uuid);
+
+        ExpansionAE.LOGGER.info(
+                "DISK cross-tier UUID rejection validated (1k backing cannot be opened as 4k)");
     }
 
     private static void validateTransientStorage(
