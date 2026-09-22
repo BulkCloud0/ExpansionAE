@@ -7,6 +7,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.items.IItemHandler;
 
+import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
+
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
 import appeng.api.networking.security.IActionSource;
@@ -18,7 +20,6 @@ import appeng.api.storage.cells.ISaveProvider;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
-import appeng.core.Api;
 
 public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     static final String TAG_UUID = "expansionae_disk_uuid";
@@ -37,7 +38,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         this.cellType = cellType;
         this.cellStack = cellStack;
         this.saveProvider = saveProvider;
-        this.channel = Api.instance().storage().getStorageChannel(IItemStorageChannel.class);
+        this.channel = ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
     }
 
     private IItemList<IAEItemStack> contents() {
@@ -45,31 +46,37 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return contents;
         }
 
-        contents = channel.createList();
-
         UUID uuid = getUuid();
+        if (uuid == null) {
+            contents = channel.createList();
+            return contents;
+        }
+
         DiskStorageData storage = DiskStorageService.getCurrent();
-        if (uuid == null || storage == null) {
-            return contents;
+        if (storage == null) {
+            // Do not cache an empty list here. During early world loading or on the
+            // logical client, external disk storage may not be available yet. Caching
+            // that transient state could later overwrite valid server-side contents.
+            return channel.createList();
         }
 
+        IItemList<IAEItemStack> loaded = channel.createList();
         DiskStorageData.DiskRecord record = storage.get(uuid);
-        if (record == null) {
-            return contents;
-        }
+        if (record != null) {
+            ListNBT keys = record.getKeys();
+            long[] amounts = record.getAmounts();
+            int count = Math.min(keys.size(), amounts.length);
 
-        ListNBT keys = record.getKeys();
-        long[] amounts = record.getAmounts();
-        int count = Math.min(keys.size(), amounts.length);
-
-        for (int i = 0; i < count; i++) {
-            IAEItemStack stack = channel.createFromNBT(keys.getCompound(i));
-            if (stack != null && amounts[i] > 0) {
-                stack.setStackSize(amounts[i]);
-                contents.add(stack);
+            for (int i = 0; i < count; i++) {
+                IAEItemStack stack = channel.createFromNBT(keys.getCompound(i));
+                if (stack != null && amounts[i] > 0) {
+                    stack.setStackSize(amounts[i]);
+                    loaded.add(stack);
+                }
             }
         }
 
+        contents = loaded;
         return contents;
     }
 
@@ -111,12 +118,12 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     private boolean isNonEmptyStorageCell(IAEItemStack input) {
         ItemStack nestedStack = input.createItemStack();
-        if (!Api.instance().registries().cell().isCellHandled(nestedStack)) {
+        if (!ExpansionAEApi.get().registries().cell().isCellHandled(nestedStack)) {
             return false;
         }
 
         ICellInventoryHandler<IAEItemStack> nested =
-                Api.instance().registries().cell().getCellInventory(nestedStack, null, channel);
+                ExpansionAEApi.get().registries().cell().getCellInventory(nestedStack, null, channel);
         if (nested == null) {
             return false;
         }
@@ -273,6 +280,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         DiskStorageData storage = DiskStorageService.getCurrent();
 
         if (storage == null) {
+            // Preserve dirty=true so a later server-side save can retry.
             return;
         }
 

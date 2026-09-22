@@ -2,6 +2,8 @@ package com.bulkcloud.expansionae.feature.disk;
 
 import net.minecraft.item.ItemStack;
 
+import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
+
 import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.cells.ICellHandler;
 import appeng.api.storage.cells.ICellInventoryHandler;
@@ -9,7 +11,6 @@ import appeng.api.storage.cells.ISaveProvider;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
-import appeng.core.Api;
 import appeng.me.storage.BasicCellInventoryHandler;
 
 public final class DiskCellHandler implements ICellHandler {
@@ -34,7 +35,7 @@ public final class DiskCellHandler implements ICellHandler {
         }
 
         IItemStorageChannel itemChannel =
-                Api.instance().storage().getStorageChannel(IItemStorageChannel.class);
+                ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
 
         if (requestedChannel != itemChannel) {
             return null;
