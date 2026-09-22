@@ -6,5 +6,6 @@
   "item.expansionae.64k_disk": "DISK de Itens 64k",
   "tooltip.expansionae.disk.items": "%s / %s itens",
   "tooltip.expansionae.disk.types": "%s tipos de item",
-  "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item"
+  "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item",
+  "block.expansionae.cranked_growth_accelerator": "Acelerador de Crescimento por Manivela"
 }
