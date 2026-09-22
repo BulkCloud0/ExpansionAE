@@ -52,9 +52,10 @@ The pull-request workflow additionally launches the Forge dedicated-server devel
 - dedicated-server crashes before the server reaches the ready state;
 - broken DISK registration or Cell Workbench contracts;
 - regressions in DISK capacity, insertion/extraction and UUID-alias synchronization;
-- regressions in external storage persistence across an actual server restart.
+- regressions in external storage persistence across an actual server restart;
+- regressions in DISK acceptance by an ME Drive and visibility through an ME Chest item monitor.
 
-When `expansionae.validateDevRuntime=true`, the dedicated-server run asserts the AE2 cell registration, a 63-slot Cell Workbench config inventory, 2 upgrade slots with FUZZY/INVERTER support, 1000-item capacity, cross-alias visibility and empty-record preservation.
+When `expansionae.validateDevRuntime=true`, the dedicated-server run asserts the AE2 cell registration, a 63-slot Cell Workbench config inventory, 2 upgrade slots with FUZZY/INVERTER support, 1000-item capacity, cross-alias visibility and empty-record preservation. It also places temporary AE2 hosts in the overworld: an ME Drive must accept a pre-populated DISK and report it as `NOT_EMPTY`, while an ME Chest must expose the DISK contents through its item monitor.
 
 The pull-request workflow then runs two server phases against the same world. The `write` phase stages 321 items in a reserved test UUID and shuts the server down via RCON. The `read` phase starts a new server process, requires those 321 items to be recovered from `WorldSavedData`, extracts them and cleans up the test record. Both phases must reach the normal ready state and terminate cleanly.
 
