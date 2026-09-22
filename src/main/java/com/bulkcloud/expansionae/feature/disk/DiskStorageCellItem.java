@@ -1,9 +1,19 @@
 package com.bulkcloud.expansionae.feature.disk;
 
-import javax.annotation.Nonnull;
+import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.IItemHandler;
 
 import appeng.api.config.FuzzyMode;
@@ -27,6 +37,32 @@ public final class DiskStorageCellItem extends Item implements ICellWorkbenchIte
 
     public double getIdleDrain() {
         return idleDrain;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    @Override
+    public void addInformation(
+            ItemStack stack,
+            @Nullable World world,
+            List<ITextComponent> tooltip,
+            ITooltipFlag flag) {
+        long storedItems = cachedCount(stack, DiskCellInventory.TAG_ITEM_COUNT);
+        long storedTypes = cachedCount(stack, DiskCellInventory.TAG_TYPE_COUNT);
+
+        tooltip.add(new TranslationTextComponent(
+                "tooltip.expansionae.disk.items",
+                storedItems,
+                capacity));
+        tooltip.add(new TranslationTextComponent(
+                "tooltip.expansionae.disk.types",
+                storedTypes));
+        tooltip.add(new TranslationTextComponent(
+                "tooltip.expansionae.disk.no_type_limit")
+                .mergeStyle(TextFormatting.DARK_GRAY));
+    }
+
+    private static long cachedCount(ItemStack stack, String key) {
+        return stack.hasTag() ? Math.max(0, stack.getTag().getLong(key)) : 0;
     }
 
     @Override
