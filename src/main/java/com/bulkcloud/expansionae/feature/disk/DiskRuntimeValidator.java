@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import com.bulkcloud.expansionae.ExpansionAE;
@@ -52,6 +53,7 @@ public final class DiskRuntimeValidator {
                 ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
 
         validateTierCapacities(storage, channel);
+        validateMoreThanSixtyThreeTypes(storage, channel);
         validateCrossTierUuidRejection(storage, channel);
         validateWorkbenchSemantics(channel);
         validateRecipes();
@@ -115,6 +117,69 @@ public final class DiskRuntimeValidator {
         requireStoredCount(handler, 0);
         requireCachedMetadata(stack, 0, 0, tier + " after full extraction");
         storage.remove(uuid);
+    }
+
+    private static void validateMoreThanSixtyThreeTypes(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        ItemStack stack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        ICellInventoryHandler<IAEItemStack> handler =
+                open(stack, channel, "70-type validation");
+
+        int insertedTypes = 0;
+        for (Item item : ForgeRegistries.ITEMS.getValues()) {
+            ResourceLocation id = item.getRegistryName();
+            if (item == Items.AIR || id == null || !"minecraft".equals(id.getNamespace())) {
+                continue;
+            }
+
+            IAEItemStack candidate = channel.createStack(new ItemStack(item));
+            if (candidate == null) {
+                continue;
+            }
+            candidate.setStackSize(1);
+
+            IAEItemStack remainder =
+                    handler.injectItems(candidate, Actionable.MODULATE, null);
+            if (remainder != null) {
+                throw new IllegalStateException(
+                        "1k DISK rejected distinct type " + id
+                                + " before reaching the 70-type validation target");
+            }
+
+            insertedTypes++;
+            if (insertedTypes == 70) {
+                break;
+            }
+        }
+
+        if (insertedTypes != 70) {
+            throw new IllegalStateException(
+                    "Could not gather 70 vanilla item types for DISK validation; got "
+                            + insertedTypes);
+        }
+
+        if (handler.getCellInv().getStoredItemTypes() != 70L
+                || handler.getCellInv().getStoredItemCount() != 70L) {
+            throw new IllegalStateException(
+                    "1k DISK did not retain 70 distinct item types above the classic 63-type limit");
+        }
+
+        requireCachedMetadata(stack, 70L, 70L, "70-type validation");
+
+        if (handler.getCellInv().getRemainingItemTypes() <= 63L) {
+            throw new IllegalStateException(
+                    "1k DISK reported an artificial remaining type limit after storing 70 types");
+        }
+
+        if (!stack.hasTag() || !stack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
+            throw new IllegalStateException(
+                    "70-type DISK validation did not allocate a storage UUID");
+        }
+        storage.remove(stack.getTag().getUniqueId(DiskCellInventory.TAG_UUID));
+
+        ExpansionAE.LOGGER.info(
+                "DISK unlimited-type runtime validated (70 distinct item types stored in one 1k DISK)");
     }
 
     private static void validateCrossTierUuidRejection(
