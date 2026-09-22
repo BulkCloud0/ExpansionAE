@@ -57,13 +57,19 @@ The pull-request workflow additionally launches the Forge dedicated-server devel
 - regressions in Drive NBT/drop/replacement lifecycle;
 - same-grid alias double-counting;
 - stale terminal caches when one UUID is hosted by multiple independent AE2 grids;
-- recursive storage of a DISK alias inside its own backing UUID.
+- recursive storage of a DISK alias inside its own backing UUID;
+- Cranked Growth Accelerator interoperability with AE2's real crank;
+- exact Cranked energy accounting (160 AE/turn, 3200 AE buffer, 8 AE/t);
+- Cranked NBT/blockstate lifecycle;
+- actual AE2 Certus Seed growth beside a powered Cranked accelerator versus an unaccelerated control.
 
 When `expansionae.validateDevRuntime=true`, the dedicated-server run asserts the AE2 cell registration, a 63-slot Cell Workbench config inventory, 2 upgrade slots with FUZZY/INVERTER support, 1000-item capacity, cross-alias visibility, empty-record preservation and direct self-alias rejection. It also places temporary AE2 hosts in the overworld: an ME Drive must accept a pre-populated DISK and report it as `NOT_EMPTY`, while an ME Chest must expose the DISK contents through its item monitor. The Drive test additionally round-trips tile NBT, recreates the host and reinserts the dropped DISK while preserving UUID and contents.
 
 The pull-request workflow then runs two server phases against the same world. The `write` phase stages 321 items in a reserved test UUID and shuts the server down via RCON. The `read` phase starts a new server process, requires those 321 items to be recovered from `WorldSavedData`, extracts them and cleans up the test record. Both phases must reach the normal ready state and terminate cleanly.
 
 Each phase also builds active AE2 grids with Creative Energy Cells and ME Drives. Two same-UUID aliases on one grid must contribute only one logical copy to the storage monitor; an alias on a second grid must see the same backing contents. Both the dynamic inventory view and the cached terminal list are checked before and after cross-grid mutations. Alias changes are propagated to other active grids once per grid so remote terminal caches cannot remain stale.
+
+The Cranked Growth validation additionally places AE2's real crank against the ExpansionAE block and requires one physical crank cycle to inject exactly 160 AE. It then places two Certus Seed entities in water: one adjacent to the powered accelerator and one isolated control. After deterministic ticks, only the adjacent seed may advance. This proves the actual `GrowingCrystalEntity -> ICrystalGrowthAccelerator` integration path used by AE2 8.4.7.
 
 A successful JAR build does not replace these runtime gates. They are currently green with Forge 36.2.42 + AE2 8.4.7 + MCP `20210309-1.16.5`.
 
