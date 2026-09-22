@@ -256,7 +256,8 @@ jobs:
           for _ in $(seq 1 120); do
             if [ -f run/logs/latest.log ] \
               && grep -q "Registered and queued 1k/4k/16k/64k DISK drive models" run/logs/latest.log \
-              && grep -q "DISK client model bake validation passed" run/logs/latest.log; then
+              && grep -q "DISK client model bake validation passed" run/logs/latest.log \
+              && grep -q "DISK client tooltip validation passed" run/logs/latest.log; then
               validated=1
               break
             fi
@@ -278,7 +279,7 @@ jobs:
             exit 1
           fi
 
-          echo "Client reached model bake with all ExpansionAE DISK item/Drive models present."
+          echo "Client reached model bake with all ExpansionAE DISK item/Drive models and tooltip contracts present."
           stop_client
 
       - name: Upload development JARs
