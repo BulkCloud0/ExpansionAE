@@ -34,7 +34,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | Origem | Funcionalidades candidatas | Dependência extra | Complexidade | Situação |
 | --- | --- | --- | --- | --- |
 | ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Candidato P1 |
-| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | 1k core validado em runtime; resta passagem manual de GUI/receita/visual |
+| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | 1k/4k/16k/64k validados em runtime + client smoke; resta passagem manual de UX e decisão final de recipe/visual |
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
@@ -155,44 +155,53 @@ Uma feature só entra na implementação quando:
 
 O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
 
-1. fazer uma passagem manual pela GUI do Cell Workbench/ME Terminal para validar UX cliente;
+1. fazer a passagem manual final pela GUI do Cell Workbench/ME Terminal para validar UX cliente;
 2. decidir recipe/progressão e identidade visual finais do DISK;
-3. expandir o DISK para os tiers nativos do AE2 8.4.7 (4k/16k/64k) em uma branch separada;
+3. retirar a PR #4 de draft quando a checklist manual estiver verde e integrar o DISK;
 4. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
 5. depois iniciar a próxima feature P1.
+
+As branches antigas `feature/disk-tiers` e `feat/disk-storage` ficaram redundantes em relação a `feature/disk-storage`; não devem ser usadas como base para trabalho novo antes da integração da PR #4.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
 
 
 ## Validação em andamento — DISK
 
-O primeiro vertical slice implementado é o `expansionae:1k_disk`.
+O primeiro vertical slice implementado é a família DISK: `expansionae:1k_disk`, `4k_disk`, `16k_disk` e `64k_disk`.
 
 Estado atual:
 
 - custom `ICellHandler` registrado no AE2;
 - custom `ICellInventory<IAEItemStack>`;
-- capacidade experimental de 1000 itens com 1 item = 1 unidade;
-- sem limite artificial de tipos;
+- capacidades de 1.000 / 4.000 / 16.000 / 64.000 itens, com 1 item = 1 unidade;
+- sem limite artificial de tipos; o runtime armazena 70 tipos distintos em um único 1k DISK para provar que o limite clássico de 63 tipos não se aplica;
 - persistência externa via `WorldSavedData` indexada por UUID;
 - conteúdo completo fica fora do NBT do ItemStack;
-- receita experimental disponível;
+- receitas experimentais disponíveis para 1k/4k/16k/64k e validadas no RecipeManager do servidor com outputs corretos;
 - GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
 - registros externos malformados são sanitizados durante o load;
 - qualquer DISK que já possua UUID e esteja sem backing record é tratado como persistência corrompida/incompleta; leitura e escrita ficam bloqueadas em vez de recriar ou sobrescrever silenciosamente o armazenamento;
 - UUID é a identidade do armazenamento: cópias exatas do ItemStack com o mesmo UUID são aliases do mesmo conteúdo, não discos independentes;
 - quando um DISK com UUID fica vazio, o registro vazio e o UUID são preservados para que aliases existentes continuem sincronizados;
 - o CI possui smoke test de dedicated server no evento de pull request, validado com Forge 36.2.42 + AE2 8.4.7 usando MCP `20210309-1.16.5`;
-- o runtime valida o contrato do Cell Workbench: 63 slots de configuração, 2 slots de upgrade, 1× FUZZY e 1× INVERTER;
-- o runtime valida capacidade de 1000 itens, inserção/extração, sincronização de duas cópias com o mesmo UUID e preservação do backing record vazio;
+- o runtime valida o contrato do Cell Workbench nos quatro tiers: 63 slots de configuração, 2 slots de upgrade, 1× FUZZY e 1× INVERTER;
+- config/upgrades persistem no NBT; FUZZY/INVERTER são aceitos, CAPACITY é rejeitado, whitelist/inverter funcionam e FUZZY/PERCENT_50 é exercitado com variantes damageable;
+- o runtime valida as capacidades dos quatro tiers, inserção/extração, remainder, sincronização de aliases com o mesmo UUID e preservação do backing record vazio;
+- UUIDs são vinculados à capacidade do tier; tentar abrir o backing de um 1k como 4k falha fechado sem mutar o armazenamento;
+- a metadata cacheada do ItemStack (item count/type count) é validada e sincronizada entre aliases abertos, inclusive fora de um IActionHost, para impedir tooltips stale quando o alias volta a ser usado;
 - o CI executa duas inicializações consecutivas do dedicated server no mesmo mundo: a primeira grava 321 itens no `WorldSavedData`, encerra via RCON e a segunda recupera/extrai os 321 itens antes de limpar o registro;
 - a persistência externa do DISK através de save/restart do servidor está coberta automaticamente;
 - o runtime coloca um DISK pré-carregado em um ME Drive real, confirma que o host aceita a célula, preserva o conteúdo e reporta estado `NOT_EMPTY`;
 - o runtime coloca um DISK em um ME Chest real e confirma que o monitor de itens usado pela superfície de terminal enxerga a quantidade armazenada;
-- o lifecycle do ME Drive é coberto por round-trip do NBT do tile, teardown/reload equivalente ao estado persistido de chunk, drop do DISK e reinserção em um Drive novo, sempre preservando UUID e conteúdo;
+- o lifecycle do ME Drive é coberto por round-trip do NBT do tile, chamada real de `onChunkUnloaded()`, teardown/recriação do tile com o NBT persistido, drop do DISK e reinserção em um Drive novo, sempre preservando UUID e conteúdo;
 - uma micro-rede AE2 real com Creative Energy Cell + ME Drives valida canais/energia, inserção e extração pelo `IStorageGrid`/monitor que alimenta o ME Terminal;
 - dois aliases do mesmo UUID no mesmo grid são deduplicados para uma única exposição lógica, evitando contagem dobrada;
 - o mesmo UUID em grids independentes continua compartilhando o backing store, com caches de terminal propagados entre grids (50 → 75 → 45 no self-test);
-- um DISK vazio não aceita ser armazenado dentro de si mesmo por meio de outro alias com o mesmo UUID, impedindo referência recursiva.
+- um DISK vazio não aceita ser armazenado dentro de si mesmo por meio de outro alias com o mesmo UUID, impedindo referência recursiva;
+- a PR executa `runClient` sob Xvfb e exige que o cliente atravesse bootstrap/resource loading até o model bake;
+- os quatro modelos de inventário e os quatro modelos usados no ME Drive são verificados contra missing model;
+- o contrato do tooltip é validado no cliente para os quatro tiers (cached item count, type count, capacidade do tier e linha de ausência de limite de tipos);
+- o acesso antecipado à API do AE2 durante model loading usa `appeng.core.Api.instance()` somente nesse lifecycle, pois `@AEAddon#onAPIAvailable` ainda não ocorreu nesse estágio no AE2 8.4.x.
 
-Antes de promover a feature para concluída restam apenas validações de UX cliente (GUI do Cell Workbench/ME Terminal) e as decisões finais de recipe/progressão/identidade visual. O core de storage, persistência, host lifecycle, grid e aliases está automatizado no dedicated server.
+Antes de promover a feature para concluída restam apenas a passagem manual de UX/visual no cliente (GUI do Cell Workbench/ME Terminal) e as decisões finais de recipe/progressão/identidade visual. O core de storage, persistência, recipe loading, host/chunk lifecycle, grid, aliases, modelos e contrato de tooltip já possui gates automatizados.
