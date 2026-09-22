@@ -10,9 +10,11 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
 
 @Mod(ExpansionAE.MOD_ID)
@@ -38,6 +40,13 @@ public final class ExpansionAE {
                 ExpansionAEItems.validateDiskWorkbenchContract();
             }
         });
+    }
+
+    @SubscribeEvent
+    public void onServerStarted(FMLServerStartedEvent event) {
+        if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
+            DiskRuntimeValidator.validate();
+        }
     }
 
     @SubscribeEvent
