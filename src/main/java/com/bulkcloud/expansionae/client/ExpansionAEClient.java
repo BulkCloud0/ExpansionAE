@@ -12,10 +12,10 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 import com.bulkcloud.expansionae.ExpansionAE;
-import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 
 import appeng.api.client.ICellModelRegistry;
+import appeng.core.Api;
 
 @Mod.EventBusSubscriber(
         modid = ExpansionAE.MOD_ID,
@@ -27,7 +27,10 @@ public final class ExpansionAEClient {
 
     @SubscribeEvent
     public static void onModelRegistry(ModelRegistryEvent event) {
-        ICellModelRegistry cells = ExpansionAEApi.get().client().cells();
+        // AE2 8.4.x fires Forge model registration before AddonLoader announces
+        // IAppEngApi through @AEAddon. Api.instance() explicitly documents this
+        // as a supported exceptional case for early API access.
+        ICellModelRegistry cells = Api.instance().client().cells();
 
         registerDiskModel(
                 cells,
@@ -52,7 +55,7 @@ public final class ExpansionAEClient {
 
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
-        ICellModelRegistry cells = ExpansionAEApi.get().client().cells();
+        ICellModelRegistry cells = Api.instance().client().cells();
 
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_1K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_4K.get());
