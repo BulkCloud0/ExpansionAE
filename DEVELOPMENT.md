@@ -14,9 +14,11 @@
 
 AE2 8.4.7 was built in the 1.16.5 MCP/SRG mapping ecosystem and its Mixin configuration contains targets that depend on that naming model.
 
-ExpansionAE initially compiled with Mojang official mappings, but a real `runServer` exposed incompatible AE2 Mixin targets. Disabling the Mixin refmap only changed which target failed; it did not solve the underlying namespace mismatch.
+ExpansionAE initially compiled with Mojang official mappings, but a real `runServer` exposed incompatible AE2 Mixin targets. Disabling the Mixin refmap alone only changed which target failed; changing to MCP mappings alone still left the published AE2 refmap targeting SRG names.
 
-The development workspace therefore uses the same MCP snapshot generation as AE2's 1.16.x branch:
+The working userdev configuration therefore needs both parts: MCP snapshot mappings for the runtime class/method namespace, and the AE2 refmap disabled in Gradle `run*` configurations so Mixin resolves the source-level MCP targets directly.
+
+The project uses:
 
 ```properties
 mappings_channel=snapshot
@@ -49,7 +51,7 @@ The pull-request workflow additionally launches the Forge dedicated-server devel
 - registry/bootstrap errors;
 - dedicated-server crashes before the server reaches the ready state.
 
-A successful JAR build does not replace this runtime gate.
+A successful JAR build does not replace this runtime gate. The dedicated-server smoke test is currently green with Forge 36.2.42 + AE2 8.4.7 + MCP `20210309-1.16.5`.
 
 The Forge dedicated-server smoke test has been verified to reach the normal server-ready state with the MCP/refmap configuration above.
 
