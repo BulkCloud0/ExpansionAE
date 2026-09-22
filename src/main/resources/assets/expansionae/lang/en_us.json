@@ -1,4 +1,7 @@
 {
   "itemGroup.expansionae": "ExpansionAE",
-  "item.expansionae.1k_disk": "1k Item DISK"
+  "item.expansionae.1k_disk": "1k Item DISK",
+  "item.expansionae.4k_disk": "4k Item DISK",
+  "item.expansionae.16k_disk": "16k Item DISK",
+  "item.expansionae.64k_disk": "64k Item DISK"
 }
