@@ -7,5 +7,6 @@
   "tooltip.expansionae.disk.items": "%s / %s items",
   "tooltip.expansionae.disk.types": "%s item types",
   "tooltip.expansionae.disk.no_type_limit": "No item type limit",
-  "block.expansionae.cranked_growth_accelerator": "Cranked Growth Accelerator"
+  "block.expansionae.cranked_growth_accelerator": "Cranked Growth Accelerator",
+  "block.expansionae.boosted_growth_accelerator": "Boosted Growth Accelerator"
 }

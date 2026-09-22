@@ -45,6 +45,12 @@ public final class ExpansionAEItems {
                     ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get(),
                     new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
 
+    public static final RegistryObject<Item> BOOSTED_GROWTH_ACCELERATOR = ITEMS.register(
+            "boosted_growth_accelerator",
+            () -> new BlockItem(
+                    ExpansionAEBlocks.BOOSTED_GROWTH_ACCELERATOR.get(),
+                    new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
+
     private ExpansionAEItems() {
     }
 

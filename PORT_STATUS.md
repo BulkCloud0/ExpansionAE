@@ -38,7 +38,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
-| Growth Accelerator Tiers | Cranked, Boosted e Directional Growth Accelerator | Não | Média | Cranked validado em runtime; Boosted/Directional pendentes |
+| Growth Accelerator Tiers | Cranked, Boosted e Directional Growth Accelerator | Não | Média | Cranked validado; Boosted em implementação/validação; Directional pendente |
 
 ### P2 — Recursos armazenáveis e utilidades avançadas
 
@@ -92,7 +92,9 @@ O código atual implementa mana como recurso da rede, incluindo storage/portable
 
 Três conceitos principais: Cranked, Boosted e Directional Growth Accelerator. O Cranked já foi adaptado para a API 1.16.5 e validado no dedicated server com a manivela real do AE2 e crescimento real de Certus Seed.
 
-A versão moderna usa multiplicadores próprios de velocidade, mas o AE2 8.4.7 calcula o crescimento contando aceleradores adjacentes que implementam `ICrystalGrowthAccelerator`. Por isso, o backport do Cranked preserva o comportamento que a API antiga permite: funciona como um Growth Accelerator normal, sem conexão ME, alimentado exclusivamente por manivela (160 AE/turn, buffer 3200 AE, 8 AE/t). Não é aplicado um multiplicador 8× artificial.
+A versão moderna usa multiplicadores próprios de velocidade, mas o AE2 8.4.7 calcula o crescimento contando aceleradores adjacentes que implementam `ICrystalGrowthAccelerator`. Por isso, o backport do Cranked preserva o comportamento que a API antiga permite: funciona como um Growth Accelerator normal, sem conexão ME, alimentado exclusivamente por manivela (160 AE/turn, buffer 3200 AE, 8 AE/t).
+
+O Boosted usa a rede AE2 como um Growth Accelerator normal, mas consome 24 AE/t. Como a interface 1.16.5 não possui multiplicador, o ExpansionAE adiciona o delta de crescimento diretamente aos `GrowingCrystalEntity` adjacentes. Um Boosted sozinho continua contando como 1 acelerador para o cálculo vanilla (40/1000 por tick) e adiciona +280/1000 por tick, totalizando 320/1000 — 8× o efeito de um único acelerador vanilla em água normal.
 
 ### Applied Pneumatics
 
