@@ -49,11 +49,18 @@ The pull-request workflow additionally launches the Forge dedicated-server devel
 - accidental client-only class references from common code;
 - mod-loading failures;
 - registry/bootstrap errors;
-- dedicated-server crashes before the server reaches the ready state.
+- dedicated-server crashes before the server reaches the ready state;
+- broken DISK registration or Cell Workbench contracts;
+- regressions in DISK capacity, insertion/extraction and UUID-alias synchronization;
+- regressions in external storage persistence across an actual server restart.
 
-A successful JAR build does not replace this runtime gate. The dedicated-server smoke test is currently green with Forge 36.2.42 + AE2 8.4.7 + MCP `20210309-1.16.5`.
+When `expansionae.validateDevRuntime=true`, the dedicated-server run asserts the AE2 cell registration, a 63-slot Cell Workbench config inventory, 2 upgrade slots with FUZZY/INVERTER support, 1000-item capacity, cross-alias visibility and empty-record preservation.
 
-The Forge dedicated-server smoke test has been verified to reach the normal server-ready state with the MCP/refmap configuration above.
+The pull-request workflow then runs two server phases against the same world. The `write` phase stages 321 items in a reserved test UUID and shuts the server down via RCON. The `read` phase starts a new server process, requires those 321 items to be recovered from `WorldSavedData`, extracts them and cleans up the test record. Both phases must reach the normal ready state and terminate cleanly.
+
+A successful JAR build does not replace these runtime gates. They are currently green with Forge 36.2.42 + AE2 8.4.7 + MCP `20210309-1.16.5`.
+
+The workflow also uses per-event/ref concurrency with `cancel-in-progress` so obsolete push/PR runs do not consume runner capacity.
 
 ## DISK persistence model
 
