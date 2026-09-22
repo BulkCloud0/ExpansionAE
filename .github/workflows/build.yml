@@ -77,7 +77,23 @@ jobs:
             exit 1
           fi
 
-          echo "Dedicated server reached the ready state successfully."
+          if ! grep -q "AE2 API available; registered ExpansionAE cell handlers" run/logs/latest.log; then
+            echo "ExpansionAE did not register its AE2 cell handler."
+            cat run/logs/latest.log
+            kill -TERM -- "-$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+            exit 1
+          fi
+
+          if ! grep -q "DISK workbench contract validated" run/logs/latest.log; then
+            echo "DISK workbench runtime validation did not complete."
+            cat run/logs/latest.log
+            kill -TERM -- "-$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Dedicated server reached the ready state with AE2 cell registration and DISK workbench validation."
 
           kill -INT -- "-$server_pid" 2>/dev/null || true
           for _ in $(seq 1 15); do
