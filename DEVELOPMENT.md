@@ -23,7 +23,15 @@ mappings_channel=snapshot
 mappings_version=20210309-1.16.5
 ```
 
-Do not switch the project back to `official` mappings without also proving AE2 8.4.7 client/server startup. A successful Java compilation is not sufficient for this dependency because its Mixins are applied at runtime.
+The published AE2 8.4.7 artifact also carries a refmap whose targets are expressed in the production/SRG namespace. ForgeGradle deobfuscates that dependency into the MCP userdev namespace, so the `client`, `server` and `data` development runs set:
+
+```groovy
+property 'mixin.env.disableRefMap', 'true'
+```
+
+This property is a userdev runtime setting only; it is not packaged into the ExpansionAE JAR. With MCP mappings, disabling the published refmap lets AE2's Mixin source targets resolve against the MCP-named development classes.
+
+Do not switch the project back to `official` mappings or remove the userdev refmap setting without proving AE2 8.4.7 client/server startup. A successful Java compilation is not sufficient for this dependency because its Mixins are applied at runtime.
 
 ## Validation gates
 
@@ -42,6 +50,8 @@ The pull-request workflow additionally launches the Forge dedicated-server devel
 - dedicated-server crashes before the server reaches the ready state.
 
 A successful JAR build does not replace this runtime gate.
+
+The Forge dedicated-server smoke test has been verified to reach the normal server-ready state with the MCP/refmap configuration above.
 
 ## DISK persistence model
 
