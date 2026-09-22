@@ -50,6 +50,7 @@ public final class DiskRuntimeValidator {
         validateTransientStorage(storage, channel);
         validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
+        DiskGridRuntimeValidator.begin();
     }
 
     private static void validateTransientStorage(
