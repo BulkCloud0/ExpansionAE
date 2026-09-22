@@ -210,6 +210,77 @@ jobs:
 
           echo "Dedicated server restart persistence smoke test passed with clean RCON shutdowns."
 
+      - name: Client model smoke test
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
+          rm -rf run/logs run/crash-reports
+          mkdir -p run
+
+          setsid xvfb-run -a ./gradlew --no-daemon runClient > run/client.out 2>&1 &
+          client_pid=$!
+          validated=0
+
+          dump_client_failure() {
+            echo "Client model smoke test failed."
+            if [ -f run/logs/latest.log ]; then
+              cat run/logs/latest.log
+            elif [ -f run/client.out ]; then
+              cat run/client.out
+            fi
+            for crash in run/crash-reports/*; do
+              [ -f "$crash" ] || continue
+              echo "===== $crash ====="
+              cat "$crash"
+            done
+          }
+
+          stop_client() {
+            kill -TERM -- "-$client_pid" 2>/dev/null || true
+            for _ in $(seq 1 20); do
+              if ! kill -0 "$client_pid" 2>/dev/null; then
+                wait "$client_pid" 2>/dev/null || true
+                return 0
+              fi
+              sleep 1
+            done
+            kill -KILL -- "-$client_pid" 2>/dev/null || true
+            wait "$client_pid" 2>/dev/null || true
+          }
+
+          for _ in $(seq 1 120); do
+            if [ -f run/logs/latest.log ] \
+              && grep -q "Registered and queued 1k/4k/16k/64k DISK drive models" run/logs/latest.log \
+              && grep -q "DISK client model bake validation passed" run/logs/latest.log; then
+              validated=1
+              break
+            fi
+
+            if find run/crash-reports -maxdepth 1 -type f -print -quit 2>/dev/null | grep -q .; then
+              break
+            fi
+
+            if ! kill -0 "$client_pid" 2>/dev/null; then
+              break
+            fi
+
+            sleep 2
+          done
+
+          if [ "$validated" -ne 1 ]; then
+            dump_client_failure
+            stop_client
+            exit 1
+          fi
+
+          echo "Client reached model bake with all ExpansionAE DISK item/Drive models present."
+          stop_client
+
       - name: Upload development JARs
         if: success()
         uses: actions/upload-artifact@v4
