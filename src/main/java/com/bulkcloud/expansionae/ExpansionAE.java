@@ -19,6 +19,7 @@ import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
+import com.bulkcloud.expansionae.feature.growth.CrankedGrowthRuntimeValidator;
 
 @Mod(ExpansionAE.MOD_ID)
 public final class ExpansionAE {
@@ -50,6 +51,7 @@ public final class ExpansionAE {
     public void onServerStarted(FMLServerStartedEvent event) {
         if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
             DiskRuntimeValidator.validate();
+            CrankedGrowthRuntimeValidator.validate();
         }
     }
 
