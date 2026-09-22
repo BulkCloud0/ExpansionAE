@@ -83,4 +83,47 @@ final class DiskStorageDataTest {
         assertEquals(4L, record.getAmounts()[0]);
         assertEquals("minecraft:diamond", record.getKeys().getCompound(0).getString("id"));
     }
+
+    @Test
+    void loadRepairsMismatchedAndInvalidAmounts() {
+        UUID id = UUID.randomUUID();
+
+        ListNBT keys = new ListNBT();
+        CompoundNBT stone = new CompoundNBT();
+        stone.putString("id", "minecraft:stone");
+        keys.add(stone);
+
+        CompoundNBT dirt = new CompoundNBT();
+        dirt.putString("id", "minecraft:dirt");
+        keys.add(dirt);
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUUID("uuid", id);
+        disk.put("keys", keys);
+        disk.putLongArray("amounts", new long[] { 5L, -3L, 99L });
+        disk.putLong("item_count", 12345L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.load(root);
+
+        DiskStorageData.DiskRecord record = loaded.get(id);
+        assertNotNull(record);
+        assertEquals(5L, record.getItemCount());
+        assertEquals(1, record.getKeys().size());
+        assertEquals("minecraft:stone", record.getKeys().getCompound(0).getString("id"));
+        assertEquals(1, record.getAmounts().length);
+        assertEquals(5L, record.getAmounts()[0]);
+
+        CompoundNBT normalized = loaded.save(new CompoundNBT());
+        CompoundNBT normalizedDisk = normalized.getList("disks", 10).getCompound(0);
+        assertEquals(5L, normalizedDisk.getLong("item_count"));
+        assertEquals(1, normalizedDisk.getList("keys", 10).size());
+        assertEquals(1, normalizedDisk.getLongArray("amounts").length);
+    }
 }
