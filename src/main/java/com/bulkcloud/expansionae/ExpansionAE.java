@@ -10,6 +10,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
@@ -24,6 +25,12 @@ public final class ExpansionAE {
     public static final String MOD_ID = "expansionae";
     public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
 
+    private static final String DEV_RUNTIME_VALIDATION_PROPERTY =
+            "expansionae.validateDevRuntime";
+    private static final boolean DEV_RUNTIME_VALIDATION =
+            Boolean.getBoolean(DEV_RUNTIME_VALIDATION_PROPERTY)
+                    && !FMLEnvironment.production;
+
     public ExpansionAE() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -32,6 +39,15 @@ public final class ExpansionAE {
         modBus.addListener(this::onCommonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
+
+        if (Boolean.getBoolean(DEV_RUNTIME_VALIDATION_PROPERTY)
+                && FMLEnvironment.production) {
+            LOGGER.warn(
+                    "Ignoring {} in a production Forge environment; "
+                            + "destructive DISK runtime validators are userdev/CI-only",
+                    DEV_RUNTIME_VALIDATION_PROPERTY);
+        }
+
         LOGGER.info("ExpansionAE bootstrap initialized");
     }
 
