@@ -1,7 +1,6 @@
 package com.bulkcloud.expansionae.client;
 
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
@@ -68,8 +67,8 @@ public final class ExpansionAEClient {
             ModelBakeEvent event,
             ICellModelRegistry cells,
             Item item) {
-        IBakedModel missing =
-                event.getModelRegistry().get(ModelBakery.MISSING_MODEL_LOCATION);
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
 
         ResourceLocation driveModel = cells.model(item);
         if (driveModel == null) {
