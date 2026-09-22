@@ -12,6 +12,21 @@ O repositório está na fase de arquitetura e implementação incremental. O pla
 - [ARCHITECTURE.md](ARCHITECTURE.md): arquitetura do core, módulos opcionais e storage channels.
 - [NOTICE.md](NOTICE.md): projetos de referência, créditos e licenças observadas.
 
+### Vertical slice atual: DISK
+
+O primeiro módulo funcional em validação é a família de armazenamento DISK inspirada no comportamento do AE2Things e reimplementada para a API do AE2 8.4.x:
+
+- tiers de itens 1k / 4k / 16k / 64k;
+- capacidades de 1.000 / 4.000 / 16.000 / 64.000 itens, com 1 item = 1 unidade;
+- sem limite artificial de tipos de item;
+- persistência externa por UUID via `WorldSavedData`;
+- aliases do mesmo UUID representam o mesmo armazenamento lógico;
+- integração com ME Drive, ME Chest, storage grid e Cell Workbench;
+- suporte a FUZZY e INVERTER; CAPACITY não é suportado;
+- validação automatizada de restart, chunk/Drive lifecycle, aliases entre grids, receitas, modelos e tooltips.
+
+As receitas e a identidade visual ainda são tratadas como conteúdo experimental até o balanceamento final. Consulte `PORT_STATUS.md` e `DEVELOPMENT.md` para o estado técnico detalhado.
+
 ## Compilar no Windows
 
 1. Instale um **JDK 8 de 64 bits**, como Eclipse Temurin 8. Configure `JAVA_HOME` para a pasta do JDK, não a pasta `bin`.
