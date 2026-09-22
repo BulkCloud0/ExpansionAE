@@ -157,9 +157,9 @@ O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem
 
 1. fazer uma passagem manual pela GUI do Cell Workbench/ME Terminal para validar UX cliente;
 2. decidir recipe/progressão e identidade visual finais do DISK;
-3. expandir o DISK para os tiers nativos do AE2 8.4.7 (4k/16k/64k) em uma branch separada;
+3. revisar/mesclar a branch empilhada `feature/disk-tiers`, que já implementa 4k/16k/64k e passou o smoke do dedicated server;
 4. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
-5. depois iniciar a próxima feature P1.
+5. iniciar o Cranked Growth Accelerator como próximo slice P1 isolado.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
 
@@ -196,3 +196,18 @@ Estado atual:
 - um DISK vazio não aceita ser armazenado dentro de si mesmo por meio de outro alias com o mesmo UUID, impedindo referência recursiva.
 
 Antes de promover a feature para concluída restam apenas validações de UX cliente (GUI do Cell Workbench/ME Terminal) e as decisões finais de recipe/progressão/identidade visual. O core de storage, persistência, host lifecycle, grid e aliases está automatizado no dedicated server.
+
+
+## DISK tiers — branch feature/disk-tiers
+
+A expansão 4k/16k/64k reutiliza integralmente o backend validado do 1k. O CI da PR empilhada valida:
+
+- 4k = 4.000 itens / 1.0 AE/t;
+- 16k = 16.000 itens / 1.5 AE/t;
+- 64k = 64.000 itens / 2.0 AE/t;
+- remainder de 111 itens quando cada tier recebe capacidade + 111;
+- extração integral até zero;
+- preservação do backing record vazio;
+- FUZZY/INVERTER e 63 slots de configuração em todos os tiers.
+
+O tier 256k não foi incluído porque o AE2 8.4.7 possui componentes nativos apenas até 64k.
