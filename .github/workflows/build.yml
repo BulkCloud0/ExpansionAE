@@ -22,13 +22,14 @@ jobs:
           distribution: temurin
           java-version: '8'
 
-      - name: Set up Gradle 7.3.3
+      - name: Set up Gradle cache
         uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '7.3.3'
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
 
       - name: Build
-        run: gradle --no-daemon clean build
+        run: ./gradlew --no-daemon clean build
 
       - name: Upload development JARs
         if: success()
