@@ -179,7 +179,7 @@ Estado atual:
 - receita experimental disponível;
 - GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
 - registros externos malformados são sanitizados durante o load;
-- se o ItemStack indicar conteúdo mas o registro externo estiver ausente, o DISK bloqueia leitura/escrita em vez de sobrescrever silenciosamente os dados;
+- qualquer DISK que já possua UUID e esteja sem backing record é tratado como persistência corrompida/incompleta; leitura e escrita ficam bloqueadas em vez de recriar ou sobrescrever silenciosamente o armazenamento;
 - UUID é a identidade do armazenamento: cópias exatas do ItemStack com o mesmo UUID são aliases do mesmo conteúdo, não discos independentes;
 - quando um DISK com UUID fica vazio, o registro vazio e o UUID são preservados para que aliases existentes continuem sincronizados;
 - o CI possui smoke test de dedicated server no evento de pull request, já validado com Forge 36.2.42 + AE2 8.4.7 usando MCP `20210309-1.16.5`.
