@@ -13,11 +13,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.ExpansionAEItemGroup;
+import com.bulkcloud.expansionae.feature.bus.ExtendedExportBusPart;
+import com.bulkcloud.expansionae.feature.bus.ExtendedImportBusPart;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
 import appeng.items.contents.CellUpgrades;
+import appeng.items.parts.PartItem;
 
 public final class ExpansionAEItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -31,6 +34,18 @@ public final class ExpansionAEItems {
             registerDisk("16k_disk", 16_000, 1.5);
     public static final RegistryObject<Item> DISK_64K =
             registerDisk("64k_disk", 64_000, 2.0);
+
+    public static final RegistryObject<Item> EXTENDED_IMPORT_BUS = ITEMS.register(
+            "extended_import_bus",
+            () -> new PartItem<>(
+                    new Item.Properties().group(ExpansionAEItemGroup.MAIN),
+                    ExtendedImportBusPart::new));
+
+    public static final RegistryObject<Item> EXTENDED_EXPORT_BUS = ITEMS.register(
+            "extended_export_bus",
+            () -> new PartItem<>(
+                    new Item.Properties().group(ExpansionAEItemGroup.MAIN),
+                    ExtendedExportBusPart::new));
 
     private static final List<RegistryObject<Item>> DISKS = Arrays.asList(
             DISK_1K,
@@ -63,6 +78,21 @@ public final class ExpansionAEItems {
             Upgrades.FUZZY.registerItem(item, 1);
             Upgrades.INVERTER.registerItem(item, 1);
         }
+
+        registerImportBusUpgrades(EXTENDED_IMPORT_BUS.get());
+        registerExportBusUpgrades(EXTENDED_EXPORT_BUS.get());
+    }
+
+    private static void registerImportBusUpgrades(Item item) {
+        Upgrades.CAPACITY.registerItem(item, 2);
+        Upgrades.REDSTONE.registerItem(item, 1);
+        Upgrades.FUZZY.registerItem(item, 1);
+        Upgrades.SPEED.registerItem(item, 4);
+    }
+
+    private static void registerExportBusUpgrades(Item item) {
+        registerImportBusUpgrades(item);
+        Upgrades.CRAFTING.registerItem(item, 1);
     }
 
     public static void validateDiskWorkbenchContract() {
