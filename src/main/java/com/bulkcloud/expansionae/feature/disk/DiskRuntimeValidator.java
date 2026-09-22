@@ -175,11 +175,12 @@ public final class DiskRuntimeValidator {
         validateWorkbenchNbtPersistence(ExpansionAEItems.DISK_16K.get(), "16k");
         validateWorkbenchNbtPersistence(ExpansionAEItems.DISK_64K.get(), "64k");
         validatePartitionFiltering(channel);
+        validateFuzzyPartitionFiltering(channel);
 
         ExpansionAE.LOGGER.info(
                 "DISK Cell Workbench runtime semantics validated "
                         + "(config/upgrades persist in NBT, FUZZY+INVERTER accepted, "
-                        + "CAPACITY rejected, whitelist/inverter filtering active)");
+                        + "CAPACITY rejected, whitelist/inverter/fuzzy filtering active)");
     }
 
     private static void validateWorkbenchNbtPersistence(
@@ -317,6 +318,70 @@ public final class DiskRuntimeValidator {
                 null) != null) {
             throw new IllegalStateException(
                     "Inverted DISK rejected an item outside its blacklist");
+        }
+    }
+
+    private static void validateFuzzyPartitionFiltering(
+            IItemStorageChannel channel) {
+        DiskStorageCellItem disk =
+                (DiskStorageCellItem) ExpansionAEItems.DISK_1K.get();
+
+        ItemStack configuredPickaxe = new ItemStack(Items.IRON_PICKAXE);
+        configuredPickaxe.setDamage(10);
+
+        ItemStack candidatePickaxe = new ItemStack(Items.IRON_PICKAXE);
+        candidatePickaxe.setDamage(100);
+
+        ItemStack preciseStack = new ItemStack(disk);
+        IItemHandler preciseConfig = disk.getConfigInventory(preciseStack);
+        if (!preciseConfig.insertItem(0, configuredPickaxe.copy(), false).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK fuzzy validation could not configure the precise damageable item");
+        }
+
+        ICellInventoryHandler<IAEItemStack> precise =
+                open(preciseStack, channel, "Cell Workbench precise partition validation");
+
+        IAEItemStack preciseRejected = precise.injectItems(
+                stack(channel, candidatePickaxe, 1),
+                Actionable.SIMULATE,
+                null);
+        if (preciseRejected == null || preciseRejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK precise partition unexpectedly accepted a different durability variant");
+        }
+
+        ItemStack fuzzyStack = new ItemStack(disk);
+        IItemHandler fuzzyConfig = disk.getConfigInventory(fuzzyStack);
+        if (!fuzzyConfig.insertItem(0, configuredPickaxe.copy(), false).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK fuzzy validation could not configure the damageable item");
+        }
+
+        IItemHandler fuzzyUpgrades = disk.getUpgradesInventory(fuzzyStack);
+        ItemStack fuzzyCard =
+                ExpansionAEApi.get().definitions().materials().cardFuzzy().stack(1);
+        if (!fuzzyUpgrades.insertItem(0, fuzzyCard, false).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK fuzzy validation could not install a FUZZY card");
+        }
+
+        disk.setFuzzyMode(fuzzyStack, appeng.api.config.FuzzyMode.PERCENT_50);
+
+        ICellInventoryHandler<IAEItemStack> fuzzy =
+                open(fuzzyStack, channel, "Cell Workbench fuzzy partition validation");
+
+        if (!fuzzy.isFuzzy()) {
+            throw new IllegalStateException(
+                    "DISK with FUZZY card did not expose a fuzzy partition handler");
+        }
+
+        if (fuzzy.injectItems(
+                stack(channel, candidatePickaxe, 1),
+                Actionable.SIMULATE,
+                null) != null) {
+            throw new IllegalStateException(
+                    "DISK fuzzy partition rejected a durability variant in the same 50% band");
         }
     }
 
@@ -735,10 +800,18 @@ public final class DiskRuntimeValidator {
             IItemStorageChannel channel,
             Item item,
             long amount) {
-        IAEItemStack stack = channel.createStack(new ItemStack(item));
+        return stack(channel, new ItemStack(item), amount);
+    }
+
+    private static IAEItemStack stack(
+            IItemStorageChannel channel,
+            ItemStack itemStack,
+            long amount) {
+        IAEItemStack stack = channel.createStack(itemStack);
         if (stack == null) {
             throw new IllegalStateException(
-                    "AE2 item channel could not create a stack for " + item.getRegistryName());
+                    "AE2 item channel could not create a stack for "
+                            + itemStack.getItem().getRegistryName());
         }
         stack.setStackSize(amount);
         return stack;
