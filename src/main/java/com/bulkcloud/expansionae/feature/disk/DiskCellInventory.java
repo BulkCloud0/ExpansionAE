@@ -13,6 +13,7 @@ import appeng.api.networking.security.IActionSource;
 import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.cells.CellState;
 import appeng.api.storage.cells.ICellInventory;
+import appeng.api.storage.cells.ICellInventoryHandler;
 import appeng.api.storage.cells.ISaveProvider;
 import appeng.api.storage.channels.IItemStorageChannel;
 import appeng.api.storage.data.IAEItemStack;
@@ -78,6 +79,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return null;
         }
 
+        if (isNonEmptyStorageCell(input)) {
+            return input;
+        }
+
         long accepted = Math.min(input.getStackSize(), getRemainingItemCount());
         if (accepted <= 0) {
             return input;
@@ -102,6 +107,21 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         IAEItemStack remainder = input.copy();
         remainder.setStackSize(input.getStackSize() - accepted);
         return remainder;
+    }
+
+    private boolean isNonEmptyStorageCell(IAEItemStack input) {
+        ItemStack nestedStack = input.createItemStack();
+        if (!Api.instance().registries().cell().isCellHandled(nestedStack)) {
+            return false;
+        }
+
+        ICellInventoryHandler<IAEItemStack> nested =
+                Api.instance().registries().cell().getCellInventory(nestedStack, null, channel);
+        if (nested == null) {
+            return false;
+        }
+
+        return !nested.getAvailableItems(channel.createList()).isEmpty();
     }
 
     @Override
