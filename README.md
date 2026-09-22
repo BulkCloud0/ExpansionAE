@@ -16,17 +16,16 @@ O repositório está na fase de arquitetura e seleção de funcionalidades. O pl
 
 1. Instale um **JDK 8 de 64 bits**, como Eclipse Temurin 8. Configure `JAVA_HOME` para a pasta do JDK, não a pasta `bin`.
 2. Extraia o projeto e abra um terminal nessa pasta.
-3. Execute `gradlew.bat --no-daemon clean build`.
-4. Se a compilação concluir com `BUILD SUCCESSFUL`, o JAR reobfuscado ficará em `build\libs`.
+3. Instale **Gradle 6.8.3** ou use a mesma versão configurada pela GitHub Actions.
+4. Execute `gradle --no-daemon clean build`.
+5. Se a compilação concluir com `BUILD SUCCESSFUL`, o JAR reobfuscado ficará em `build\\libs`.
 
-No Linux/macOS: `./gradlew --no-daemon clean build`.
+A GitHub Actions configura Java 8 e Gradle 6.8.3 automaticamente. O Gradle Wrapper será adicionado assim que o binário `gradle-wrapper.jar` for incorporado ao repositório; até lá, o build local requer Gradle 6.8.3 instalado.
 
-A primeira execução precisa de internet para obter Gradle, Forge, Minecraft e AE2. Não é necessário instalar Gradle separadamente.
-
-> O scaffold Forge/Gradle ainda será adicionado. Enquanto isso não acontecer, os comandos acima documentam o ambiente alvo, mas o repositório ainda não é compilável.
+A primeira execução precisa de internet para obter Forge, Minecraft e AE2.
 
 ## Execução e validação
 
-Quando o scaffold estiver presente, use `gradlew.bat runClient` para abrir o ambiente de desenvolvimento. Em uma instalação normal, a base será Forge 36.2.42 + AE2 8.4.7 + ExpansionAE.
+Use `gradle runClient` para abrir o ambiente de desenvolvimento. Em uma instalação normal, a base será Forge 36.2.42 + AE2 8.4.7 + ExpansionAE.
 
 Uma compilação aprovada não comprova paridade funcional. Use um mundo de teste até concluir testes de inventário, autocrafting, persistência, reload de chunks e servidor dedicado.
