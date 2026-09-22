@@ -512,6 +512,18 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return true;
         }
 
+        if (record.getItemCount() > expectedCapacity) {
+            if (!invalidRecordWarningLogged) {
+                ExpansionAE.LOGGER.error(
+                        "DISK {} backing data contains {} items, exceeding its bound {}-item capacity. Blocking access without truncating data.",
+                        uuid,
+                        record.getItemCount(),
+                        expectedCapacity);
+                invalidRecordWarningLogged = true;
+            }
+            return true;
+        }
+
         invalidRecordWarningLogged = false;
         return false;
     }
