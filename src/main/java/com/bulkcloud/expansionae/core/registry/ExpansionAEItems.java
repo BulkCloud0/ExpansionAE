@@ -12,6 +12,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import com.bulkcloud.expansionae.ExpansionAE;
+import com.bulkcloud.expansionae.core.ExpansionAEItemGroup;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 
 import appeng.api.config.FuzzyMode;
@@ -47,7 +48,7 @@ public final class ExpansionAEItems {
         return ITEMS.register(
                 registryName,
                 () -> new DiskStorageCellItem(
-                        new Item.Properties(),
+                        new Item.Properties().group(ExpansionAEItemGroup.MAIN),
                         capacity,
                         idleDrain));
     }
