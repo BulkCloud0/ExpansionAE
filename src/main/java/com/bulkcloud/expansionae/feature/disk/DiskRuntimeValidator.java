@@ -48,6 +48,7 @@ public final class DiskRuntimeValidator {
                 ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
 
         validateTransientStorage(storage, channel);
+        validateTierCapacities(storage, channel);
         validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
         DiskGridRuntimeValidator.begin();
@@ -126,6 +127,61 @@ public final class DiskRuntimeValidator {
 
         ExpansionAE.LOGGER.info(
                 "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias rejection)");
+    }
+
+    private static void validateTierCapacities(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        validateTierCapacity("4k", ExpansionAEItems.DISK_4K.get(), 4000, storage, channel);
+        validateTierCapacity("16k", ExpansionAEItems.DISK_16K.get(), 16000, storage, channel);
+        validateTierCapacity("64k", ExpansionAEItems.DISK_64K.get(), 64000, storage, channel);
+
+        ExpansionAE.LOGGER.info(
+                "DISK tier capacity runtime validated (4k=4000, 16k=16000, 64k=64000)");
+    }
+
+    private static void validateTierCapacity(
+            String tier,
+            net.minecraft.item.Item item,
+            long expectedCapacity,
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        ItemStack stack = new ItemStack(item);
+        ICellInventoryHandler<IAEItemStack> handler = open(stack, channel, tier + " capacity test");
+
+        IAEItemStack input = stone(channel, expectedCapacity + 111);
+        IAEItemStack remainder = handler.injectItems(input, Actionable.MODULATE, null);
+        if (remainder == null || remainder.getStackSize() != 111) {
+            throw new IllegalStateException(
+                    tier + " DISK expected a capacity remainder of 111");
+        }
+
+        requireStoredCount(handler, expectedCapacity);
+
+        if (!stack.hasTag() || !stack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
+            throw new IllegalStateException(tier + " DISK did not assign a UUID at capacity");
+        }
+        UUID uuid = stack.getTag().getUniqueId(DiskCellInventory.TAG_UUID);
+
+        DiskStorageData.DiskRecord fullRecord = storage.get(uuid);
+        if (fullRecord == null || fullRecord.getItemCount() != expectedCapacity) {
+            throw new IllegalStateException(tier + " DISK backing record did not reach expected capacity");
+        }
+
+        IAEItemStack extracted =
+                handler.extractItems(stone(channel, expectedCapacity), Actionable.MODULATE, null);
+        if (extracted == null || extracted.getStackSize() != expectedCapacity) {
+            throw new IllegalStateException(tier + " DISK could not extract its full stored capacity");
+        }
+
+        requireStoredCount(handler, 0);
+
+        DiskStorageData.DiskRecord emptyRecord = storage.get(uuid);
+        if (emptyRecord == null || emptyRecord.getItemCount() != 0) {
+            throw new IllegalStateException(tier + " DISK did not preserve its empty backing record");
+        }
+
+        storage.remove(uuid);
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
