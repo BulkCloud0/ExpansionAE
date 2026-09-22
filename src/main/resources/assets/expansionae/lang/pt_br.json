@@ -6,5 +6,7 @@
   "item.expansionae.64k_disk": "DISK de Itens 64k",
   "tooltip.expansionae.disk.items": "%s / %s itens",
   "tooltip.expansionae.disk.types": "%s tipos de item",
-  "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item"
+  "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item",
+  "item.expansionae.extended_import_bus": "Ponto de Importação ME Estendido",
+  "item.expansionae.extended_export_bus": "Ponto de Exportação ME Estendido"
 }
