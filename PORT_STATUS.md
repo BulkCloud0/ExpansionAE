@@ -155,10 +155,10 @@ Uma feature só entra na implementação quando:
 
 O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
 
-1. validar o `1k_disk` dentro de um ME Drive real;
-2. testar inserção/extração pelo ME Terminal e interação real da GUI do Cell Workbench;
-3. validar unload/reload de chunk e quebra/recolocação do Drive;
-4. validar duas cópias com o mesmo UUID quando hospedadas por Drives/grids reais;
+1. validar inserção/extração por um storage grid/ME Terminal real;
+2. validar unload/reload de chunk e quebra/recolocação do Drive;
+3. validar duas cópias com o mesmo UUID quando hospedadas por Drives/grids reais;
+4. fazer uma passagem manual pela GUI do Cell Workbench;
 5. somente depois expandir o DISK para outros tiers e iniciar a próxima feature P1.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
@@ -186,6 +186,8 @@ Estado atual:
 - o runtime valida o contrato do Cell Workbench: 63 slots de configuração, 2 slots de upgrade, 1× FUZZY e 1× INVERTER;
 - o runtime valida capacidade de 1000 itens, inserção/extração, sincronização de duas cópias com o mesmo UUID e preservação do backing record vazio;
 - o CI executa duas inicializações consecutivas do dedicated server no mesmo mundo: a primeira grava 321 itens no `WorldSavedData`, encerra via RCON e a segunda recupera/extrai os 321 itens antes de limpar o registro;
-- portanto, a persistência externa do DISK através de save/restart do servidor está coberta automaticamente; o que ainda precisa de teste manual é a integração do ItemStack hospedado em ME Drive/grid.
+- a persistência externa do DISK através de save/restart do servidor está coberta automaticamente;
+- o runtime coloca um DISK pré-carregado em um ME Drive real, confirma que o host aceita a célula, preserva o conteúdo e reporta estado `NOT_EMPTY`;
+- o runtime coloca um DISK em um ME Chest real e confirma que o monitor de itens usado pela superfície de terminal enxerga a quantidade armazenada.
 
-Antes de promover a feature para concluída ainda faltam testes manuais do DISK em ME Drive/grid real: inserção/extração pelo terminal, interação da GUI do Cell Workbench, unload/reload de chunk, quebra/recolocação do Drive e aliases de UUID hospedados em Drives/redes reais.
+Antes de promover a feature para concluída ainda faltam: grid/ME Terminal real para inserção/extração end-to-end, unload/reload de chunk, quebra/recolocação do Drive, aliases de UUID hospedados em Drives/redes reais e uma passagem manual pela GUI do Cell Workbench.
