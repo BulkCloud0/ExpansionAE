@@ -325,18 +325,31 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
         if (itemCount <= 0) {
             UUID uuid = getUuid();
-            if (uuid != null) {
-                storage.remove(uuid);
+
+            if (uuid == null) {
+                // A never-used empty DISK does not need a backing record yet.
+                if (cellStack.hasTag()) {
+                    cellStack.getTag().remove(TAG_ITEM_COUNT);
+                    cellStack.getTag().remove(TAG_TYPE_COUNT);
+                }
+
+                loadedUuid = null;
+                loadedRevision = NO_RECORD_REVISION;
+            } else {
+                // UUIDs are storage identities. Creative copies or other exact ItemStack
+                // clones with the same UUID intentionally remain aliases of the same DISK.
+                // Keep an empty record instead of deleting it so every alias observes the
+                // transition to empty and no clone becomes an orphan.
+                long revision = storage.put(uuid, new ListNBT(), new long[0], 0);
+
+                CompoundNBT tag = cellStack.getOrCreateTag();
+                tag.putLong(TAG_ITEM_COUNT, 0);
+                tag.putLong(TAG_TYPE_COUNT, 0);
+
+                loadedUuid = uuid;
+                loadedRevision = revision;
             }
 
-            if (cellStack.hasTag()) {
-                cellStack.getTag().remove(TAG_UUID);
-                cellStack.getTag().remove(TAG_ITEM_COUNT);
-                cellStack.getTag().remove(TAG_TYPE_COUNT);
-            }
-
-            loadedUuid = null;
-            loadedRevision = NO_RECORD_REVISION;
             missingRecordWarningLogged = false;
             dirty = false;
             return;
