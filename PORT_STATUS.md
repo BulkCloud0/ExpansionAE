@@ -34,7 +34,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | Origem | Funcionalidades candidatas | Dependência extra | Complexidade | Situação |
 | --- | --- | --- | --- | --- |
 | ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Candidato P1 |
-| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | Em implementação — 1k slice compila |
+| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | Em validação — 1k slice com runtime e persistência automatizados |
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
@@ -156,9 +156,9 @@ Uma feature só entra na implementação quando:
 O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
 
 1. validar o `1k_disk` dentro de um ME Drive real;
-2. testar inserção/extração pelo terminal e configuração no Cell Workbench;
-3. validar save/reload, unload/reload de chunk e quebra/recolocação do Drive;
-4. validar em runtime a política já definida para UUID duplicado/creative cloning;
+2. testar inserção/extração pelo ME Terminal e interação real da GUI do Cell Workbench;
+3. validar unload/reload de chunk e quebra/recolocação do Drive;
+4. validar duas cópias com o mesmo UUID quando hospedadas por Drives/grids reais;
 5. somente depois expandir o DISK para outros tiers e iniciar a próxima feature P1.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
@@ -182,6 +182,10 @@ Estado atual:
 - qualquer DISK que já possua UUID e esteja sem backing record é tratado como persistência corrompida/incompleta; leitura e escrita ficam bloqueadas em vez de recriar ou sobrescrever silenciosamente o armazenamento;
 - UUID é a identidade do armazenamento: cópias exatas do ItemStack com o mesmo UUID são aliases do mesmo conteúdo, não discos independentes;
 - quando um DISK com UUID fica vazio, o registro vazio e o UUID são preservados para que aliases existentes continuem sincronizados;
-- o CI possui smoke test de dedicated server no evento de pull request, já validado com Forge 36.2.42 + AE2 8.4.7 usando MCP `20210309-1.16.5`.
+- o CI possui smoke test de dedicated server no evento de pull request, validado com Forge 36.2.42 + AE2 8.4.7 usando MCP `20210309-1.16.5`;
+- o runtime valida o contrato do Cell Workbench: 63 slots de configuração, 2 slots de upgrade, 1× FUZZY e 1× INVERTER;
+- o runtime valida capacidade de 1000 itens, inserção/extração, sincronização de duas cópias com o mesmo UUID e preservação do backing record vazio;
+- o CI executa duas inicializações consecutivas do dedicated server no mesmo mundo: a primeira grava 321 itens no `WorldSavedData`, encerra via RCON e a segunda recupera/extrai os 321 itens antes de limpar o registro;
+- portanto, a persistência externa do DISK através de save/restart do servidor está coberta automaticamente; o que ainda precisa de teste manual é a integração do ItemStack hospedado em ME Drive/grid.
 
-Antes de promover a feature para concluída ainda faltam testes manuais de ME Drive, inserção/extração, Cell Workbench, save/reload, quebra/recolocação e validação prática dos aliases de UUID.
+Antes de promover a feature para concluída ainda faltam testes manuais do DISK em ME Drive/grid real: inserção/extração pelo terminal, interação da GUI do Cell Workbench, unload/reload de chunk, quebra/recolocação do Drive e aliases de UUID hospedados em Drives/redes reais.
