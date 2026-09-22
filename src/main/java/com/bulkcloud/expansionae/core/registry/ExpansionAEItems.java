@@ -27,7 +27,10 @@ public final class ExpansionAEItems {
     }
 
     public static void registerAE2Upgrades() {
-        Item disk = DISK_1K.get();
+        registerAE2Upgrades(DISK_1K.get());
+    }
+
+    static void registerAE2Upgrades(Item disk) {
         Upgrades.FUZZY.registerItem(disk, 1);
         Upgrades.INVERTER.registerItem(disk, 1);
     }
