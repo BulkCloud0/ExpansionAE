@@ -25,7 +25,7 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public static DiskStorageData get(ServerWorld world) {
-        return world.getDataStorage().get(DiskStorageData::new, DATA_NAME);
+        return world.getDataStorage().computeIfAbsent(DiskStorageData::new, DATA_NAME);
     }
 
     @Override
