@@ -19,7 +19,6 @@ import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
 
 import appeng.api.implementations.tiles.ICrankable;
 import appeng.api.implementations.tiles.ICrystalGrowthAccelerator;
-import appeng.core.Api;
 import appeng.tile.grindstone.CrankTileEntity;
 import appeng.entity.GrowingCrystalEntity;
 import appeng.items.misc.CrystalSeedItem;
@@ -91,7 +90,7 @@ public final class CrankedGrowthRuntimeValidator {
             world.removeBlock(crankPos, false);
             world.setBlockState(
                     crankPos,
-                    Api.instance().definitions().blocks().crank().block().getDefaultState(),
+                    ExpansionAEApi.get().definitions().blocks().crank().block().getDefaultState(),
                     3);
 
             TileEntity rawCrank = world.getTileEntity(crankPos);
