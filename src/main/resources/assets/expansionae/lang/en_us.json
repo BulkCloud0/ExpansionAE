@@ -3,5 +3,8 @@
   "item.expansionae.1k_disk": "1k Item DISK",
   "item.expansionae.4k_disk": "4k Item DISK",
   "item.expansionae.16k_disk": "16k Item DISK",
-  "item.expansionae.64k_disk": "64k Item DISK"
+  "item.expansionae.64k_disk": "64k Item DISK",
+  "tooltip.expansionae.disk.items": "%s / %s items",
+  "tooltip.expansionae.disk.types": "%s item types",
+  "tooltip.expansionae.disk.no_type_limit": "No item type limit"
 }
