@@ -34,7 +34,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | Origem | Funcionalidades candidatas | Dependência extra | Complexidade | Situação |
 | --- | --- | --- | --- | --- |
 | ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Candidato P1 |
-| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | Candidato P1 |
+| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | Em implementação — 1k slice compila |
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
@@ -161,3 +161,21 @@ Construir o scaffold Forge 1.16.5 e implementar primeiro um "vertical slice" peq
 - Growth Accelerator tier simples.
 
 Depois desse slice, expandir o núcleo antes de iniciar canais customizados de mana/XP/químicos/EMC.
+
+
+## Validação em andamento — DISK
+
+O primeiro vertical slice implementado é o `expansionae:1k_disk`.
+
+Estado atual:
+
+- custom `ICellHandler` registrado no AE2;
+- custom `ICellInventory<IAEItemStack>`;
+- capacidade experimental de 1000 itens com 1 item = 1 unidade;
+- sem limite artificial de tipos;
+- persistência externa via `WorldSavedData` indexada por UUID;
+- conteúdo completo fica fora do NBT do ItemStack;
+- receita experimental disponível;
+- GitHub Actions compila e empacota a feature com sucesso.
+
+Antes de promover a feature para concluída ainda faltam testes manuais de ME Drive, inserção/extração, Cell Workbench, save/reload, quebra/recolocação, servidor dedicado e duplicação/clonagem de UUID.
