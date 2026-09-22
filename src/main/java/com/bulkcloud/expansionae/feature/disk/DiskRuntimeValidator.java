@@ -1,9 +1,12 @@
 package com.bulkcloud.expansionae.feature.disk;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -183,6 +186,111 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("AE2 ME Drive could not reopen the inserted DISK");
         }
         requireStoredCount(driveHandler, 37);
+
+        ItemStack hostedDisk = driveInventory.getStackInSlot(0);
+        if (!hostedDisk.hasTag() || !hostedDisk.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
+            throw new IllegalStateException("ME Drive hosted DISK lost its storage UUID");
+        }
+        UUID expectedUuid = hostedDisk.getTag().getUniqueId(DiskCellInventory.TAG_UUID);
+
+        // Simulate the persistent part of a chunk unload/reload: serialize the real
+        // Drive tile, tear down its network node, recreate the block entity and load
+        // the saved NBT before readying it again.
+        CompoundNBT savedDrive = drive.write(new CompoundNBT());
+        drive.onChunkUnloaded();
+        drive.disableDrops();
+        world.removeBlock(pos, false);
+
+        world.setBlockState(
+                pos,
+                Api.instance().definitions().blocks().drive().block().getDefaultState(),
+                3);
+        TileEntity reloadedTile = world.getTileEntity(pos);
+        if (!(reloadedTile instanceof DriveTileEntity)) {
+            throw new IllegalStateException("Reloaded AE2 ME Drive did not create DriveTileEntity");
+        }
+
+        DriveTileEntity reloadedDrive = (DriveTileEntity) reloadedTile;
+        reloadedDrive.read(world.getBlockState(pos), savedDrive);
+        reloadedDrive.onReady();
+
+        IItemHandler reloadedInventory = reloadedDrive.getInternalInventory();
+        ItemStack reloadedDisk = reloadedInventory.getStackInSlot(0);
+        requireDiskUuid(reloadedDisk, expectedUuid, "chunk reload");
+
+        if (reloadedDrive.getCellStatus(0) != CellState.NOT_EMPTY) {
+            throw new IllegalStateException("Reloaded AE2 ME Drive did not restore DISK state");
+        }
+
+        ICellInventoryHandler<IAEItemStack> reloadedHandler =
+                ExpansionAEApi.get().registries().cell()
+                        .getCellInventory(reloadedDisk, reloadedDrive, channel);
+        if (reloadedHandler == null || reloadedHandler.getCellInv() == null) {
+            throw new IllegalStateException("Reloaded AE2 ME Drive could not reopen the DISK");
+        }
+        requireStoredCount(reloadedHandler, 37);
+
+        // Exercise the same inventory-drop hook AEBaseTileBlock uses when a Drive is
+        // broken, then reinsert that dropped cell into a fresh Drive.
+        List<ItemStack> drops = new ArrayList<>();
+        reloadedDrive.getDrops(world, pos, drops);
+
+        ItemStack droppedDisk = ItemStack.EMPTY;
+        for (ItemStack drop : drops) {
+            if (drop.getItem() == ExpansionAEItems.DISK_1K.get()) {
+                droppedDisk = drop.copy();
+                break;
+            }
+        }
+        if (droppedDisk.isEmpty()) {
+            throw new IllegalStateException("Breaking the AE2 ME Drive did not expose the hosted DISK as a drop");
+        }
+        requireDiskUuid(droppedDisk, expectedUuid, "Drive drop");
+
+        reloadedDrive.disableDrops();
+        world.removeBlock(pos, false);
+        world.setBlockState(
+                pos,
+                Api.instance().definitions().blocks().drive().block().getDefaultState(),
+                3);
+
+        TileEntity replacedTile = world.getTileEntity(pos);
+        if (!(replacedTile instanceof DriveTileEntity)) {
+            throw new IllegalStateException("Replaced AE2 ME Drive did not create DriveTileEntity");
+        }
+
+        DriveTileEntity replacedDrive = (DriveTileEntity) replacedTile;
+        replacedDrive.onReady();
+        ItemStack replaceRejected =
+                replacedDrive.getInternalInventory().insertItem(0, droppedDisk, false);
+        if (!replaceRejected.isEmpty()) {
+            throw new IllegalStateException("Fresh AE2 ME Drive rejected the dropped ExpansionAE DISK");
+        }
+
+        if (replacedDrive.getCellStatus(0) != CellState.NOT_EMPTY) {
+            throw new IllegalStateException("Fresh AE2 ME Drive did not restore the dropped DISK state");
+        }
+
+        ItemStack replacedDisk = replacedDrive.getInternalInventory().getStackInSlot(0);
+        requireDiskUuid(replacedDisk, expectedUuid, "Drive replacement");
+
+        ICellInventoryHandler<IAEItemStack> replacedHandler =
+                ExpansionAEApi.get().registries().cell()
+                        .getCellInventory(replacedDisk, replacedDrive, channel);
+        if (replacedHandler == null || replacedHandler.getCellInv() == null) {
+            throw new IllegalStateException("Fresh AE2 ME Drive could not reopen the dropped DISK");
+        }
+        requireStoredCount(replacedHandler, 37);
+    }
+
+    private static void requireDiskUuid(ItemStack stack, UUID expected, String stage) {
+        if (stack.isEmpty()
+                || !stack.hasTag()
+                || !stack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)
+                || !expected.equals(stack.getTag().getUniqueId(DiskCellInventory.TAG_UUID))) {
+            throw new IllegalStateException(
+                    "DISK UUID was not preserved during " + stage);
+        }
     }
 
     private static void validateChestHost(
