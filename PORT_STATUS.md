@@ -153,14 +153,15 @@ Uma feature só entra na implementação quando:
 
 ## Próxima etapa
 
-Construir o scaffold Forge 1.16.5 e implementar primeiro um "vertical slice" pequeno que prove registro + tile entity + grid AE2 + NBT + GUI/packet. A primeira feature funcional deve ser escolhida entre:
+O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
 
-- DISK;
-- Pattern Provider expandido;
-- Stock Export Bus;
-- Growth Accelerator tier simples.
+1. validar o `1k_disk` dentro de um ME Drive real;
+2. testar inserção/extração pelo terminal e configuração no Cell Workbench;
+3. validar save/reload, unload/reload de chunk e quebra/recolocação do Drive;
+4. definir a política definitiva para UUID duplicado/creative cloning;
+5. somente depois expandir o DISK para outros tiers e iniciar a próxima feature P1.
 
-Depois desse slice, expandir o núcleo antes de iniciar canais customizados de mana/XP/químicos/EMC.
+Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
 
 
 ## Validação em andamento — DISK
@@ -176,6 +177,8 @@ Estado atual:
 - persistência externa via `WorldSavedData` indexada por UUID;
 - conteúdo completo fica fora do NBT do ItemStack;
 - receita experimental disponível;
-- GitHub Actions compila e empacota a feature com sucesso.
+- GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
+- registros externos malformados são sanitizados durante o load;
+- se o ItemStack indicar conteúdo mas o registro externo estiver ausente, o DISK bloqueia leitura/escrita em vez de sobrescrever silenciosamente os dados.
 
 Antes de promover a feature para concluída ainda faltam testes manuais de ME Drive, inserção/extração, Cell Workbench, save/reload, quebra/recolocação, servidor dedicado e duplicação/clonagem de UUID.
