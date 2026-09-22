@@ -1,20 +1,26 @@
 package com.bulkcloud.expansionae.feature.growth;
 
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import com.bulkcloud.expansionae.ExpansionAE;
+import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
 
 import appeng.api.implementations.tiles.ICrankable;
 import appeng.api.implementations.tiles.ICrystalGrowthAccelerator;
+import appeng.entity.GrowingCrystalEntity;
+import appeng.items.misc.CrystalSeedItem;
 
 public final class CrankedGrowthRuntimeValidator {
     private CrankedGrowthRuntimeValidator() {
@@ -31,7 +37,18 @@ public final class CrankedGrowthRuntimeValidator {
         }
 
         BlockPos pos = world.getSpawnPoint().up(24);
-        world.removeBlock(pos, false);
+        BlockPos acceleratedSeedPos = pos.west();
+        BlockPos controlSeedPos = pos.add(8, 0, 0);
+
+        clearTestPosition(world, pos);
+        clearTestPosition(world, acceleratedSeedPos);
+        clearTestPosition(world, controlSeedPos);
+        for (Direction direction : Direction.values()) {
+            if (!acceleratedSeedPos.offset(direction).equals(pos)) {
+                clearTestPosition(world, acceleratedSeedPos.offset(direction));
+            }
+            clearTestPosition(world, controlSeedPos.offset(direction));
+        }
 
         try {
             world.setBlockState(
@@ -147,10 +164,104 @@ public final class CrankedGrowthRuntimeValidator {
                         "Cranked Growth Accelerator did not recover after a new crank turn");
             }
 
+            validateActualCrystalGrowth(world, tile, acceleratedSeedPos, controlSeedPos);
+
             ExpansionAE.LOGGER.info(
-                    "Cranked growth runtime validated (160 AE/turn, 3200 AE buffer, 8 AE/t, NBT + powered state)");
+                    "Cranked growth runtime validated "
+                            + "(160 AE/turn, 3200 AE buffer, 8 AE/t, NBT, powered state + real crystal growth)");
         } finally {
-            world.removeBlock(pos, false);
+            clearTestPosition(world, pos);
+            clearTestPosition(world, acceleratedSeedPos);
+            clearTestPosition(world, controlSeedPos);
+            for (Direction direction : Direction.values()) {
+                if (!acceleratedSeedPos.offset(direction).equals(pos)) {
+                    clearTestPosition(world, acceleratedSeedPos.offset(direction));
+                }
+                clearTestPosition(world, controlSeedPos.offset(direction));
+            }
         }
+    }
+
+    private static void validateActualCrystalGrowth(
+            ServerWorld world,
+            CrankedGrowthAcceleratorTileEntity tile,
+            BlockPos acceleratedSeedPos,
+            BlockPos controlSeedPos) {
+        world.setBlockState(acceleratedSeedPos, Blocks.WATER.getDefaultState(), 3);
+        world.setBlockState(controlSeedPos, Blocks.WATER.getDefaultState(), 3);
+
+        ItemStack acceleratedStack =
+                ExpansionAEApi.get().definitions().items().certusCrystalSeed().stack(1);
+        ItemStack controlStack =
+                ExpansionAEApi.get().definitions().items().certusCrystalSeed().stack(1);
+
+        if (!(acceleratedStack.getItem() instanceof CrystalSeedItem)
+                || !(controlStack.getItem() instanceof CrystalSeedItem)) {
+            throw new IllegalStateException("AE2 Certus seed definition is not a CrystalSeedItem");
+        }
+
+        GrowingCrystalEntity accelerated = createStationarySeed(world, acceleratedSeedPos, acceleratedStack);
+        GrowingCrystalEntity control = createStationarySeed(world, controlSeedPos, controlStack);
+
+        // The previous recovery test leaves 160 AE in the buffer. One more turn
+        // gives 320 AE, enough for all 30 validation ticks at 8 AE/t.
+        tile.applyTurn();
+
+        for (int i = 0; i < 30; i++) {
+            tile.tick();
+
+            keepStationary(accelerated, acceleratedSeedPos);
+            accelerated.tick();
+            keepStationary(accelerated, acceleratedSeedPos);
+
+            keepStationary(control, controlSeedPos);
+            control.tick();
+            keepStationary(control, controlSeedPos);
+        }
+
+        int acceleratedGrowth = CrystalSeedItem.getGrowthTicks(accelerated.getItem());
+        int controlGrowth = CrystalSeedItem.getGrowthTicks(control.getItem());
+
+        if (acceleratedGrowth < 1) {
+            throw new IllegalStateException(
+                    "Powered Cranked Growth Accelerator did not advance an adjacent AE2 crystal seed");
+        }
+
+        if (controlGrowth != 0) {
+            throw new IllegalStateException(
+                    "Control AE2 crystal seed unexpectedly advanced without an adjacent accelerator");
+        }
+
+        if (acceleratedGrowth <= controlGrowth) {
+            throw new IllegalStateException(
+                    "Cranked Growth Accelerator did not outperform the unaccelerated control seed");
+        }
+    }
+
+    private static GrowingCrystalEntity createStationarySeed(
+            ServerWorld world,
+            BlockPos pos,
+            ItemStack stack) {
+        GrowingCrystalEntity entity = new GrowingCrystalEntity(
+                world,
+                pos.getX() + 0.5D,
+                pos.getY() + 0.5D,
+                pos.getZ() + 0.5D,
+                stack);
+        entity.setNoGravity(true);
+        entity.setMotion(Vector3d.ZERO);
+        return entity;
+    }
+
+    private static void keepStationary(GrowingCrystalEntity entity, BlockPos pos) {
+        entity.setPosition(
+                pos.getX() + 0.5D,
+                pos.getY() + 0.5D,
+                pos.getZ() + 0.5D);
+        entity.setMotion(Vector3d.ZERO);
+    }
+
+    private static void clearTestPosition(ServerWorld world, BlockPos pos) {
+        world.removeBlock(pos, false);
     }
 }
