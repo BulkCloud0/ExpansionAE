@@ -311,10 +311,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     private UUID getUuid() {
         CompoundNBT tag = cellStack.getTag();
-        if (tag == null || !tag.hasUniqueId(TAG_UUID)) {
+        if (tag == null || !tag.hasUUID(TAG_UUID)) {
             return null;
         }
-        return tag.getUniqueId(TAG_UUID);
+        return tag.getUUID(TAG_UUID);
     }
 
     private UUID ensureUuid() {
@@ -324,7 +324,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         }
 
         uuid = UUID.randomUUID();
-        cellStack.getOrCreateTag().putUniqueId(TAG_UUID, uuid);
+        cellStack.getOrCreateTag().putUUID(TAG_UUID, uuid);
         return uuid;
     }
 }
