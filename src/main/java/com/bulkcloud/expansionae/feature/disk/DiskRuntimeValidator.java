@@ -50,6 +50,7 @@ public final class DiskRuntimeValidator {
 
         validateTierCapacities(storage, channel);
         validateCrossTierUuidRejection(storage, channel);
+        validateWorkbenchSemantics(channel);
         validateTransientStorage(storage, channel);
         validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
@@ -165,6 +166,158 @@ public final class DiskRuntimeValidator {
 
         ExpansionAE.LOGGER.info(
                 "DISK cross-tier UUID rejection validated (1k backing cannot be opened as 4k)");
+    }
+
+    private static void validateWorkbenchSemantics(
+            IItemStorageChannel channel) {
+        validateWorkbenchNbtPersistence(ExpansionAEItems.DISK_1K.get(), "1k");
+        validateWorkbenchNbtPersistence(ExpansionAEItems.DISK_4K.get(), "4k");
+        validateWorkbenchNbtPersistence(ExpansionAEItems.DISK_16K.get(), "16k");
+        validateWorkbenchNbtPersistence(ExpansionAEItems.DISK_64K.get(), "64k");
+        validatePartitionFiltering(channel);
+
+        ExpansionAE.LOGGER.info(
+                "DISK Cell Workbench runtime semantics validated "
+                        + "(config/upgrades persist in NBT, FUZZY+INVERTER accepted, "
+                        + "CAPACITY rejected, whitelist/inverter filtering active)");
+    }
+
+    private static void validateWorkbenchNbtPersistence(
+            Item item,
+            String tier) {
+        if (!(item instanceof DiskStorageCellItem)) {
+            throw new IllegalStateException(tier + " DISK is not a DiskStorageCellItem");
+        }
+
+        DiskStorageCellItem disk = (DiskStorageCellItem) item;
+        ItemStack stack = new ItemStack(disk);
+
+        IItemHandler config = disk.getConfigInventory(stack);
+        ItemStack configRemainder =
+                config.insertItem(0, new ItemStack(Items.STONE), false);
+        if (!configRemainder.isEmpty()) {
+            throw new IllegalStateException(
+                    tier + " DISK config inventory rejected a partition item");
+        }
+
+        IItemHandler reopenedConfig = disk.getConfigInventory(stack);
+        if (reopenedConfig.getStackInSlot(0).getItem() != Items.STONE) {
+            throw new IllegalStateException(
+                    tier + " DISK config inventory did not persist through ItemStack NBT");
+        }
+
+        IItemHandler upgrades = disk.getUpgradesInventory(stack);
+        ItemStack fuzzyCard =
+                ExpansionAEApi.get().definitions().materials().cardFuzzy().stack(1);
+        ItemStack fuzzyRemainder = upgrades.insertItem(0, fuzzyCard, false);
+        if (!fuzzyRemainder.isEmpty()) {
+            throw new IllegalStateException(
+                    tier + " DISK rejected its registered FUZZY card");
+        }
+
+        ItemStack capacityCard =
+                ExpansionAEApi.get().definitions().materials().cardCapacity().stack(1);
+        ItemStack capacityRemainder = upgrades.insertItem(1, capacityCard, false);
+        if (capacityRemainder.isEmpty() || capacityRemainder.getCount() != 1) {
+            throw new IllegalStateException(
+                    tier + " DISK accepted an unsupported CAPACITY card");
+        }
+
+        ItemStack inverterCard =
+                ExpansionAEApi.get().definitions().materials().cardInverter().stack(1);
+        ItemStack inverterRemainder = upgrades.insertItem(1, inverterCard, false);
+        if (!inverterRemainder.isEmpty()) {
+            throw new IllegalStateException(
+                    tier + " DISK rejected its registered INVERTER card");
+        }
+
+        IItemHandler reopenedUpgrades = disk.getUpgradesInventory(stack);
+        if (reopenedUpgrades.getStackInSlot(0).getItem() != fuzzyCard.getItem()
+                || reopenedUpgrades.getStackInSlot(1).getItem() != inverterCard.getItem()) {
+            throw new IllegalStateException(
+                    tier + " DISK upgrades did not persist through ItemStack NBT");
+        }
+
+        ItemStack extractedFuzzy = reopenedUpgrades.extractItem(0, 1, false);
+        if (extractedFuzzy.isEmpty() || extractedFuzzy.getItem() != fuzzyCard.getItem()) {
+            throw new IllegalStateException(
+                    tier + " DISK could not remove the persisted FUZZY card");
+        }
+
+        IItemHandler afterExtraction = disk.getUpgradesInventory(stack);
+        if (!afterExtraction.getStackInSlot(0).isEmpty()
+                || afterExtraction.getStackInSlot(1).getItem() != inverterCard.getItem()) {
+            throw new IllegalStateException(
+                    tier + " DISK upgrade removal did not persist through ItemStack NBT");
+        }
+    }
+
+    private static void validatePartitionFiltering(
+            IItemStorageChannel channel) {
+        DiskStorageCellItem disk =
+                (DiskStorageCellItem) ExpansionAEItems.DISK_1K.get();
+
+        ItemStack whitelistStack = new ItemStack(disk);
+        IItemHandler whitelistConfig = disk.getConfigInventory(whitelistStack);
+        if (!whitelistConfig.insertItem(0, new ItemStack(Items.STONE), false).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK whitelist validation could not configure stone");
+        }
+
+        ICellInventoryHandler<IAEItemStack> whitelist =
+                open(whitelistStack, channel, "Cell Workbench whitelist validation");
+
+        if (whitelist.injectItems(
+                item(channel, Items.STONE, 1),
+                Actionable.SIMULATE,
+                null) != null) {
+            throw new IllegalStateException(
+                    "Partitioned DISK rejected its configured whitelist item");
+        }
+
+        IAEItemStack dirtRejected = whitelist.injectItems(
+                item(channel, Items.DIRT, 1),
+                Actionable.SIMULATE,
+                null);
+        if (dirtRejected == null || dirtRejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Partitioned DISK accepted an item outside its whitelist");
+        }
+
+        ItemStack blacklistStack = new ItemStack(disk);
+        IItemHandler blacklistConfig = disk.getConfigInventory(blacklistStack);
+        if (!blacklistConfig.insertItem(0, new ItemStack(Items.STONE), false).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK inverter validation could not configure stone");
+        }
+
+        IItemHandler blacklistUpgrades = disk.getUpgradesInventory(blacklistStack);
+        ItemStack inverterCard =
+                ExpansionAEApi.get().definitions().materials().cardInverter().stack(1);
+        if (!blacklistUpgrades.insertItem(0, inverterCard, false).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK inverter validation could not install an INVERTER card");
+        }
+
+        ICellInventoryHandler<IAEItemStack> blacklist =
+                open(blacklistStack, channel, "Cell Workbench inverter validation");
+
+        IAEItemStack stoneRejected = blacklist.injectItems(
+                item(channel, Items.STONE, 1),
+                Actionable.SIMULATE,
+                null);
+        if (stoneRejected == null || stoneRejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Inverted DISK accepted its configured blacklist item");
+        }
+
+        if (blacklist.injectItems(
+                item(channel, Items.DIRT, 1),
+                Actionable.SIMULATE,
+                null) != null) {
+            throw new IllegalStateException(
+                    "Inverted DISK rejected an item outside its blacklist");
+        }
     }
 
     private static void validateTransientStorage(
@@ -575,9 +728,17 @@ public final class DiskRuntimeValidator {
     }
 
     private static IAEItemStack stone(IItemStorageChannel channel, long amount) {
-        IAEItemStack stack = channel.createStack(new ItemStack(Items.STONE));
+        return item(channel, Items.STONE, amount);
+    }
+
+    private static IAEItemStack item(
+            IItemStorageChannel channel,
+            Item item,
+            long amount) {
+        IAEItemStack stack = channel.createStack(new ItemStack(item));
         if (stack == null) {
-            throw new IllegalStateException("AE2 item channel could not create a stone stack");
+            throw new IllegalStateException(
+                    "AE2 item channel could not create a stack for " + item.getRegistryName());
         }
         stack.setStackSize(amount);
         return stack;
