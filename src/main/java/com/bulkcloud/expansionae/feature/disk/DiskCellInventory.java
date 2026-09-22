@@ -104,7 +104,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return input;
         }
 
-        if (isNonEmptyStorageCell(input)) {
+        if (isSelfAlias(input) || isNonEmptyStorageCell(input)) {
             return input;
         }
 
@@ -132,6 +132,22 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         IAEItemStack remainder = input.copy();
         remainder.setStackSize(input.getStackSize() - accepted);
         return remainder;
+    }
+
+    private boolean isSelfAlias(IAEItemStack input) {
+        UUID ownUuid = getUuid();
+        if (ownUuid == null) {
+            return false;
+        }
+
+        ItemStack nestedStack = input.createItemStack();
+        if (!(nestedStack.getItem() instanceof DiskStorageCellItem)
+                || !nestedStack.hasTag()
+                || !nestedStack.getTag().hasUniqueId(TAG_UUID)) {
+            return false;
+        }
+
+        return ownUuid.equals(nestedStack.getTag().getUniqueId(TAG_UUID));
     }
 
     private boolean isNonEmptyStorageCell(IAEItemStack input) {
