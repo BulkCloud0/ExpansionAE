@@ -71,7 +71,14 @@ jobs:
 
           if find run/crash-reports -maxdepth 1 -type f -print -quit 2>/dev/null | grep -q .; then
             echo "A dedicated-server crash report was generated."
-            find run/crash-reports -maxdepth 1 -type f -print
+            if [ -f run/logs/latest.log ]; then
+              cat run/logs/latest.log
+            fi
+            for crash in run/crash-reports/*; do
+              [ -f "$crash" ] || continue
+              echo "===== $crash ====="
+              cat "$crash"
+            done
             kill -TERM -- "-$server_pid" 2>/dev/null || true
             wait "$server_pid" 2>/dev/null || true
             exit 1
