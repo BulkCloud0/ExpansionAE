@@ -1,0 +1,37 @@
+modLoader="javafml"
+loaderVersion="[36,)"
+license="See repository"
+issueTrackerURL="https://github.com/BulkCloud0/ExpansionAE/issues"
+displayURL="https://github.com/BulkCloud0/ExpansionAE"
+
+[[mods]]
+modId="expansionae"
+version="${version}"
+displayName="ExpansionAE"
+authors="BulkCloud0"
+description='''
+A unified Applied Energistics 2 addon for Minecraft 1.16.5.
+ExpansionAE backports and reimplements selected storage, automation,
+networking and integration features behind one maintainable codebase.
+'''
+
+[[dependencies.expansionae]]
+modId="forge"
+mandatory=true
+versionRange="${forge_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.expansionae]]
+modId="minecraft"
+mandatory=true
+versionRange="${minecraft_version_range}"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.expansionae]]
+modId="appliedenergistics2"
+mandatory=true
+versionRange="${ae2_version_range}"
+ordering="AFTER"
+side="BOTH"
