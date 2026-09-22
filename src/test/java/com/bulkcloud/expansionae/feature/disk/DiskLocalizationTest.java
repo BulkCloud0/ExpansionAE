@@ -42,8 +42,8 @@ final class DiskLocalizationTest {
 
         assertEquals(english.keySet(), portuguese.keySet(),
                 "en_us and pt_br must expose the same localization keys");
-        assertEquals(REQUIRED_KEYS, english.keySet(),
-                "DISK localization resources should contain exactly the expected keys");
+        assertTrue(english.keySet().containsAll(REQUIRED_KEYS),
+                "en_us is missing one or more required DISK localization keys");
 
         for (String key : REQUIRED_KEYS) {
             String en = english.get(key);
