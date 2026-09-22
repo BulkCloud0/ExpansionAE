@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
@@ -24,9 +25,14 @@ public final class ExpansionAE {
 
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
+        modBus.addListener(this::onCommonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
         LOGGER.info("ExpansionAE bootstrap initialized");
+    }
+
+    private void onCommonSetup(FMLCommonSetupEvent event) {
+        event.enqueueWork(ExpansionAEItems::registerAE2Upgrades);
     }
 
     @SubscribeEvent
