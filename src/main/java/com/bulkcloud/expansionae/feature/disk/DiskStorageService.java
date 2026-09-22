@@ -19,7 +19,7 @@ public final class DiskStorageService {
         }
 
         ServerWorld world = (ServerWorld) event.getWorld();
-        if (world.getDimensionKey() == World.OVERWORLD) {
+        if (world.dimension() == World.OVERWORLD) {
             current = DiskStorageData.get(world);
         }
     }
@@ -30,7 +30,7 @@ public final class DiskStorageService {
         }
 
         ServerWorld world = (ServerWorld) event.getWorld();
-        if (world.getDimensionKey() == World.OVERWORLD) {
+        if (world.dimension() == World.OVERWORLD) {
             current = null;
         }
     }
