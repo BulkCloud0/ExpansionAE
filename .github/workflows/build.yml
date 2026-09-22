@@ -22,10 +22,10 @@ jobs:
           distribution: temurin
           java-version: '8'
 
-      - name: Set up Gradle 6.8.3
+      - name: Set up Gradle 7.3.3
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '6.8.3'
+          gradle-version: '7.3.3'
 
       - name: Build
         run: gradle --no-daemon clean build
