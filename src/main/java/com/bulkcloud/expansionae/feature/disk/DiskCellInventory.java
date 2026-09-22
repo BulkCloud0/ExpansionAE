@@ -26,12 +26,16 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     static final String TAG_ITEM_COUNT = "expansionae_disk_item_count";
     static final String TAG_TYPE_COUNT = "expansionae_disk_type_count";
 
+    private static final long NO_RECORD_REVISION = Long.MIN_VALUE;
+
     private final DiskStorageCellItem cellType;
     private final ItemStack cellStack;
     private final ISaveProvider saveProvider;
     private final IItemStorageChannel channel;
 
     private IItemList<IAEItemStack> contents;
+    private UUID loadedUuid;
+    private long loadedRevision = NO_RECORD_REVISION;
     private boolean dirty;
 
     public DiskCellInventory(DiskStorageCellItem cellType, ItemStack cellStack, ISaveProvider saveProvider) {
@@ -42,26 +46,31 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     }
 
     private IItemList<IAEItemStack> contents() {
-        if (contents != null) {
-            return contents;
-        }
-
         UUID uuid = getUuid();
+
         if (uuid == null) {
-            contents = channel.createList();
+            if (contents == null || loadedUuid != null) {
+                contents = channel.createList();
+                loadedUuid = null;
+                loadedRevision = NO_RECORD_REVISION;
+            }
             return contents;
         }
 
         DiskStorageData storage = DiskStorageService.getCurrent();
         if (storage == null) {
-            // Do not cache an empty list here. During early world loading or on the
-            // logical client, external disk storage may not be available yet. Caching
-            // that transient state could later overwrite valid server-side contents.
+            // Never cache a transient empty server state.
             return channel.createList();
         }
 
-        IItemList<IAEItemStack> loaded = channel.createList();
         DiskStorageData.DiskRecord record = storage.get(uuid);
+        long revision = record == null ? NO_RECORD_REVISION : record.getRevision();
+
+        if (contents != null && uuid.equals(loadedUuid) && loadedRevision == revision) {
+            return contents;
+        }
+
+        IItemList<IAEItemStack> loaded = channel.createList();
         if (record != null) {
             ListNBT keys = record.getKeys();
             long[] amounts = record.getAmounts();
@@ -77,6 +86,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         }
 
         contents = loaded;
+        loadedUuid = uuid;
+        loadedRevision = revision;
         return contents;
     }
 
@@ -84,6 +95,11 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     public IAEItemStack injectItems(IAEItemStack input, Actionable mode, IActionSource source) {
         if (input == null || input.getStackSize() <= 0) {
             return null;
+        }
+
+        if (DiskStorageService.getCurrent() == null) {
+            // Fail closed when the authoritative server-side backing store is unavailable.
+            return input;
         }
 
         if (isNonEmptyStorageCell(input)) {
@@ -137,6 +153,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return null;
         }
 
+        if (DiskStorageService.getCurrent() == null) {
+            return null;
+        }
+
         IAEItemStack existing = contents().findPrecise(request);
         if (existing == null || existing.getStackSize() <= 0) {
             return null;
@@ -156,6 +176,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
+        if (DiskStorageService.getCurrent() == null) {
+            return out;
+        }
+
         for (IAEItemStack stack : contents()) {
             if (stack.getStackSize() > 0) {
                 out.add(stack);
@@ -226,6 +250,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public long getStoredItemCount() {
+        if (DiskStorageService.getCurrent() == null) {
+            return cachedCount(TAG_ITEM_COUNT);
+        }
+
         long total = 0;
         for (IAEItemStack stack : contents()) {
             if (stack.getStackSize() > 0) {
@@ -237,6 +265,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public long getStoredItemTypes() {
+        if (DiskStorageService.getCurrent() == null) {
+            return cachedCount(TAG_TYPE_COUNT);
+        }
+
         long total = 0;
         for (IAEItemStack stack : contents()) {
             if (stack.getStackSize() > 0) {
@@ -244,6 +276,11 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             }
         }
         return total;
+    }
+
+    private long cachedCount(String key) {
+        CompoundNBT tag = cellStack.getTag();
+        return tag == null ? 0 : Math.max(0, tag.getLong(key));
     }
 
     @Override
@@ -275,14 +312,14 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return;
         }
 
-        long itemCount = getStoredItemCount();
-        long typeCount = getStoredItemTypes();
         DiskStorageData storage = DiskStorageService.getCurrent();
-
         if (storage == null) {
             // Preserve dirty=true so a later server-side save can retry.
             return;
         }
+
+        long itemCount = countLoadedItems();
+        long typeCount = countLoadedTypes();
 
         if (itemCount <= 0) {
             UUID uuid = getUuid();
@@ -296,6 +333,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                 cellStack.getTag().remove(TAG_TYPE_COUNT);
             }
 
+            loadedUuid = null;
+            loadedRevision = NO_RECORD_REVISION;
             dirty = false;
             return;
         }
@@ -322,20 +361,54 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             amounts = trimmed;
         }
 
-        storage.put(uuid, keys, amounts, itemCount);
+        long revision = storage.put(uuid, keys, amounts, itemCount);
 
         CompoundNBT tag = cellStack.getOrCreateTag();
         tag.putLong(TAG_ITEM_COUNT, itemCount);
         tag.putLong(TAG_TYPE_COUNT, typeCount);
+
+        loadedUuid = uuid;
+        loadedRevision = revision;
         dirty = false;
+    }
+
+    private long countLoadedItems() {
+        long total = 0;
+        if (contents == null) {
+            return 0;
+        }
+
+        for (IAEItemStack stack : contents) {
+            if (stack.getStackSize() > 0) {
+                total += stack.getStackSize();
+            }
+        }
+        return total;
+    }
+
+    private long countLoadedTypes() {
+        long total = 0;
+        if (contents == null) {
+            return 0;
+        }
+
+        for (IAEItemStack stack : contents) {
+            if (stack.getStackSize() > 0) {
+                total++;
+            }
+        }
+        return total;
     }
 
     private void changed() {
         dirty = true;
+
+        // The actual contents live outside the Drive/ItemStack NBT, so save them
+        // immediately. The host save provider only persists the cell stack metadata.
+        persist();
+
         if (saveProvider != null) {
             saveProvider.saveChanges(this);
-        } else {
-            persist();
         }
     }
 

@@ -19,6 +19,7 @@ public final class DiskStorageData extends WorldSavedData {
     private static final String TAG_ITEM_COUNT = "item_count";
 
     private final Map<UUID, DiskRecord> disks = new HashMap<>();
+    private long revisionCounter;
 
     public DiskStorageData() {
         super(DATA_NAME);
@@ -31,6 +32,7 @@ public final class DiskStorageData extends WorldSavedData {
     @Override
     public void load(CompoundNBT nbt) {
         disks.clear();
+        revisionCounter = 0;
 
         ListNBT list = nbt.getList(TAG_DISKS, 10);
         for (int i = 0; i < list.size(); i++) {
@@ -44,7 +46,7 @@ public final class DiskStorageData extends WorldSavedData {
             long[] amounts = diskTag.getLongArray(TAG_AMOUNTS);
             long itemCount = diskTag.getLong(TAG_ITEM_COUNT);
 
-            disks.put(uuid, new DiskRecord(keys, amounts, itemCount));
+            disks.put(uuid, new DiskRecord(keys, amounts, itemCount, nextRevision()));
         }
     }
 
@@ -73,32 +75,46 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord getOrCreate(UUID uuid) {
-        return disks.computeIfAbsent(uuid, ignored -> {
-            setDirty();
-            return new DiskRecord(new ListNBT(), new long[0], 0);
-        });
+        DiskRecord existing = disks.get(uuid);
+        if (existing != null) {
+            return existing;
+        }
+
+        DiskRecord created = new DiskRecord(new ListNBT(), new long[0], 0, nextRevision());
+        disks.put(uuid, created);
+        setDirty();
+        return created;
     }
 
-    public void put(UUID uuid, ListNBT keys, long[] amounts, long itemCount) {
-        disks.put(uuid, new DiskRecord((ListNBT) keys.copy(), amounts.clone(), itemCount));
+    public long put(UUID uuid, ListNBT keys, long[] amounts, long itemCount) {
+        long revision = nextRevision();
+        disks.put(uuid, new DiskRecord((ListNBT) keys.copy(), amounts.clone(), itemCount, revision));
         setDirty();
+        return revision;
     }
 
     public void remove(UUID uuid) {
         if (disks.remove(uuid) != null) {
+            nextRevision();
             setDirty();
         }
+    }
+
+    private long nextRevision() {
+        return ++revisionCounter;
     }
 
     public static final class DiskRecord {
         private final ListNBT keys;
         private final long[] amounts;
         private final long itemCount;
+        private final long revision;
 
-        private DiskRecord(ListNBT keys, long[] amounts, long itemCount) {
+        private DiskRecord(ListNBT keys, long[] amounts, long itemCount, long revision) {
             this.keys = keys;
             this.amounts = amounts;
             this.itemCount = itemCount;
+            this.revision = revision;
         }
 
         public ListNBT getKeys() {
@@ -111,6 +127,10 @@ public final class DiskStorageData extends WorldSavedData {
 
         public long getItemCount() {
             return itemCount;
+        }
+
+        public long getRevision() {
+            return revision;
         }
     }
 }
