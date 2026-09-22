@@ -16,11 +16,11 @@ O repositório está na fase de arquitetura e seleção de funcionalidades. O pl
 
 1. Instale um **JDK 8 de 64 bits**, como Eclipse Temurin 8. Configure `JAVA_HOME` para a pasta do JDK, não a pasta `bin`.
 2. Extraia o projeto e abra um terminal nessa pasta.
-3. Instale **Gradle 6.8.3** ou use a mesma versão configurada pela GitHub Actions.
+3. Instale **Gradle 7.3.3** ou use a mesma versão configurada pela GitHub Actions.
 4. Execute `gradle --no-daemon clean build`.
 5. Se a compilação concluir com `BUILD SUCCESSFUL`, o JAR reobfuscado ficará em `build\\libs`.
 
-A GitHub Actions configura Java 8 e Gradle 6.8.3 automaticamente. O Gradle Wrapper será adicionado assim que o binário `gradle-wrapper.jar` for incorporado ao repositório; até lá, o build local requer Gradle 6.8.3 instalado.
+A GitHub Actions configura Java 8 e Gradle 7.3.3 automaticamente. O Gradle Wrapper será adicionado assim que o binário `gradle-wrapper.jar` for incorporado ao repositório; até lá, o build local requer Gradle 7.3.3 instalado.
 
 A primeira execução precisa de internet para obter Forge, Minecraft e AE2.
 
