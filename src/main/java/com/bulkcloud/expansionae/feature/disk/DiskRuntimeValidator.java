@@ -55,6 +55,7 @@ public final class DiskRuntimeValidator {
         validateTierCapacities(storage, channel);
         validateMoreThanSixtyThreeTypes(storage, channel);
         validateCrossTierUuidRejection(storage, channel);
+        validateOverCapacityBackingRejection(storage, channel);
         validateWorkbenchSemantics(channel);
         validateRecipes();
         validateTransientStorage(storage, channel);
@@ -237,6 +238,66 @@ public final class DiskRuntimeValidator {
 
         ExpansionAE.LOGGER.info(
                 "DISK cross-tier UUID rejection validated (1k backing cannot be opened as 4k)");
+    }
+
+    private static void validateOverCapacityBackingRejection(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        UUID uuid = UUID.randomUUID();
+
+        IAEItemStack stoneKey = stone(channel, 1);
+        CompoundNBT key = new CompoundNBT();
+        stoneKey.writeToNBT(key);
+
+        ListNBT keys = new ListNBT();
+        keys.add(key);
+
+        storage.put(
+                uuid,
+                keys,
+                new long[] { 1_001L },
+                1_001L,
+                1_000L);
+
+        ItemStack stack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        stack.getOrCreateTag().putUniqueId(DiskCellInventory.TAG_UUID, uuid);
+        stack.getOrCreateTag().putLong(DiskCellInventory.TAG_ITEM_COUNT, 1_001L);
+        stack.getOrCreateTag().putLong(DiskCellInventory.TAG_TYPE_COUNT, 1L);
+
+        ICellInventoryHandler<IAEItemStack> handler =
+                open(stack, channel, "over-capacity backing validation");
+
+        IAEItemStack rejected =
+                handler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (rejected == null || rejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Over-capacity 1k DISK backing record accepted an insertion");
+        }
+
+        if (handler.extractItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "Over-capacity 1k DISK backing record allowed extraction");
+        }
+
+        if (!handler.getAvailableItems(channel.createList()).isEmpty()) {
+            throw new IllegalStateException(
+                    "Over-capacity 1k DISK backing record exposed corrupted contents");
+        }
+
+        DiskStorageData.DiskRecord unchanged = storage.get(uuid);
+        if (unchanged == null
+                || unchanged.getCapacity() != 1_000L
+                || unchanged.getItemCount() != 1_001L
+                || unchanged.getAmounts().length != 1
+                || unchanged.getAmounts()[0] != 1_001L) {
+            throw new IllegalStateException(
+                    "Fail-closed over-capacity validation mutated authoritative backing data");
+        }
+
+        storage.remove(uuid);
+
+        ExpansionAE.LOGGER.info(
+                "DISK over-capacity backing rejection validated (data preserved, access blocked)");
     }
 
     private static void validateWorkbenchSemantics(
