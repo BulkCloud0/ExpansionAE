@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.CompoundNBT;
@@ -47,10 +48,65 @@ public final class DiskRuntimeValidator {
         IItemStorageChannel channel =
                 ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
 
+        validateTierCapacities(storage, channel);
         validateTransientStorage(storage, channel);
         validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
         DiskGridRuntimeValidator.begin();
+    }
+
+    private static void validateTierCapacities(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        validateTierCapacity(storage, channel, ExpansionAEItems.DISK_1K.get(), 1_000, "1k");
+        validateTierCapacity(storage, channel, ExpansionAEItems.DISK_4K.get(), 4_000, "4k");
+        validateTierCapacity(storage, channel, ExpansionAEItems.DISK_16K.get(), 16_000, "16k");
+        validateTierCapacity(storage, channel, ExpansionAEItems.DISK_64K.get(), 64_000, "64k");
+
+        ExpansionAE.LOGGER.info(
+                "DISK tier capacities validated in runtime (1k/4k/16k/64k)");
+    }
+
+    private static void validateTierCapacity(
+            DiskStorageData storage,
+            IItemStorageChannel channel,
+            Item item,
+            long capacity,
+            String tier) {
+        ItemStack stack = new ItemStack(item);
+        ICellInventoryHandler<IAEItemStack> handler =
+                open(stack, channel, tier + " capacity validation");
+
+        IAEItemStack remainder = handler.injectItems(
+                stone(channel, capacity + 137),
+                Actionable.MODULATE,
+                null);
+        if (remainder == null || remainder.getStackSize() != 137) {
+            throw new IllegalStateException(
+                    tier + " DISK expected a 137-item remainder at capacity " + capacity);
+        }
+
+        requireStoredCount(handler, capacity);
+        if (handler.getCellInv().getStatusForCell() != appeng.api.storage.cells.CellState.FULL) {
+            throw new IllegalStateException(tier + " DISK did not report FULL at capacity");
+        }
+
+        if (!stack.hasTag() || !stack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
+            throw new IllegalStateException(tier + " DISK did not receive a storage UUID");
+        }
+        UUID uuid = stack.getTag().getUniqueId(DiskCellInventory.TAG_UUID);
+
+        IAEItemStack extracted = handler.extractItems(
+                stone(channel, capacity),
+                Actionable.MODULATE,
+                null);
+        if (extracted == null || extracted.getStackSize() != capacity) {
+            throw new IllegalStateException(
+                    tier + " DISK could not extract its full capacity");
+        }
+
+        requireStoredCount(handler, 0);
+        storage.remove(uuid);
     }
 
     private static void validateTransientStorage(
