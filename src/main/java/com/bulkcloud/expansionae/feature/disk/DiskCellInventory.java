@@ -45,6 +45,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         this.cellStack = cellStack;
         this.saveProvider = saveProvider;
         this.channel = ExpansionAEApi.get().storage().getStorageChannel(IItemStorageChannel.class);
+        DiskAliasNotifier.track(this);
     }
 
     private IItemList<IAEItemStack> contents() {
@@ -123,6 +124,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                 existing.incStackSize(accepted);
             }
             changed();
+
+            IAEItemStack delta = input.copy();
+            delta.setStackSize(accepted);
+            DiskAliasNotifier.notifyOtherGrids(this, delta, source);
         }
 
         if (accepted == input.getStackSize()) {
@@ -187,6 +192,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         if (mode == Actionable.MODULATE) {
             existing.decStackSize(amount);
             changed();
+
+            IAEItemStack delta = result.copy();
+            delta.setStackSize(-amount);
+            DiskAliasNotifier.notifyOtherGrids(this, delta, source);
         }
 
         return result;
@@ -469,6 +478,14 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             missingRecordWarningLogged = true;
         }
         return true;
+    }
+
+    UUID getUuidForAliasSync() {
+        return getUuid();
+    }
+
+    ISaveProvider getSaveProviderForAliasSync() {
+        return saveProvider;
     }
 
     private UUID getUuid() {
