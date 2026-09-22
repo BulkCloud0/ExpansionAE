@@ -34,7 +34,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | Origem | Funcionalidades candidatas | Dependência extra | Complexidade | Situação |
 | --- | --- | --- | --- | --- |
 | ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Candidato P1 |
-| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | Em validação — 1k slice com runtime e persistência automatizados |
+| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | 1k core validado em runtime; resta passagem manual de GUI/receita/visual |
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
@@ -155,11 +155,11 @@ Uma feature só entra na implementação quando:
 
 O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
 
-1. validar inserção/extração por um storage grid/ME Terminal real;
-2. validar unload/reload de chunk e quebra/recolocação do Drive;
-3. validar duas cópias com o mesmo UUID quando hospedadas por Drives/grids reais;
-4. fazer uma passagem manual pela GUI do Cell Workbench;
-5. somente depois expandir o DISK para outros tiers e iniciar a próxima feature P1.
+1. fazer uma passagem manual pela GUI do Cell Workbench/ME Terminal para validar UX cliente;
+2. decidir recipe/progressão e identidade visual finais do DISK;
+3. expandir o DISK para os tiers nativos do AE2 8.4.7 (4k/16k/64k) em uma branch separada;
+4. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
+5. depois iniciar a próxima feature P1.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
 
@@ -188,6 +188,11 @@ Estado atual:
 - o CI executa duas inicializações consecutivas do dedicated server no mesmo mundo: a primeira grava 321 itens no `WorldSavedData`, encerra via RCON e a segunda recupera/extrai os 321 itens antes de limpar o registro;
 - a persistência externa do DISK através de save/restart do servidor está coberta automaticamente;
 - o runtime coloca um DISK pré-carregado em um ME Drive real, confirma que o host aceita a célula, preserva o conteúdo e reporta estado `NOT_EMPTY`;
-- o runtime coloca um DISK em um ME Chest real e confirma que o monitor de itens usado pela superfície de terminal enxerga a quantidade armazenada.
+- o runtime coloca um DISK em um ME Chest real e confirma que o monitor de itens usado pela superfície de terminal enxerga a quantidade armazenada;
+- o lifecycle do ME Drive é coberto por round-trip do NBT do tile, teardown/reload equivalente ao estado persistido de chunk, drop do DISK e reinserção em um Drive novo, sempre preservando UUID e conteúdo;
+- uma micro-rede AE2 real com Creative Energy Cell + ME Drives valida canais/energia, inserção e extração pelo `IStorageGrid`/monitor que alimenta o ME Terminal;
+- dois aliases do mesmo UUID no mesmo grid são deduplicados para uma única exposição lógica, evitando contagem dobrada;
+- o mesmo UUID em grids independentes continua compartilhando o backing store, com caches de terminal propagados entre grids (50 → 75 → 45 no self-test);
+- um DISK vazio não aceita ser armazenado dentro de si mesmo por meio de outro alias com o mesmo UUID, impedindo referência recursiva.
 
-Antes de promover a feature para concluída ainda faltam: grid/ME Terminal real para inserção/extração end-to-end, unload/reload de chunk, quebra/recolocação do Drive, aliases de UUID hospedados em Drives/redes reais e uma passagem manual pela GUI do Cell Workbench.
+Antes de promover a feature para concluída restam apenas validações de UX cliente (GUI do Cell Workbench/ME Terminal) e as decisões finais de recipe/progressão/identidade visual. O core de storage, persistência, host lifecycle, grid e aliases está automatizado no dedicated server.
