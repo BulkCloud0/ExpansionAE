@@ -58,7 +58,7 @@ public final class ExpansionAEItems {
         validateDiskTier("64k", DISK_64K.get(), 64000, 2.0);
 
         ExpansionAE.LOGGER.info(
-                "DISK tier/workbench contract validated (1k/4k/16k/64k, 63 config slots, 2 upgrade slots, FUZZY + INVERTER)");
+                "DISK workbench contract validated (tiers 1k/4k/16k/64k, 63 config slots, 2 upgrade slots, FUZZY + INVERTER)");
     }
 
     private static void validateDiskTier(
