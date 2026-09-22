@@ -173,6 +173,8 @@ public final class DiskGridRuntimeValidator {
 
             requireNetworkCount(monitorA, s.channel, INITIAL_AMOUNT, "same-grid aliases");
             requireNetworkCount(monitorC, s.channel, INITIAL_AMOUNT, "independent alias grid");
+            requireCachedNetworkCount(monitorA, s.channel, INITIAL_AMOUNT, "primary terminal cache");
+            requireCachedNetworkCount(monitorC, s.channel, INITIAL_AMOUNT, "alias terminal cache");
 
             IAEItemStack injectRemainder = monitorA.injectItems(
                     stone(s.channel, INJECT_AMOUNT),
@@ -185,6 +187,8 @@ public final class DiskGridRuntimeValidator {
             long afterInject = INITIAL_AMOUNT + INJECT_AMOUNT;
             requireNetworkCount(monitorA, s.channel, afterInject, "primary grid after injection");
             requireNetworkCount(monitorC, s.channel, afterInject, "alias grid after remote injection");
+            requireCachedNetworkCount(monitorA, s.channel, afterInject, "primary terminal cache after injection");
+            requireCachedNetworkCount(monitorC, s.channel, afterInject, "alias terminal cache after remote injection");
 
             IAEItemStack extracted = monitorC.extractItems(
                     stone(s.channel, EXTRACT_AMOUNT),
@@ -197,6 +201,8 @@ public final class DiskGridRuntimeValidator {
             long finalAmount = afterInject - EXTRACT_AMOUNT;
             requireNetworkCount(monitorA, s.channel, finalAmount, "primary grid after alias extraction");
             requireNetworkCount(monitorC, s.channel, finalAmount, "alias grid after extraction");
+            requireCachedNetworkCount(monitorA, s.channel, finalAmount, "primary terminal cache after alias extraction");
+            requireCachedNetworkCount(monitorC, s.channel, finalAmount, "alias terminal cache after extraction");
 
             ICellInventoryHandler<IAEItemStack> driveAHandler = open(
                     s.driveA.getInternalInventory().getStackInSlot(0),
@@ -213,6 +219,24 @@ public final class DiskGridRuntimeValidator {
             requireCellCount(driveCHandler, finalAmount, "Drive C backing view");
         } catch (GridAccessException e) {
             throw new IllegalStateException("AE2 grid became unavailable during DISK active grid validation", e);
+        }
+    }
+
+    private static void requireCachedNetworkCount(
+            IMEMonitor<IAEItemStack> monitor,
+            IItemStorageChannel channel,
+            long expected,
+            String stage) {
+        IAEItemStack precise = monitor.getStorageList().findPrecise(stone(channel, 1));
+        long actual = precise == null ? 0 : precise.getStackSize();
+        if (actual != expected) {
+            throw new IllegalStateException(
+                    "DISK cached terminal count mismatch during "
+                            + stage
+                            + ": expected "
+                            + expected
+                            + " but got "
+                            + actual);
         }
     }
 
