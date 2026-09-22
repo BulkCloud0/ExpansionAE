@@ -18,6 +18,7 @@ public final class DiskStorageData extends WorldSavedData {
     private static final String TAG_KEYS = "keys";
     private static final String TAG_AMOUNTS = "amounts";
     private static final String TAG_ITEM_COUNT = "item_count";
+    private static final String TAG_CAPACITY = "capacity";
 
     private final Map<UUID, DiskRecord> disks = new HashMap<>();
     private long revisionCounter;
@@ -78,7 +79,19 @@ public final class DiskStorageData extends WorldSavedData {
                 repaired = true;
             }
 
-            disks.put(uuid, new DiskRecord(keys, amounts, itemCount, nextRevision()));
+            // capacity=0 is the intentional legacy/unbound representation. Records
+            // written before tier binding did not contain this tag and are bound once,
+            // on first legitimate access by a DISK ItemStack.
+            long capacity = Math.max(0, diskTag.getLong(TAG_CAPACITY));
+
+            disks.put(
+                    uuid,
+                    new DiskRecord(
+                            keys,
+                            amounts,
+                            itemCount,
+                            capacity,
+                            nextRevision()));
         }
 
         if (repaired) {
@@ -98,6 +111,7 @@ public final class DiskStorageData extends WorldSavedData {
             diskTag.put(TAG_KEYS, record.keys.copy());
             diskTag.putLongArray(TAG_AMOUNTS, record.amounts.clone());
             diskTag.putLong(TAG_ITEM_COUNT, record.itemCount);
+            diskTag.putLong(TAG_CAPACITY, record.capacity);
 
             list.add(diskTag);
         }
@@ -111,20 +125,65 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord getOrCreate(UUID uuid) {
+        return getOrCreate(uuid, 0);
+    }
+
+    public DiskRecord getOrCreate(UUID uuid, long capacity) {
         DiskRecord existing = disks.get(uuid);
         if (existing != null) {
-            return existing;
+            return existing.capacity == 0 && capacity > 0
+                    ? bindCapacity(uuid, capacity)
+                    : existing;
         }
 
-        DiskRecord created = new DiskRecord(new ListNBT(), new long[0], 0, nextRevision());
+        DiskRecord created =
+                new DiskRecord(
+                        new ListNBT(),
+                        new long[0],
+                        0,
+                        Math.max(0, capacity),
+                        nextRevision());
         disks.put(uuid, created);
         setDirty(true);
         return created;
     }
 
+    public DiskRecord bindCapacity(UUID uuid, long capacity) {
+        DiskRecord existing = disks.get(uuid);
+        if (existing == null || existing.capacity != 0 || capacity <= 0) {
+            return existing;
+        }
+
+        DiskRecord bound = new DiskRecord(
+                existing.getKeys(),
+                existing.getAmounts(),
+                existing.itemCount,
+                capacity,
+                nextRevision());
+        disks.put(uuid, bound);
+        setDirty(true);
+        return bound;
+    }
+
     public long put(UUID uuid, ListNBT keys, long[] amounts, long itemCount) {
+        return put(uuid, keys, amounts, itemCount, 0);
+    }
+
+    public long put(
+            UUID uuid,
+            ListNBT keys,
+            long[] amounts,
+            long itemCount,
+            long capacity) {
         long revision = nextRevision();
-        disks.put(uuid, new DiskRecord((ListNBT) keys.copy(), amounts.clone(), itemCount, revision));
+        disks.put(
+                uuid,
+                new DiskRecord(
+                        (ListNBT) keys.copy(),
+                        amounts.clone(),
+                        itemCount,
+                        Math.max(0, capacity),
+                        revision));
         setDirty(true);
         return revision;
     }
@@ -151,12 +210,19 @@ public final class DiskStorageData extends WorldSavedData {
         private final ListNBT keys;
         private final long[] amounts;
         private final long itemCount;
+        private final long capacity;
         private final long revision;
 
-        private DiskRecord(ListNBT keys, long[] amounts, long itemCount, long revision) {
+        private DiskRecord(
+                ListNBT keys,
+                long[] amounts,
+                long itemCount,
+                long capacity,
+                long revision) {
             this.keys = keys;
             this.amounts = amounts;
             this.itemCount = itemCount;
+            this.capacity = capacity;
             this.revision = revision;
         }
 
@@ -170,6 +236,10 @@ public final class DiskStorageData extends WorldSavedData {
 
         public long getItemCount() {
             return itemCount;
+        }
+
+        public long getCapacity() {
+            return capacity;
         }
 
         public long getRevision() {
