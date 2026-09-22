@@ -38,7 +38,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
-| Growth Accelerator Tiers | Cranked, Boosted e Directional Growth Accelerator | Não | Média | Candidato P1/P2 |
+| Growth Accelerator Tiers | Cranked, Boosted e Directional Growth Accelerator | Não | Média | Cranked validado em runtime; Boosted/Directional pendentes |
 
 ### P2 — Recursos armazenáveis e utilidades avançadas
 
@@ -90,7 +90,9 @@ O código atual implementa mana como recurso da rede, incluindo storage/portable
 
 ### Growth Accelerator Tiers
 
-Três conceitos principais: Cranked, Boosted e Directional Growth Accelerator. É relativamente isolado do restante da arquitetura de storage/crafting.
+Três conceitos principais: Cranked, Boosted e Directional Growth Accelerator. O Cranked já foi adaptado para a API 1.16.5 e validado no dedicated server com a manivela real do AE2 e crescimento real de Certus Seed.
+
+A versão moderna usa multiplicadores próprios de velocidade, mas o AE2 8.4.7 calcula o crescimento contando aceleradores adjacentes que implementam `ICrystalGrowthAccelerator`. Por isso, o backport do Cranked preserva o comportamento que a API antiga permite: funciona como um Growth Accelerator normal, sem conexão ME, alimentado exclusivamente por manivela (160 AE/turn, buffer 3200 AE, 8 AE/t). Não é aplicado um multiplicador 8× artificial.
 
 ### Applied Pneumatics
 
@@ -159,7 +161,7 @@ O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem
 2. decidir recipe/progressão e identidade visual finais do DISK;
 3. expandir o DISK para os tiers nativos do AE2 8.4.7 (4k/16k/64k) em uma branch separada;
 4. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
-5. depois iniciar a próxima feature P1.
+5. Cranked Growth Accelerator já validado; iniciar o primeiro slice dos Import/Export Buses 8× do ExtendedAE em branch independente.
 
 Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
 
