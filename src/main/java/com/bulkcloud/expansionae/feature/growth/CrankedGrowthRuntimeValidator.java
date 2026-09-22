@@ -40,6 +40,7 @@ public final class CrankedGrowthRuntimeValidator {
 
         BlockPos pos = world.getSpawnPoint().up(24);
         BlockPos acceleratedSeedPos = pos.west();
+        BlockPos crankPos = pos.east();
         BlockPos controlSeedPos = pos.add(8, 0, 0);
 
         clearTestPosition(world, pos);
@@ -87,7 +88,6 @@ public final class CrankedGrowthRuntimeValidator {
             // Prove interoperability with AE2's real crank tile instead of only
             // exercising ICrankable directly. The crank is placed east of the
             // accelerator and oriented so its working face points west.
-            BlockPos crankPos = pos.east();
             world.removeBlock(crankPos, false);
             world.setBlockState(
                     crankPos,
@@ -206,6 +206,7 @@ public final class CrankedGrowthRuntimeValidator {
                     "Cranked growth runtime validated "
                             + "(160 AE/turn, 3200 AE buffer, 8 AE/t, NBT, powered state + real crystal growth)");
         } finally {
+            clearTestPosition(world, crankPos);
             clearTestPosition(world, pos);
             clearTestPosition(world, acceleratedSeedPos);
             clearTestPosition(world, controlSeedPos);
