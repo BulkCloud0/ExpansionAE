@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ECE",
+    "BAB",
+    "DFD"
+  ],
+  "key": {
+    "A": {
+      "item": "appliedenergistics2:quartz_growth_accelerator"
+    },
+    "B": {
+      "item": "minecraft:emerald"
+    },
+    "C": {
+      "item": "appliedenergistics2:fluix_pearl"
+    },
+    "D": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "E": {
+      "item": "appliedenergistics2:speed_card"
+    },
+    "F": {
+      "item": "appliedenergistics2:annihilation_core"
+    }
+  },
+  "result": {
+    "item": "expansionae:boosted_growth_accelerator",
+    "count": 1
+  }
+}
