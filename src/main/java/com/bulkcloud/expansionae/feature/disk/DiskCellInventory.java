@@ -178,7 +178,9 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
-        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
+        if (DiskStorageService.getCurrent() == null
+                || hasMissingBackingRecord()
+                || !DiskAliasExposure.shouldExposeToGrid(cellStack, saveProvider)) {
             return out;
         }
 
