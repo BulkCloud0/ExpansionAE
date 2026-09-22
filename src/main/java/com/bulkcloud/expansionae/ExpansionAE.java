@@ -15,6 +15,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.feature.bus.ExtendedBusRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
@@ -40,6 +41,7 @@ public final class ExpansionAE {
             ExpansionAEItems.registerAE2Upgrades();
             if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
                 ExpansionAEItems.validateDiskWorkbenchContract();
+                ExtendedBusRuntimeValidator.validate();
             }
         });
     }
