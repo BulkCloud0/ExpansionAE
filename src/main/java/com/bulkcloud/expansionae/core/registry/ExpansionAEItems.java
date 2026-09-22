@@ -3,6 +3,7 @@ package com.bulkcloud.expansionae.core.registry;
 import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -37,6 +38,12 @@ public final class ExpansionAEItems {
             DISK_4K,
             DISK_16K,
             DISK_64K);
+
+    public static final RegistryObject<Item> CRANKED_GROWTH_ACCELERATOR = ITEMS.register(
+            "cranked_growth_accelerator",
+            () -> new BlockItem(
+                    ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get(),
+                    new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
 
     private ExpansionAEItems() {
     }
