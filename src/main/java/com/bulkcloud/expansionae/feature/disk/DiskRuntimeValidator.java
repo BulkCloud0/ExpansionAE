@@ -7,9 +7,12 @@ import java.util.UUID;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -51,6 +54,7 @@ public final class DiskRuntimeValidator {
         validateTierCapacities(storage, channel);
         validateCrossTierUuidRejection(storage, channel);
         validateWorkbenchSemantics(channel);
+        validateRecipes();
         validateTransientStorage(storage, channel);
         validateAe2StorageHosts(channel);
         validatePersistencePhase(storage, channel);
@@ -89,6 +93,7 @@ public final class DiskRuntimeValidator {
         }
 
         requireStoredCount(handler, capacity);
+        requireCachedMetadata(stack, capacity, 1, tier + " at capacity");
         if (handler.getCellInv().getStatusForCell() != appeng.api.storage.cells.CellState.FULL) {
             throw new IllegalStateException(tier + " DISK did not report FULL at capacity");
         }
@@ -108,6 +113,7 @@ public final class DiskRuntimeValidator {
         }
 
         requireStoredCount(handler, 0);
+        requireCachedMetadata(stack, 0, 0, tier + " after full extraction");
         storage.remove(uuid);
     }
 
@@ -385,6 +391,40 @@ public final class DiskRuntimeValidator {
         }
     }
 
+    private static void validateRecipes() {
+        if (ServerLifecycleHooks.getCurrentServer() == null) {
+            throw new IllegalStateException("Dedicated server is not available for DISK recipe validation");
+        }
+
+        validateRecipe("1k_disk", ExpansionAEItems.DISK_1K.get());
+        validateRecipe("4k_disk", ExpansionAEItems.DISK_4K.get());
+        validateRecipe("16k_disk", ExpansionAEItems.DISK_16K.get());
+        validateRecipe("64k_disk", ExpansionAEItems.DISK_64K.get());
+
+        ExpansionAE.LOGGER.info(
+                "DISK recipes validated in runtime (1k/4k/16k/64k loaded as crafting recipes with correct outputs)");
+    }
+
+    private static void validateRecipe(
+            String recipePath,
+            Item expectedOutput) {
+        ResourceLocation id = new ResourceLocation(ExpansionAE.MOD_ID, recipePath);
+        IRecipe<?> recipe = ServerLifecycleHooks.getCurrentServer()
+                .getRecipeManager()
+                .getRecipe(id)
+                .orElseThrow(() -> new IllegalStateException("Missing DISK recipe " + id));
+
+        if (recipe.getType() != IRecipeType.CRAFTING) {
+            throw new IllegalStateException("DISK recipe " + id + " is not a crafting recipe");
+        }
+
+        ItemStack output = recipe.getRecipeOutput();
+        if (output.isEmpty() || output.getItem() != expectedOutput || output.getCount() != 1) {
+            throw new IllegalStateException(
+                    "DISK recipe " + id + " has unexpected output " + output);
+        }
+    }
+
     private static void validateTransientStorage(
             DiskStorageData storage,
             IItemStorageChannel channel) {
@@ -397,6 +437,7 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("1k DISK rejected part of the initial 600 item insertion");
         }
         requireStoredCount(primary, 600);
+        requireCachedMetadata(primaryStack, 600, 1, "primary after initial insertion");
 
         if (!primaryStack.hasTag() || !primaryStack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
             throw new IllegalStateException("1k DISK did not assign a backing UUID after first insertion");
@@ -406,6 +447,7 @@ public final class DiskRuntimeValidator {
         ItemStack aliasStack = primaryStack.copy();
         ICellInventoryHandler<IAEItemStack> alias = open(aliasStack, channel, "alias");
         requireStoredCount(alias, 600);
+        requireCachedMetadata(aliasStack, 600, 1, "alias after copy");
 
         IAEItemStack additional = stone(channel, 500);
         IAEItemStack capacityRemainder = alias.injectItems(additional, Actionable.MODULATE, null);
@@ -415,6 +457,8 @@ public final class DiskRuntimeValidator {
 
         requireStoredCount(alias, 1000);
         requireStoredCount(primary, 1000);
+        requireCachedMetadata(aliasStack, 1000, 1, "alias after capacity insertion");
+        requireCachedMetadata(primaryStack, 1000, 1, "primary after alias capacity insertion");
 
         IAEItemStack request250 = stone(channel, 250);
         IAEItemStack extracted250 = alias.extractItems(request250, Actionable.MODULATE, null);
@@ -422,6 +466,8 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("DISK alias extraction did not return 250 items");
         }
         requireStoredCount(primary, 750);
+        requireCachedMetadata(primaryStack, 750, 1, "primary after alias extraction");
+        requireCachedMetadata(aliasStack, 750, 1, "alias after alias extraction");
 
         IAEItemStack request750 = stone(channel, 750);
         IAEItemStack extracted750 = primary.extractItems(request750, Actionable.MODULATE, null);
@@ -430,6 +476,8 @@ public final class DiskRuntimeValidator {
         }
 
         requireStoredCount(alias, 0);
+        requireCachedMetadata(primaryStack, 0, 0, "primary after emptying");
+        requireCachedMetadata(aliasStack, 0, 0, "alias after remote emptying");
 
         DiskStorageData.DiskRecord emptyRecord = storage.get(uuid);
         if (emptyRecord == null || emptyRecord.getItemCount() != 0) {
@@ -790,6 +838,34 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("AE2 did not provide a DISK cell inventory handler for " + label);
         }
         return handler;
+    }
+
+    private static void requireCachedMetadata(
+            ItemStack stack,
+            long expectedItems,
+            long expectedTypes,
+            String stage) {
+        if (!stack.hasTag()) {
+            throw new IllegalStateException(
+                    "DISK cached metadata missing during " + stage);
+        }
+
+        long items = Math.max(0, stack.getTag().getLong(DiskCellInventory.TAG_ITEM_COUNT));
+        long types = Math.max(0, stack.getTag().getLong(DiskCellInventory.TAG_TYPE_COUNT));
+
+        if (items != expectedItems || types != expectedTypes) {
+            throw new IllegalStateException(
+                    "DISK cached metadata mismatch during "
+                            + stage
+                            + ": expected "
+                            + expectedItems
+                            + " items / "
+                            + expectedTypes
+                            + " types but got "
+                            + items
+                            + " / "
+                            + types);
+        }
     }
 
     private static IAEItemStack stone(IItemStorageChannel channel, long amount) {
