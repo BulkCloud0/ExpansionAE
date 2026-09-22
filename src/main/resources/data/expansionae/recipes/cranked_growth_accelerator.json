@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "DCD",
+    "BAB",
+    "DCD"
+  ],
+  "key": {
+    "A": {
+      "tag": "minecraft:planks"
+    },
+    "B": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "appliedenergistics2:crank"
+    },
+    "D": {
+      "item": "minecraft:cobblestone"
+    }
+  },
+  "result": {
+    "item": "expansionae:cranked_growth_accelerator",
+    "count": 1
+  }
+}

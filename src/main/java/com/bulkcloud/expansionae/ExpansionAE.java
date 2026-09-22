@@ -15,9 +15,11 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
+import com.bulkcloud.expansionae.feature.growth.CrankedGrowthRuntimeValidator;
 
 @Mod(ExpansionAE.MOD_ID)
 public final class ExpansionAE {
@@ -29,6 +31,7 @@ public final class ExpansionAE {
 
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
+        ExpansionAETileEntities.register(modBus);
         modBus.addListener(this::onCommonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -48,6 +51,7 @@ public final class ExpansionAE {
     public void onServerStarted(FMLServerStartedEvent event) {
         if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
             DiskRuntimeValidator.validate();
+            CrankedGrowthRuntimeValidator.validate();
         }
     }
 
