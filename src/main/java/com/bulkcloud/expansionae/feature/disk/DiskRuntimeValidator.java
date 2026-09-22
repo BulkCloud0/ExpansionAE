@@ -567,10 +567,57 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("Rejected DISK self-alias insertion modified the backing record");
         }
 
+        ItemStack nestedDiskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        ICellInventoryHandler<IAEItemStack> nestedDisk =
+                open(nestedDiskStack, channel, "non-empty nested DISK");
+        if (nestedDisk.injectItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "Nested DISK preparation unexpectedly rejected one stone");
+        }
+        if (!nestedDiskStack.hasTag()
+                || !nestedDiskStack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)) {
+            throw new IllegalStateException(
+                    "Nested DISK preparation did not allocate a backing UUID");
+        }
+
+        UUID nestedUuid = nestedDiskStack.getTag().getUniqueId(DiskCellInventory.TAG_UUID);
+        if (uuid.equals(nestedUuid)) {
+            throw new IllegalStateException(
+                    "Nested DISK validation unexpectedly reused the outer backing UUID");
+        }
+
+        IAEItemStack nestedDiskItem = channel.createStack(nestedDiskStack);
+        if (nestedDiskItem == null) {
+            throw new IllegalStateException(
+                    "AE2 item channel could not create the non-empty nested DISK test stack");
+        }
+        nestedDiskItem.setStackSize(1);
+
+        IAEItemStack nestedRemainder =
+                primary.injectItems(nestedDiskItem, Actionable.MODULATE, null);
+        if (nestedRemainder == null || nestedRemainder.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK accepted a different storage cell that already contained items");
+        }
+        requireStoredCount(primary, 0);
+
+        DiskStorageData.DiskRecord afterNestedAttempt = storage.get(uuid);
+        if (afterNestedAttempt == null || afterNestedAttempt.getItemCount() != 0) {
+            throw new IllegalStateException(
+                    "Rejected non-empty nested DISK insertion modified the outer backing record");
+        }
+
+        DiskStorageData.DiskRecord nestedRecord = storage.get(nestedUuid);
+        if (nestedRecord == null || nestedRecord.getItemCount() != 1) {
+            throw new IllegalStateException(
+                    "Rejected nested DISK insertion modified the nested backing record");
+        }
+
+        storage.remove(nestedUuid);
         storage.remove(uuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias rejection)");
+                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias + non-empty-cell rejection)");
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
