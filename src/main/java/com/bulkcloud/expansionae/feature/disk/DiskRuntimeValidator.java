@@ -104,10 +104,28 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("Empty DISK backing record was not preserved for UUID aliases");
         }
 
+        IAEItemStack selfAliasItem = channel.createStack(aliasStack);
+        if (selfAliasItem == null) {
+            throw new IllegalStateException("AE2 item channel could not create the DISK self-alias test stack");
+        }
+        selfAliasItem.setStackSize(1);
+
+        IAEItemStack selfAliasRemainder =
+                primary.injectItems(selfAliasItem, Actionable.MODULATE, null);
+        if (selfAliasRemainder == null || selfAliasRemainder.getStackSize() != 1) {
+            throw new IllegalStateException("DISK accepted an item alias pointing at its own backing UUID");
+        }
+        requireStoredCount(primary, 0);
+
+        DiskStorageData.DiskRecord afterSelfAliasAttempt = storage.get(uuid);
+        if (afterSelfAliasAttempt == null || afterSelfAliasAttempt.getItemCount() != 0) {
+            throw new IllegalStateException("Rejected DISK self-alias insertion modified the backing record");
+        }
+
         storage.remove(uuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record)");
+                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias rejection)");
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
