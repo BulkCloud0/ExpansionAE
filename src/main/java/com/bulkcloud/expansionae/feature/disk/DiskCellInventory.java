@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraftforge.items.IItemHandler;
 
+import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 
 import appeng.api.config.Actionable;
@@ -37,6 +38,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     private UUID loadedUuid;
     private long loadedRevision = NO_RECORD_REVISION;
     private boolean dirty;
+    private boolean missingRecordWarningLogged;
 
     public DiskCellInventory(DiskStorageCellItem cellType, ItemStack cellStack, ISaveProvider saveProvider) {
         this.cellType = cellType;
@@ -97,7 +99,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return null;
         }
 
-        if (DiskStorageService.getCurrent() == null) {
+        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
             // Fail closed when the authoritative server-side backing store is unavailable.
             return input;
         }
@@ -153,7 +155,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return null;
         }
 
-        if (DiskStorageService.getCurrent() == null) {
+        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
             return null;
         }
 
@@ -176,7 +178,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out) {
-        if (DiskStorageService.getCurrent() == null) {
+        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
             return out;
         }
 
@@ -225,7 +227,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public boolean canHoldNewItem() {
-        return getRemainingItemCount() > 0;
+        return !hasMissingBackingRecord() && getRemainingItemCount() > 0;
     }
 
     @Override
@@ -250,7 +252,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public long getStoredItemCount() {
-        if (DiskStorageService.getCurrent() == null) {
+        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
             return cachedCount(TAG_ITEM_COUNT);
         }
 
@@ -265,7 +267,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public long getStoredItemTypes() {
-        if (DiskStorageService.getCurrent() == null) {
+        if (DiskStorageService.getCurrent() == null || hasMissingBackingRecord()) {
             return cachedCount(TAG_TYPE_COUNT);
         }
 
@@ -308,7 +310,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
     @Override
     public void persist() {
-        if (!dirty) {
+        if (!dirty || hasMissingBackingRecord()) {
             return;
         }
 
@@ -335,6 +337,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
             loadedUuid = null;
             loadedRevision = NO_RECORD_REVISION;
+            missingRecordWarningLogged = false;
             dirty = false;
             return;
         }
@@ -369,6 +372,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
         loadedUuid = uuid;
         loadedRevision = revision;
+        missingRecordWarningLogged = false;
         dirty = false;
     }
 
@@ -410,6 +414,27 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         if (saveProvider != null) {
             saveProvider.saveChanges(this);
         }
+    }
+
+    private boolean hasMissingBackingRecord() {
+        UUID uuid = getUuid();
+        DiskStorageData storage = DiskStorageService.getCurrent();
+        if (uuid == null || storage == null || storage.get(uuid) != null) {
+            return false;
+        }
+
+        boolean expectedData = cachedCount(TAG_ITEM_COUNT) > 0 || cachedCount(TAG_TYPE_COUNT) > 0;
+        if (!expectedData) {
+            return false;
+        }
+
+        if (!missingRecordWarningLogged) {
+            ExpansionAE.LOGGER.error(
+                    "DISK {} references missing backing data. Blocking reads/writes to avoid silently overwriting stored contents.",
+                    uuid);
+            missingRecordWarningLogged = true;
+        }
+        return true;
     }
 
     private UUID getUuid() {
