@@ -436,14 +436,13 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return false;
         }
 
-        boolean expectedData = cachedCount(TAG_ITEM_COUNT) > 0 || cachedCount(TAG_TYPE_COUNT) > 0;
-        if (!expectedData) {
-            return false;
-        }
-
+        // Once a DISK has a UUID, its backing record is permanent, including when
+        // empty. A missing record therefore always means corrupted/incomplete
+        // persistence. Never recreate it implicitly: aliases may have stale cached
+        // counts and must not be able to overwrite the missing authoritative state.
         if (!missingRecordWarningLogged) {
             ExpansionAE.LOGGER.error(
-                    "DISK {} references missing backing data. Blocking reads/writes to avoid silently overwriting stored contents.",
+                    "DISK {} references missing backing data. Blocking reads/writes to avoid silently recreating or overwriting storage.",
                     uuid);
             missingRecordWarningLogged = true;
         }
