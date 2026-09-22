@@ -57,6 +57,10 @@ final class DiskAliasNotifier {
                     continue;
                 }
 
+                if (inventory != origin) {
+                    inventory.refreshCachedMetadataFromBacking();
+                }
+
                 IGrid grid = activeGrid(inventory);
                 if (grid != null && grid != originGrid) {
                     targets.add(grid);
