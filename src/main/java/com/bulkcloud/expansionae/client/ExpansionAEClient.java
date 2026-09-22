@@ -17,6 +17,7 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
@@ -63,6 +64,10 @@ public final class ExpansionAEClient {
 
     @SubscribeEvent
     public static void onModelBake(ModelBakeEvent event) {
+        if (FMLEnvironment.production) {
+            return;
+        }
+
         ICellModelRegistry cells = Api.instance().client().cells();
 
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_1K.get());
@@ -198,7 +203,7 @@ public final class ExpansionAEClient {
         ModelLoader.addSpecialModel(model);
         cells.registerModel(item, model);
 
-        if (!model.equals(cells.model(item))) {
+        if (!FMLEnvironment.production && !model.equals(cells.model(item))) {
             throw new IllegalStateException(
                     "AE2 client cell model registry did not retain model " + model
                             + " for " + item.getRegistryName());
