@@ -32,7 +32,12 @@ public final class ExpansionAE {
     }
 
     private void onCommonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(ExpansionAEItems::registerAE2Upgrades);
+        event.enqueueWork(() -> {
+            ExpansionAEItems.registerAE2Upgrades();
+            if (Boolean.getBoolean("expansionae.validateDevRuntime")) {
+                ExpansionAEItems.validateDiskWorkbenchContract();
+            }
+        });
     }
 
     @SubscribeEvent
