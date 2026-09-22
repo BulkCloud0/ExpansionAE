@@ -84,6 +84,26 @@ final class DiskStorageDataTest {
         assertEquals("minecraft:diamond", record.getKeys().getCompound(0).getString("id"));
     }
 
+
+    @Test
+    void emptyRecordSurvivesSaveAndLoadForSharedUuidAliases() {
+        DiskStorageData data = new DiskStorageData();
+        UUID id = UUID.randomUUID();
+
+        data.put(id, new ListNBT(), new long[0], 0L);
+
+        CompoundNBT saved = data.save(new CompoundNBT());
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.load(saved);
+
+        DiskStorageData.DiskRecord record = loaded.get(id);
+        assertNotNull(record);
+        assertEquals(0L, record.getItemCount());
+        assertEquals(0, record.getKeys().size());
+        assertEquals(0, record.getAmounts().length);
+    }
+
     @Test
     void loadRepairsMismatchedAndInvalidAmounts() {
         UUID id = UUID.randomUUID();
