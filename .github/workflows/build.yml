@@ -93,7 +93,15 @@ jobs:
             exit 1
           fi
 
-          echo "Dedicated server reached the ready state with AE2 cell registration and DISK workbench validation."
+          if ! grep -q "DISK storage runtime validated" run/logs/latest.log; then
+            echo "DISK storage runtime validation did not complete."
+            cat run/logs/latest.log
+            kill -TERM -- "-$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+            exit 1
+          fi
+
+          echo "Dedicated server reached the ready state with AE2 registration, Workbench validation and DISK storage runtime checks."
 
           kill -INT -- "-$server_pid" 2>/dev/null || true
           for _ in $(seq 1 15); do
