@@ -32,10 +32,10 @@ public final class DiskQuarantineCommands {
                                                                         context,
                                                                         "page")))))
                                         .then(Commands.literal("inspect")
-                                                .then(Commands.argument("uuid", UUIDArgument.uuid())
+                                                .then(Commands.argument("uuid", new UUIDArgument())
                                                         .executes(context -> inspect(
                                                                 context.getSource(),
-                                                                UUIDArgument.getUUID(
+                                                                UUIDArgument.getUuid(
                                                                         context,
                                                                         "uuid"))))))));
     }
