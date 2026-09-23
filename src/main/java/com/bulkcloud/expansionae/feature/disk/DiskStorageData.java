@@ -26,6 +26,7 @@ public final class DiskStorageData extends WorldSavedData {
 
     private final Map<UUID, DiskRecord> disks = new HashMap<>();
     private final Map<UUID, List<CompoundNBT>> quarantinedDuplicateRecords = new HashMap<>();
+    private final Map<UUID, List<CompoundNBT>> quarantinedInvalidRecords = new HashMap<>();
     private final List<CompoundNBT> quarantinedMalformedRecords = new ArrayList<>();
     private long revisionCounter;
 
@@ -41,6 +42,7 @@ public final class DiskStorageData extends WorldSavedData {
     public void read(CompoundNBT nbt) {
         disks.clear();
         quarantinedDuplicateRecords.clear();
+        quarantinedInvalidRecords.clear();
         quarantinedMalformedRecords.clear();
         revisionCounter = 0;
 
@@ -81,6 +83,32 @@ public final class DiskStorageData extends WorldSavedData {
                 quarantinedDuplicateRecords
                         .computeIfAbsent(uuid, ignored -> new ArrayList<>())
                         .add(diskTag.copy());
+                continue;
+            }
+
+            boolean invalidStructure = false;
+            if (diskTag.contains(TAG_KEYS) && !diskTag.contains(TAG_KEYS, 9)) {
+                invalidStructure = true;
+            }
+            if (diskTag.contains(TAG_AMOUNTS) && !diskTag.contains(TAG_AMOUNTS, 12)) {
+                invalidStructure = true;
+            }
+
+            ListNBT rawKeyList = diskTag.contains(TAG_KEYS, 9)
+                    ? (ListNBT) diskTag.get(TAG_KEYS)
+                    : new ListNBT();
+            if (!rawKeyList.isEmpty() && rawKeyList.getTagType() != 10) {
+                invalidStructure = true;
+            }
+
+            if (invalidStructure) {
+                quarantinedInvalidRecords
+                        .computeIfAbsent(uuid, ignored -> new ArrayList<>())
+                        .add(diskTag.copy());
+                ExpansionAE.LOGGER.error(
+                        "DISK {} backing record contains structurally invalid NBT types. "
+                                + "Preserving it in quarantine instead of normalizing it to empty data.",
+                        uuid);
                 continue;
             }
 
@@ -162,6 +190,12 @@ public final class DiskStorageData extends WorldSavedData {
             }
         }
 
+        for (List<CompoundNBT> quarantined : quarantinedInvalidRecords.values()) {
+            for (CompoundNBT diskTag : quarantined) {
+                list.add(diskTag.copy());
+            }
+        }
+
         for (CompoundNBT diskTag : quarantinedMalformedRecords) {
             list.add(diskTag.copy());
         }
@@ -175,7 +209,8 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     boolean isQuarantined(UUID uuid) {
-        return quarantinedDuplicateRecords.containsKey(uuid);
+        return quarantinedDuplicateRecords.containsKey(uuid)
+                || quarantinedInvalidRecords.containsKey(uuid);
     }
 
     public DiskRecord getOrCreate(UUID uuid) {
@@ -254,10 +289,10 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     private void requireNotQuarantined(UUID uuid) {
-        if (quarantinedDuplicateRecords.containsKey(uuid)) {
+        if (isQuarantined(uuid)) {
             throw new IllegalStateException(
                     "DISK UUID " + uuid
-                            + " has duplicate persisted backing records and is quarantined");
+                            + " has quarantined persisted backing data and cannot be mutated generically");
         }
     }
 
