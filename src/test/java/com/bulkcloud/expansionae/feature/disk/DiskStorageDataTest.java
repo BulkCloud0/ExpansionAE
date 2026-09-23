@@ -175,6 +175,49 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void incompleteKeysAmountsPairIsQuarantinedInsteadOfBeingNormalizedAway() {
+        UUID id = UUID.randomUUID();
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUniqueId("uuid", id);
+
+        ListNBT keys = new ListNBT();
+        CompoundNBT opaqueKey = new CompoundNBT();
+        opaqueKey.putString("opaque", "recover-me");
+        keys.add(opaqueKey);
+
+        disk.put("keys", keys);
+        disk.putLong("item_count", 27L);
+        disk.putLong("capacity", 1_000L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.put(id, new ListNBT(), new long[0], 0L, 1_000L));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        CompoundNBT preservedDisk = preserved.getList("disks", 10).getCompound(0);
+
+        assertTrue(preservedDisk.contains("keys", 9));
+        assertTrue(!preservedDisk.contains("amounts"));
+        assertEquals(
+                "recover-me",
+                preservedDisk.getList("keys", 10).getCompound(0).getString("opaque"));
+        assertEquals(27L, preservedDisk.getLong("item_count"));
+        assertEquals(1_000L, preservedDisk.getLong("capacity"));
+    }
+
+    @Test
     void structurallyInvalidRecordWithUuidIsQuarantinedInsteadOfBecomingEmpty() {
         UUID id = UUID.randomUUID();
 
