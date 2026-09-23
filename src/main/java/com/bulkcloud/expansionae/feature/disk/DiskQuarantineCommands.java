@@ -25,7 +25,7 @@ public final class DiskQuarantineCommands {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {
         dispatcher.register(
                 Commands.literal("expansionae")
-                        .requires(source -> source.hasPermissionLevel(2))
+                        .requires(DiskQuarantinePermissions::canRead)
                         .then(Commands.literal("disk")
                                 .then(Commands.literal("quarantine")
                                         .then(Commands.literal("list")
@@ -51,7 +51,7 @@ public final class DiskQuarantineCommands {
                                                                         "uuid",
                                                                         UUID.class)))))
                                         .then(Commands.literal("export")
-                                                .requires(source -> source.hasPermissionLevel(3))
+                                                .requires(DiskQuarantinePermissions::canExport)
                                                 .then(Commands.argument("uuid", new UUIDArgument())
                                                         .executes(context -> export(
                                                                 context.getSource(),
@@ -59,7 +59,7 @@ public final class DiskQuarantineCommands {
                                                                         "uuid",
                                                                         UUID.class)))))
                                         .then(Commands.literal("export-global")
-                                                .requires(source -> source.hasPermissionLevel(3))
+                                                .requires(DiskQuarantinePermissions::canExport)
                                                 .executes(context -> exportGlobal(
                                                         context.getSource()))))));
     }
