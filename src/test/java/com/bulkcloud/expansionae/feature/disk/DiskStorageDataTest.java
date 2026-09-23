@@ -124,6 +124,32 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void rootDisksListWithWrongElementTypeQuarantinesEntireStorage() {
+        ListNBT invalidList = new ListNBT();
+        invalidList.add(net.minecraft.nbt.StringNBT.valueOf("not-a-compound-record"));
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", invalidList);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertTrue(loaded.isGloballyQuarantined());
+
+        UUID id = UUID.randomUUID();
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.put(id, new ListNBT(), new long[0], 0L, 1_000L));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        ListNBT preservedList = (ListNBT) preserved.get("disks");
+        assertNotNull(preservedList);
+        assertEquals(1, preservedList.size());
+        assertEquals(8, preservedList.getTagType());
+        assertEquals("not-a-compound-record", preservedList.getString(0));
+    }
+
+    @Test
     void structurallyInvalidRootDisksTagQuarantinesEntireStorage() {
         CompoundNBT root = new CompoundNBT();
         root.putString("disks", "raw-root-payload");
@@ -264,6 +290,37 @@ final class DiskStorageDataTest {
                         .getList("keys", 10)
                         .getCompound(0)
                         .getString("opaque"));
+    }
+
+    @Test
+    void nonNumericCapacityTagIsQuarantinedInsteadOfBecomingLegacy() {
+        UUID id = UUID.randomUUID();
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUniqueId("uuid", id);
+        disk.put("keys", new ListNBT());
+        disk.putLongArray("amounts", new long[0]);
+        disk.putLong("item_count", 0L);
+        disk.putString("capacity", "not-a-number");
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.bindCapacity(id, 1_000L));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        CompoundNBT preservedDisk = preserved.getList("disks", 10).getCompound(0);
+        assertEquals("not-a-number", preservedDisk.getString("capacity"));
     }
 
     @Test
