@@ -849,6 +849,34 @@ public final class DiskRuntimeValidator {
         }
         requireStoredCount(primary, 0);
 
+        Item creativeCellItem = ForgeRegistries.ITEMS.getValue(
+                new ResourceLocation("appliedenergistics2", "creative_storage_cell"));
+        if (creativeCellItem == null || creativeCellItem == Items.AIR) {
+            throw new IllegalStateException(
+                    "AE2 Creative Storage Cell was not available for custom-handler nesting validation");
+        }
+
+        ItemStack creativeCellStack = new ItemStack(creativeCellItem);
+        if (!ExpansionAEApi.get().registries().cell().isCellHandled(creativeCellStack)) {
+            throw new IllegalStateException(
+                    "AE2 Creative Storage Cell is not handled by the cell registry");
+        }
+
+        IAEItemStack creativeCell = channel.createStack(creativeCellStack);
+        if (creativeCell == null) {
+            throw new IllegalStateException(
+                    "AE2 item channel could not create Creative Storage Cell test stack");
+        }
+        creativeCell.setStackSize(1);
+
+        IAEItemStack creativeRemainder =
+                primary.injectItems(creativeCell, Actionable.MODULATE, null);
+        if (creativeRemainder == null || creativeRemainder.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK accepted a custom ICellHandler storage item with unknown backing semantics");
+        }
+        requireStoredCount(primary, 0);
+
         ItemStack nativeCellStack = new ItemStack(ae2CellItem);
         ICellInventoryHandler<IAEItemStack> nativeCell =
                 open(nativeCellStack, channel, "native AE2 nesting veto");
