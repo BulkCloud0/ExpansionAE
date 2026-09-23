@@ -126,7 +126,10 @@ public final class DiskStorageData extends WorldSavedData {
             if (diskTag.contains(TAG_AMOUNTS) && !diskTag.contains(TAG_AMOUNTS, 12)) {
                 invalidStructure = true;
             }
-            if (diskTag.contains(TAG_CAPACITY) && !diskTag.contains(TAG_CAPACITY, 99)) {
+            if (diskTag.contains(TAG_CAPACITY) && !diskTag.contains(TAG_CAPACITY, 4)) {
+                // capacity has always been written with putLong since tier binding
+                // was introduced. Reject other numeric NBT types as structural
+                // corruption instead of allowing getLong() to coerce/truncate them.
                 invalidStructure = true;
             }
 
