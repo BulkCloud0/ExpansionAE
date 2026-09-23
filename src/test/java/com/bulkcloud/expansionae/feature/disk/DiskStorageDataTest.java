@@ -124,6 +124,31 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void structurallyInvalidRootDisksTagQuarantinesEntireStorage() {
+        CompoundNBT root = new CompoundNBT();
+        root.putString("disks", "raw-root-payload");
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertTrue(loaded.isGloballyQuarantined());
+
+        UUID id = UUID.randomUUID();
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.put(id, new ListNBT(), new long[0], 0L, 1_000L));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.getOrCreate(id, 1_000L));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.remove(id));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        assertEquals("raw-root-payload", preserved.getString("disks"));
+    }
+
+    @Test
     void structurallyInvalidRecordWithUuidIsQuarantinedInsteadOfBecomingEmpty() {
         UUID id = UUID.randomUUID();
 
