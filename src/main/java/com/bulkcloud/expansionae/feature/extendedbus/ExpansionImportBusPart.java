@@ -11,6 +11,7 @@ import appeng.parts.PartModel;
 import appeng.parts.automation.ImportBusPart;
 
 public final class ExpansionImportBusPart extends ImportBusPart {
+    public static final int UPGRADE_SLOTS = 4;
     public static final ResourceLocation MODEL_BASE =
             new ResourceLocation(ExpansionAE.MOD_ID, "part/extended_import_bus_base");
 
@@ -31,6 +32,11 @@ public final class ExpansionImportBusPart extends ImportBusPart {
 
     public ExpansionImportBusPart(ItemStack stack) {
         super(stack);
+    }
+
+    @Override
+    protected int getUpgradeSlots() {
+        return UPGRADE_SLOTS;
     }
 
     @Override

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "appliedenergistics2:export_bus" },
+    { "item": "appliedenergistics2:speed_card" },
+    { "item": "appliedenergistics2:speed_card" },
+    { "item": "appliedenergistics2:engineering_processor" }
+  ],
+  "result": {
+    "item": "expansionae:extended_export_bus",
+    "count": 1
+  }
+}

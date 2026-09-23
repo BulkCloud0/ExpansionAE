@@ -17,6 +17,12 @@ final class ExtendedBusThroughputTest {
     }
 
     @Test
+    void keepsFourUpgradeSlotsByContract() {
+        assertEquals(4, ExpansionImportBusPart.UPGRADE_SLOTS);
+        assertEquals(4, ExpansionExportBusPart.UPGRADE_SLOTS);
+    }
+
+    @Test
     void saturatesInsteadOfOverflowing() {
         assertEquals(Integer.MAX_VALUE, ExtendedBusThroughput.scaleBudget(Integer.MAX_VALUE));
     }

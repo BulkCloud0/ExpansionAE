@@ -11,6 +11,7 @@ import appeng.parts.PartModel;
 import appeng.parts.automation.ExportBusPart;
 
 public final class ExpansionExportBusPart extends ExportBusPart {
+    public static final int UPGRADE_SLOTS = 4;
     public static final ResourceLocation MODEL_BASE =
             new ResourceLocation(ExpansionAE.MOD_ID, "part/extended_export_bus_base");
 
@@ -31,6 +32,11 @@ public final class ExpansionExportBusPart extends ExportBusPart {
 
     public ExpansionExportBusPart(ItemStack stack) {
         super(stack);
+    }
+
+    @Override
+    protected int getUpgradeSlots() {
+        return UPGRADE_SLOTS;
     }
 
     @Override
