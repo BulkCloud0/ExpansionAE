@@ -130,7 +130,8 @@ jar {
                 'Implementation-Title': project.name,
                 'Implementation-Version': project.mod_version,
                 'Implementation-Vendor': project.mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ"),
+                'MixinConfigs': 'expansionae.mixins.json'
         ])
     }
 }
