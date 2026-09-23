@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.INBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
@@ -28,6 +29,7 @@ public final class DiskStorageData extends WorldSavedData {
     private final Map<UUID, List<CompoundNBT>> quarantinedDuplicateRecords = new HashMap<>();
     private final Map<UUID, List<CompoundNBT>> quarantinedInvalidRecords = new HashMap<>();
     private final List<CompoundNBT> quarantinedMalformedRecords = new ArrayList<>();
+    private INBT quarantinedRootDisksTag;
     private long revisionCounter;
 
     public DiskStorageData() {
@@ -44,7 +46,19 @@ public final class DiskStorageData extends WorldSavedData {
         quarantinedDuplicateRecords.clear();
         quarantinedInvalidRecords.clear();
         quarantinedMalformedRecords.clear();
+        quarantinedRootDisksTag = null;
         revisionCounter = 0;
+
+        if (nbt.contains(TAG_DISKS) && !nbt.contains(TAG_DISKS, 9)) {
+            INBT rawDisksTag = nbt.get(TAG_DISKS);
+            quarantinedRootDisksTag = rawDisksTag == null ? null : rawDisksTag.copy();
+            ExpansionAE.LOGGER.error(
+                    "DISK storage root '{}' tag has invalid NBT type {}. "
+                            + "Quarantining the entire DISK storage and blocking mutations to avoid overwriting raw data.",
+                    TAG_DISKS,
+                    nbt.getTagId(TAG_DISKS));
+            return;
+        }
 
         boolean repaired = false;
         ListNBT list = nbt.getList(TAG_DISKS, 10);
@@ -169,6 +183,11 @@ public final class DiskStorageData extends WorldSavedData {
 
     @Override
     public CompoundNBT write(CompoundNBT nbt) {
+        if (quarantinedRootDisksTag != null) {
+            nbt.put(TAG_DISKS, quarantinedRootDisksTag.copy());
+            return nbt;
+        }
+
         ListNBT list = new ListNBT();
 
         for (Map.Entry<UUID, DiskRecord> entry : disks.entrySet()) {
@@ -208,6 +227,10 @@ public final class DiskStorageData extends WorldSavedData {
         return disks.get(uuid);
     }
 
+    boolean isGloballyQuarantined() {
+        return quarantinedRootDisksTag != null;
+    }
+
     boolean isQuarantined(UUID uuid) {
         return quarantinedDuplicateRecords.containsKey(uuid)
                 || quarantinedInvalidRecords.containsKey(uuid);
@@ -218,6 +241,7 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord getOrCreate(UUID uuid, long capacity) {
+        requireStorageWritable();
         requireNotQuarantined(uuid);
         DiskRecord existing = disks.get(uuid);
         if (existing != null) {
@@ -239,6 +263,7 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord bindCapacity(UUID uuid, long capacity) {
+        requireStorageWritable();
         requireNotQuarantined(uuid);
         DiskRecord existing = disks.get(uuid);
         if (existing == null || existing.capacity != 0 || capacity <= 0) {
@@ -266,6 +291,7 @@ public final class DiskStorageData extends WorldSavedData {
             long[] amounts,
             long itemCount,
             long capacity) {
+        requireStorageWritable();
         requireNotQuarantined(uuid);
         long revision = nextRevision();
         disks.put(
@@ -281,10 +307,20 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public void remove(UUID uuid) {
+        requireStorageWritable();
         requireNotQuarantined(uuid);
         if (disks.remove(uuid) != null) {
             nextRevision();
             setDirty(true);
+        }
+    }
+
+    private void requireStorageWritable() {
+        if (quarantinedRootDisksTag != null) {
+            throw new IllegalStateException(
+                    "DISK storage root is quarantined because its persisted '"
+                            + TAG_DISKS
+                            + "' tag has an invalid NBT type");
         }
     }
 
