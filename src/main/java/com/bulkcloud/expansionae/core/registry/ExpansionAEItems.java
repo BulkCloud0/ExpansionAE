@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -66,6 +67,10 @@ public final class ExpansionAEItems {
     }
 
     public static void validateDiskWorkbenchContract() {
+        if (FMLEnvironment.production) {
+            return;
+        }
+
         validateDiskWorkbenchContract(DISK_1K.get(), 1_000, 0.5, "1k");
         validateDiskWorkbenchContract(DISK_4K.get(), 4_000, 1.0, "4k");
         validateDiskWorkbenchContract(DISK_16K.get(), 16_000, 1.5, "16k");
