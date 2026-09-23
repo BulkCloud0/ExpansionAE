@@ -1,7 +1,9 @@
 package com.bulkcloud.expansionae.feature.disk;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -9,6 +11,8 @@ import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.WorldSavedData;
+
+import com.bulkcloud.expansionae.ExpansionAE;
 
 public final class DiskStorageData extends WorldSavedData {
     public static final String DATA_NAME = "expansionae_disk_storage";
@@ -21,6 +25,7 @@ public final class DiskStorageData extends WorldSavedData {
     private static final String TAG_CAPACITY = "capacity";
 
     private final Map<UUID, DiskRecord> disks = new HashMap<>();
+    private final Map<UUID, List<CompoundNBT>> quarantinedDuplicateRecords = new HashMap<>();
     private long revisionCounter;
 
     public DiskStorageData() {
@@ -34,10 +39,31 @@ public final class DiskStorageData extends WorldSavedData {
     @Override
     public void read(CompoundNBT nbt) {
         disks.clear();
+        quarantinedDuplicateRecords.clear();
         revisionCounter = 0;
 
         boolean repaired = false;
         ListNBT list = nbt.getList(TAG_DISKS, 10);
+        Map<UUID, Integer> uuidOccurrences = new HashMap<>();
+
+        for (int i = 0; i < list.size(); i++) {
+            CompoundNBT diskTag = list.getCompound(i);
+            if (diskTag.hasUniqueId(TAG_UUID)) {
+                UUID uuid = diskTag.getUniqueId(TAG_UUID);
+                uuidOccurrences.put(uuid, uuidOccurrences.getOrDefault(uuid, 0) + 1);
+            }
+        }
+
+        for (Map.Entry<UUID, Integer> occurrence : uuidOccurrences.entrySet()) {
+            if (occurrence.getValue() > 1) {
+                ExpansionAE.LOGGER.error(
+                        "DISK storage contains {} persisted records for UUID {}. "
+                                + "Preserving them in quarantine and blocking access to avoid arbitrary data loss.",
+                        occurrence.getValue(),
+                        occurrence.getKey());
+            }
+        }
+
         for (int i = 0; i < list.size(); i++) {
             CompoundNBT diskTag = list.getCompound(i);
             if (!diskTag.hasUniqueId(TAG_UUID)) {
@@ -46,6 +72,13 @@ public final class DiskStorageData extends WorldSavedData {
             }
 
             UUID uuid = diskTag.getUniqueId(TAG_UUID);
+            if (uuidOccurrences.getOrDefault(uuid, 0) > 1) {
+                quarantinedDuplicateRecords
+                        .computeIfAbsent(uuid, ignored -> new ArrayList<>())
+                        .add(diskTag.copy());
+                continue;
+            }
+
             ListNBT rawKeys = diskTag.getList(TAG_KEYS, 10);
             long[] rawAmounts = diskTag.getLongArray(TAG_AMOUNTS);
 
@@ -116,6 +149,12 @@ public final class DiskStorageData extends WorldSavedData {
             list.add(diskTag);
         }
 
+        for (List<CompoundNBT> quarantined : quarantinedDuplicateRecords.values()) {
+            for (CompoundNBT diskTag : quarantined) {
+                list.add(diskTag.copy());
+            }
+        }
+
         nbt.put(TAG_DISKS, list);
         return nbt;
     }
@@ -129,6 +168,7 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord getOrCreate(UUID uuid, long capacity) {
+        requireNotQuarantined(uuid);
         DiskRecord existing = disks.get(uuid);
         if (existing != null) {
             return existing.capacity == 0 && capacity > 0
@@ -149,6 +189,7 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord bindCapacity(UUID uuid, long capacity) {
+        requireNotQuarantined(uuid);
         DiskRecord existing = disks.get(uuid);
         if (existing == null || existing.capacity != 0 || capacity <= 0) {
             return existing;
@@ -175,6 +216,7 @@ public final class DiskStorageData extends WorldSavedData {
             long[] amounts,
             long itemCount,
             long capacity) {
+        requireNotQuarantined(uuid);
         long revision = nextRevision();
         disks.put(
                 uuid,
@@ -189,9 +231,19 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public void remove(UUID uuid) {
-        if (disks.remove(uuid) != null) {
+        boolean removed = disks.remove(uuid) != null;
+        removed |= quarantinedDuplicateRecords.remove(uuid) != null;
+        if (removed) {
             nextRevision();
             setDirty(true);
+        }
+    }
+
+    private void requireNotQuarantined(UUID uuid) {
+        if (quarantinedDuplicateRecords.containsKey(uuid)) {
+            throw new IllegalStateException(
+                    "DISK UUID " + uuid
+                            + " has duplicate persisted backing records and is quarantined");
         }
     }
 
