@@ -88,9 +88,25 @@ jobs:
             fi
           done
 
-          if grep -Eq '(^|/)com/bulkcloud/expansionae/.+Test\.class$|^org/junit/' build/jar-contents.txt; then
-            echo "Test/JUnit classes leaked into the distributable JAR."
-            grep -E '(^|/)com/bulkcloud/expansionae/.+Test\.class$|^org/junit/' build/jar-contents.txt || true
+          test_class_leak=0
+          if [ -d build/classes/java/test ]; then
+            while IFS= read -r test_class; do
+              test_entry="${test_class#build/classes/java/test/}"
+              if grep -Fxq "$test_entry" build/jar-contents.txt; then
+                echo "Compiled test class leaked into the distributable JAR: $test_entry"
+                test_class_leak=1
+              fi
+            done < <(find build/classes/java/test -type f -name '*.class' -print | sort)
+          fi
+
+          junit_leak=0
+          if grep -Eq '^org/junit/' build/jar-contents.txt; then
+            echo "JUnit classes leaked into the distributable JAR."
+            grep -E '^org/junit/' build/jar-contents.txt || true
+            junit_leak=1
+          fi
+
+          if [ "$test_class_leak" -ne 0 ] || [ "$junit_leak" -ne 0 ]; then
             exit 1
           fi
 
