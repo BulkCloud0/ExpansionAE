@@ -865,10 +865,38 @@ public final class DiskRuntimeValidator {
         }
 
         storage.remove(nestedUuid);
+
+        ItemStack malformedNestedStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        malformedNestedStack
+                .getOrCreateTag()
+                .putString(DiskCellInventory.TAG_UUID, "nested-invalid-uuid");
+        IAEItemStack malformedNestedItem = channel.createStack(malformedNestedStack);
+        if (malformedNestedItem == null) {
+            throw new IllegalStateException(
+                    "AE2 item channel could not create malformed nested DISK test stack");
+        }
+        malformedNestedItem.setStackSize(1);
+
+        IAEItemStack malformedNestedRemainder =
+                primary.injectItems(malformedNestedItem, Actionable.MODULATE, null);
+        if (malformedNestedRemainder == null
+                || malformedNestedRemainder.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK accepted a fail-closed malformed nested DISK as an empty storage cell");
+        }
+        requireStoredCount(primary, 0);
+
+        if (malformedNestedStack.getTag() == null
+                || !"nested-invalid-uuid".equals(
+                        malformedNestedStack.getTag().getString(DiskCellInventory.TAG_UUID))) {
+            throw new IllegalStateException(
+                    "Rejected malformed nested DISK identity metadata was rewritten");
+        }
+
         storage.remove(uuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias + non-empty-cell rejection)");
+                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias + non-empty/fail-closed-cell rejection)");
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
