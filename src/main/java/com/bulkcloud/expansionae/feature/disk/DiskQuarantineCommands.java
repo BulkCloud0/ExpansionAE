@@ -35,9 +35,9 @@ public final class DiskQuarantineCommands {
                                                 .then(Commands.argument("uuid", new UUIDArgument())
                                                         .executes(context -> inspect(
                                                                 context.getSource(),
-                                                                UUIDArgument.getUuid(
-                                                                        context,
-                                                                        "uuid"))))))));
+                                                                context.getArgument(
+                                                                        "uuid",
+                                                                        UUID.class))))))));
     }
 
     private static int list(CommandSource source, int page) {
