@@ -26,6 +26,7 @@ public final class DiskStorageData extends WorldSavedData {
 
     private final Map<UUID, DiskRecord> disks = new HashMap<>();
     private final Map<UUID, List<CompoundNBT>> quarantinedDuplicateRecords = new HashMap<>();
+    private final List<CompoundNBT> quarantinedMalformedRecords = new ArrayList<>();
     private long revisionCounter;
 
     public DiskStorageData() {
@@ -40,6 +41,7 @@ public final class DiskStorageData extends WorldSavedData {
     public void read(CompoundNBT nbt) {
         disks.clear();
         quarantinedDuplicateRecords.clear();
+        quarantinedMalformedRecords.clear();
         revisionCounter = 0;
 
         boolean repaired = false;
@@ -67,7 +69,10 @@ public final class DiskStorageData extends WorldSavedData {
         for (int i = 0; i < list.size(); i++) {
             CompoundNBT diskTag = list.getCompound(i);
             if (!diskTag.hasUniqueId(TAG_UUID)) {
-                repaired = true;
+                quarantinedMalformedRecords.add(diskTag.copy());
+                ExpansionAE.LOGGER.error(
+                        "DISK storage contains a persisted record without a valid UUID. "
+                                + "Preserving it in quarantine and blocking automatic repair to avoid data loss.");
                 continue;
             }
 
@@ -155,6 +160,10 @@ public final class DiskStorageData extends WorldSavedData {
             for (CompoundNBT diskTag : quarantined) {
                 list.add(diskTag.copy());
             }
+        }
+
+        for (CompoundNBT diskTag : quarantinedMalformedRecords) {
+            list.add(diskTag.copy());
         }
 
         nbt.put(TAG_DISKS, list);
