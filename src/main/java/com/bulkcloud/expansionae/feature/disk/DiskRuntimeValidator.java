@@ -62,6 +62,7 @@ public final class DiskRuntimeValidator {
         validateCrossTierUuidRejection(storage, channel);
         validateOverCapacityBackingRejection(storage, channel);
         validateUndecodableBackingRejection(storage, channel);
+        validateMalformedItemStackUuidRejection(channel);
         validateWorkbenchSemantics(channel);
         validateRecipes();
         validateTransientStorage(storage, channel);
@@ -445,6 +446,48 @@ public final class DiskRuntimeValidator {
 
         ExpansionAE.LOGGER.info(
                 "DISK undecodable backing rejection validated (bound + legacy data preserved, access blocked)");
+    }
+
+    private static void validateMalformedItemStackUuidRejection(
+            IItemStorageChannel channel) {
+        ItemStack malformedStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        CompoundNBT tag = malformedStack.getOrCreateTag();
+        tag.putString(DiskCellInventory.TAG_UUID, "not-a-uuid");
+        tag.putLong(DiskCellInventory.TAG_ITEM_COUNT, 17L);
+        tag.putLong(DiskCellInventory.TAG_TYPE_COUNT, 2L);
+
+        ICellInventoryHandler<IAEItemStack> handler =
+                open(malformedStack, channel, "malformed ItemStack UUID validation");
+
+        IAEItemStack rejected =
+                handler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (rejected == null || rejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK with malformed ItemStack UUID accepted an insertion");
+        }
+
+        if (handler.extractItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "DISK with malformed ItemStack UUID allowed extraction");
+        }
+
+        if (!handler.getAvailableItems(channel.createList()).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK with malformed ItemStack UUID exposed contents");
+        }
+
+        CompoundNBT preserved = malformedStack.getTag();
+        if (preserved == null
+                || preserved.hasUniqueId(DiskCellInventory.TAG_UUID)
+                || !"not-a-uuid".equals(preserved.getString(DiskCellInventory.TAG_UUID))
+                || preserved.getLong(DiskCellInventory.TAG_ITEM_COUNT) != 17L
+                || preserved.getLong(DiskCellInventory.TAG_TYPE_COUNT) != 2L) {
+            throw new IllegalStateException(
+                    "Malformed DISK ItemStack UUID metadata was replaced or rewritten");
+        }
+
+        ExpansionAE.LOGGER.info(
+                "DISK malformed ItemStack UUID rejection validated (metadata preserved, access blocked)");
     }
 
     private static void validateWorkbenchSemantics(
