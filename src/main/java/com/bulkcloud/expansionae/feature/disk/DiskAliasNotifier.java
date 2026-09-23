@@ -34,6 +34,10 @@ final class DiskAliasNotifier {
         TRACKED.add(new WeakReference<>(inventory));
     }
 
+    static synchronized void clear() {
+        TRACKED.clear();
+    }
+
     static void notifyOtherGrids(
             DiskCellInventory origin,
             IAEItemStack change,
