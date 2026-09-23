@@ -316,9 +316,10 @@ public final class DiskStorageData extends WorldSavedData {
         }
         DiskRecord existing = disks.get(uuid);
         if (existing != null) {
-            return existing.capacity == 0 && capacity > 0
-                    ? bindCapacity(uuid, capacity)
-                    : existing;
+            // Existing legacy records must never be tier-bound as a side effect of
+            // generic lookup/creation. The caller that owns the storage semantics
+            // must validate the payload first, then call bindCapacity explicitly.
+            return existing;
         }
 
         DiskRecord created =
@@ -341,6 +342,12 @@ public final class DiskStorageData extends WorldSavedData {
         DiskRecord existing = disks.get(uuid);
         if (existing == null || existing.capacity != 0 || capacity == 0) {
             return existing;
+        }
+        if (existing.itemCount > capacity) {
+            throw new IllegalStateException(
+                    "Legacy DISK " + uuid
+                            + " contains " + existing.itemCount
+                            + " items, exceeding requested binding capacity " + capacity);
         }
 
         DiskRecord bound = new DiskRecord(
