@@ -647,4 +647,3 @@ final class DiskStorageDataTest {
                 () -> data.bindCapacity(UUID.randomUUID(), -1L));
     }
 }
-}
