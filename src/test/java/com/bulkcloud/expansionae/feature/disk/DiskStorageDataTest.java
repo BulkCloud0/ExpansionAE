@@ -124,6 +124,40 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void negativePersistedCapacityRemainsInvalidInsteadOfBecomingLegacy() {
+        UUID id = UUID.randomUUID();
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUniqueId("uuid", id);
+        disk.put("keys", new ListNBT());
+        disk.putLongArray("amounts", new long[0]);
+        disk.putLong("item_count", 0L);
+        disk.putLong("capacity", -1L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        DiskStorageData.DiskRecord record = loaded.get(id);
+        assertNotNull(record);
+        assertEquals(-1L, record.getCapacity());
+
+        DiskStorageData.DiskRecord bindAttempt = loaded.bindCapacity(id, 1_000L);
+        assertNotNull(bindAttempt);
+        assertEquals(-1L, bindAttempt.getCapacity());
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        assertEquals(
+                -1L,
+                preserved.getList("disks", 10).getCompound(0).getLong("capacity"));
+    }
+
+    @Test
     void duplicateUuidRecordsAreQuarantinedAndPreserved() {
         UUID id = UUID.randomUUID();
 
