@@ -118,12 +118,18 @@ Disponível para corrupção global da tag raiz `disks`. Exporta o payload bruto
 - `INVALID_RECORD_STRUCTURE`
 - `NEGATIVE_CAPACITY`
 
-Reason codes que dependem de contexto vivo de ItemStack/runtime continuam sendo implementados separadamente, incluindo:
+## Reason codes runtime atualmente expostos
+
+Estes reason codes são derivados somente de `DiskCellInventory` já carregados/rastreados em memória; o diagnóstico não faz scan do world nem carrega chunks:
 
 - `MALFORMED_ITEMSTACK_UUID`
 - `MISSING_BACKING`
+- `OVER_CAPACITY`
+- `TIER_CAPACITY_MISMATCH`
 - `UNDECODABLE_ITEM_KEY`
-- over-capacity/tier mismatch quando o contexto do ItemStack é necessário.
+- `INCONSISTENT_ITEM_COUNT`
+
+Os reason codes runtime são observacionais. Eles não fazem bind, normalização, recriação de backing ou repair automático.
 
 ## Procedimento de backup antes de recovery futuro
 
