@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.UUID;
@@ -120,6 +121,55 @@ final class DiskStorageDataTest {
         assertEquals(0L, record.getItemCount());
         assertEquals(0, record.getKeys().size());
         assertEquals(0, record.getAmounts().length);
+    }
+
+    @Test
+    void duplicateUuidRecordsAreQuarantinedAndPreserved() {
+        UUID id = UUID.randomUUID();
+
+        CompoundNBT first = new CompoundNBT();
+        first.putUniqueId("uuid", id);
+        first.put("keys", new ListNBT());
+        first.putLongArray("amounts", new long[0]);
+        first.putLong("item_count", 11L);
+        first.putLong("capacity", 1_000L);
+
+        CompoundNBT second = new CompoundNBT();
+        second.putUniqueId("uuid", id);
+        second.put("keys", new ListNBT());
+        second.putLongArray("amounts", new long[0]);
+        second.putLong("item_count", 22L);
+        second.putLong("capacity", 4_000L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(first);
+        disks.add(second);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.put(id, new ListNBT(), new long[0], 0L, 1_000L));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.getOrCreate(id, 1_000L));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        ListNBT preservedDisks = preserved.getList("disks", 10);
+        assertEquals(2, preservedDisks.size());
+
+        long itemCountTotal = 0L;
+        for (int i = 0; i < preservedDisks.size(); i++) {
+            CompoundNBT disk = preservedDisks.getCompound(i);
+            assertEquals(id, disk.getUniqueId("uuid"));
+            itemCountTotal += disk.getLong("item_count");
+        }
+        assertEquals(33L, itemCountTotal);
     }
 
     @Test
