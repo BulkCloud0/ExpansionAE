@@ -158,7 +158,7 @@ public final class DiskGridRuntimeValidator {
         session = null;
 
         ExpansionAE.LOGGER.info(
-                "DISK active grid runtime validated (terminal backend, same-grid alias dedup, cross-grid sync)");
+                "DISK active grid runtime validated (terminal backend, same-grid alias dedup/failover, cross-grid sync)");
     }
 
     private static void validate(Session s) {
@@ -212,6 +212,32 @@ public final class DiskGridRuntimeValidator {
             requireNetworkCount(monitorC, s.channel, finalAmount, "alias grid after extraction");
             requireCachedNetworkCount(monitorA, s.channel, finalAmount, "primary terminal cache after alias extraction");
             requireCachedNetworkCount(monitorC, s.channel, finalAmount, "alias terminal cache after extraction");
+
+            // Drive B is west of Drive A, so the deterministic alias election
+            // (dimension + x/y/z + slot) makes Drive B the current same-grid owner.
+            // Removing it must promote Drive A without making the logical DISK vanish
+            // or briefly exposing the UUID twice.
+            IItemHandler sameGridOwnerInventory = s.driveB.getInternalInventory();
+            ItemStack removedOwner = sameGridOwnerInventory.extractItem(0, 1, false);
+            if (removedOwner.isEmpty()
+                    || !removedOwner.hasTag()
+                    || !removedOwner.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)
+                    || !s.uuid.equals(removedOwner.getTag().getUniqueId(DiskCellInventory.TAG_UUID))) {
+                throw new IllegalStateException(
+                        "Could not remove the elected same-grid DISK alias for failover validation");
+            }
+
+            requireNetworkCount(monitorA, s.channel, finalAmount, "same-grid owner failover");
+            requireCachedNetworkCount(monitorA, s.channel, finalAmount, "terminal cache after owner failover");
+
+            ItemStack reinsertRemainder = sameGridOwnerInventory.insertItem(0, removedOwner, false);
+            if (!reinsertRemainder.isEmpty()) {
+                throw new IllegalStateException(
+                        "Could not reinsert the same-grid DISK alias after failover validation");
+            }
+
+            requireNetworkCount(monitorA, s.channel, finalAmount, "same-grid owner re-election");
+            requireCachedNetworkCount(monitorA, s.channel, finalAmount, "terminal cache after owner re-election");
 
             ICellInventoryHandler<IAEItemStack> driveAHandler = open(
                     s.driveA.getInternalInventory().getStackInSlot(0),
