@@ -180,7 +180,7 @@ Estado atual:
 - conteúdo completo fica fora do NBT do ItemStack;
 - receitas experimentais disponíveis para 1k/4k/16k/64k e validadas no RecipeManager do servidor com outputs corretos;
 - GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
-- registros externos malformados são sanitizados durante o load;
+- saneamento no load é restrito a casos determinísticos (por exemplo `item_count` derivado ou amount zero); corrupção estrutural/ambígua é preservada em quarentena fail-closed em vez de truncada ou normalizada para vazio;
 - qualquer DISK que já possua UUID e esteja sem backing record é tratado como persistência corrompida/incompleta; leitura e escrita ficam bloqueadas em vez de recriar ou sobrescrever silenciosamente o armazenamento;
 - UUID é a identidade do armazenamento: cópias exatas do ItemStack com o mesmo UUID são aliases do mesmo conteúdo, não discos independentes;
 - quando um DISK com UUID fica vazio, o registro vazio e o UUID são preservados para que aliases existentes continuem sincronizados;
@@ -198,7 +198,9 @@ Estado atual:
 - uma micro-rede AE2 real com Creative Energy Cell + ME Drives valida canais/energia, inserção e extração pelo `IStorageGrid`/monitor que alimenta o ME Terminal;
 - dois aliases do mesmo UUID no mesmo grid são deduplicados para uma única exposição lógica, evitando contagem dobrada;
 - o mesmo UUID em grids independentes continua compartilhando o backing store, com caches de terminal propagados entre grids (50 → 75 → 45 no self-test);
-- um DISK vazio não aceita ser armazenado dentro de si mesmo por meio de outro alias com o mesmo UUID, impedindo referência recursiva;
+- nenhum ExpansionAE DISK pode ser armazenado dentro de outro ExpansionAE DISK, mesmo vazio, porque outro alias pode alterar o backing externo depois do nesting; células AE2 nativas vazias continuam aceitas;
+- a direção inversa também é bloqueada: um Mixin mínimo em `BasicCellInventory.injectItems()` impede células AE2 nativas de tratarem ExpansionAE DISKs como itens comuns; o runtime valida que Stone continua aceito por uma célula AE2 enquanto o DISK é devolvido integralmente como remainder;
+- `DiskStorageData` valida invariants estruturais também no write-side: UUID não nulo, arrays pareados, keys compound, amounts positivos, soma exata de `item_count` e capacidade não negativa; states ambíguos vindos do save são colocados em quarentena para recovery explícita;
 - a PR executa `runClient` sob Xvfb e exige que o cliente atravesse bootstrap/resource loading até o model bake;
 - os quatro modelos de inventário e os quatro modelos usados no ME Drive são verificados contra missing model;
 - o contrato do tooltip é validado no cliente para os quatro tiers (cached item count, type count, capacidade do tier e linha de ausência de limite de tipos);
