@@ -152,12 +152,16 @@ final class DiskStorageDataTest {
         loaded.read(root);
 
         assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
         assertThrows(
                 IllegalStateException.class,
                 () -> loaded.put(id, new ListNBT(), new long[0], 0L, 1_000L));
         assertThrows(
                 IllegalStateException.class,
                 () -> loaded.getOrCreate(id, 1_000L));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.remove(id));
 
         CompoundNBT preserved = loaded.write(new CompoundNBT());
         ListNBT preservedDisks = preserved.getList("disks", 10);
