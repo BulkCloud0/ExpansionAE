@@ -60,6 +60,19 @@ public final class DiskStorageData extends WorldSavedData {
             return;
         }
 
+        if (nbt.contains(TAG_DISKS, 9)) {
+            ListNBT rawRootList = (ListNBT) nbt.get(TAG_DISKS);
+            if (!rawRootList.isEmpty() && rawRootList.getTagType() != 10) {
+                quarantinedRootDisksTag = rawRootList.copy();
+                ExpansionAE.LOGGER.error(
+                        "DISK storage root '{}' list contains element type {} instead of compound records. "
+                                + "Quarantining the entire storage instead of interpreting it as an empty list.",
+                        TAG_DISKS,
+                        rawRootList.getTagType());
+                return;
+            }
+        }
+
         boolean repaired = false;
         ListNBT list = nbt.getList(TAG_DISKS, 10);
         Map<UUID, Integer> uuidOccurrences = new HashMap<>();
@@ -105,6 +118,9 @@ public final class DiskStorageData extends WorldSavedData {
                 invalidStructure = true;
             }
             if (diskTag.contains(TAG_AMOUNTS) && !diskTag.contains(TAG_AMOUNTS, 12)) {
+                invalidStructure = true;
+            }
+            if (diskTag.contains(TAG_CAPACITY) && !diskTag.contains(TAG_CAPACITY, 99)) {
                 invalidStructure = true;
             }
 
