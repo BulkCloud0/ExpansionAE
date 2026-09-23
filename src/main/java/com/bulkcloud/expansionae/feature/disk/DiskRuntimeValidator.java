@@ -849,6 +849,41 @@ public final class DiskRuntimeValidator {
         }
         requireStoredCount(primary, 0);
 
+        ItemStack nativeCellStack = new ItemStack(ae2CellItem);
+        ICellInventoryHandler<IAEItemStack> nativeCell =
+                open(nativeCellStack, channel, "native AE2 nesting veto");
+
+        IAEItemStack ordinaryStone = stone(channel, 1);
+        if (nativeCell.injectItems(ordinaryStone, Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "Native AE2 Storage Cell unexpectedly rejected an ordinary stone item");
+        }
+        IAEItemStack ordinaryStoneExtracted =
+                nativeCell.extractItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (ordinaryStoneExtracted == null || ordinaryStoneExtracted.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Native AE2 Storage Cell could not extract its ordinary stone control item");
+        }
+
+        ItemStack diskInsideNativeStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        IAEItemStack diskInsideNativeItem = channel.createStack(diskInsideNativeStack);
+        if (diskInsideNativeItem == null) {
+            throw new IllegalStateException(
+                    "AE2 item channel could not create ExpansionAE DISK nesting-veto test stack");
+        }
+        diskInsideNativeItem.setStackSize(1);
+
+        IAEItemStack nativeDiskRemainder =
+                nativeCell.injectItems(diskInsideNativeItem, Actionable.MODULATE, null);
+        if (nativeDiskRemainder == null || nativeDiskRemainder.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Native AE2 Storage Cell accepted an ExpansionAE DISK as a plain nested item");
+        }
+        if (!nativeCell.getAvailableItems(channel.createList()).isEmpty()) {
+            throw new IllegalStateException(
+                    "Native AE2 Storage Cell changed contents after rejecting ExpansionAE DISK");
+        }
+
         ItemStack emptyNestedDiskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
         IAEItemStack emptyNestedDiskItem = channel.createStack(emptyNestedDiskStack);
         if (emptyNestedDiskItem == null) {
@@ -943,7 +978,7 @@ public final class DiskRuntimeValidator {
         storage.remove(uuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, native empty-cell compatibility, self-alias + ExpansionAE/non-empty/fail-closed-cell rejection)");
+                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, native AE2 interop/nesting veto, empty backing record, self-alias + ExpansionAE/non-empty/fail-closed-cell rejection)");
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
