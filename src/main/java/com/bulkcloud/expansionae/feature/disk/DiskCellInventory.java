@@ -475,9 +475,15 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             // Once a DISK has a UUID, its backing record is permanent, including
             // when empty. Never recreate a missing authoritative record implicitly.
             if (!invalidRecordWarningLogged) {
-                ExpansionAE.LOGGER.error(
-                        "DISK {} references missing backing data. Blocking reads/writes to avoid silently recreating or overwriting storage.",
-                        uuid);
+                if (storage.isQuarantined(uuid)) {
+                    ExpansionAE.LOGGER.error(
+                            "DISK {} has duplicate persisted backing records and is quarantined. Blocking reads/writes without choosing or deleting either record.",
+                            uuid);
+                } else {
+                    ExpansionAE.LOGGER.error(
+                            "DISK {} references missing backing data. Blocking reads/writes to avoid silently recreating or overwriting storage.",
+                            uuid);
+                }
                 invalidRecordWarningLogged = true;
             }
             return true;
