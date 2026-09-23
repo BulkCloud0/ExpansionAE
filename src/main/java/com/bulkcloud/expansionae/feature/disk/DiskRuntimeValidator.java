@@ -818,6 +818,22 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("Rejected DISK self-alias insertion modified the backing record");
         }
 
+        ItemStack emptyNestedDiskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        IAEItemStack emptyNestedDiskItem = channel.createStack(emptyNestedDiskStack);
+        if (emptyNestedDiskItem == null) {
+            throw new IllegalStateException(
+                    "AE2 item channel could not create empty nested DISK test stack");
+        }
+        emptyNestedDiskItem.setStackSize(1);
+
+        IAEItemStack emptyNestedRemainder =
+                primary.injectItems(emptyNestedDiskItem, Actionable.MODULATE, null);
+        if (emptyNestedRemainder == null || emptyNestedRemainder.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK accepted an empty ExpansionAE DISK, allowing alias-backed nested capacity");
+        }
+        requireStoredCount(primary, 0);
+
         ItemStack nestedDiskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
         ICellInventoryHandler<IAEItemStack> nestedDisk =
                 open(nestedDiskStack, channel, "non-empty nested DISK");
@@ -896,7 +912,7 @@ public final class DiskRuntimeValidator {
         storage.remove(uuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias + non-empty/fail-closed-cell rejection)");
+                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias + ExpansionAE/non-empty/fail-closed-cell rejection)");
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
