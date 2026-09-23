@@ -762,13 +762,15 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                 return DiskStorageData.runtimeSnapshot(
                         uuid,
                         DiskStorageData.QuarantineReason.INVALID_KEYS_AMOUNTS,
-                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                        expectedCapacity);
             }
             if (amount > expectedCapacity - total) {
                 return DiskStorageData.runtimeSnapshot(
                         uuid,
                         DiskStorageData.QuarantineReason.OVER_CAPACITY,
-                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                        expectedCapacity);
             }
 
             IAEItemStack decoded;
@@ -781,7 +783,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                 return DiskStorageData.runtimeSnapshot(
                         uuid,
                         DiskStorageData.QuarantineReason.UNDECODABLE_ITEM_KEY,
-                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                        expectedCapacity);
             }
 
             total += amount;
