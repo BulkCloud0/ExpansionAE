@@ -114,10 +114,10 @@ public final class DiskStorageData extends WorldSavedData {
             }
 
             boolean invalidStructure = false;
-            if (diskTag.contains(TAG_KEYS) != diskTag.contains(TAG_AMOUNTS)) {
-                // keys and amounts form one authoritative pair. If exactly one side
-                // is absent, there is no deterministic way to reconstruct the other
-                // side without discarding potentially recoverable data.
+            if (!diskTag.contains(TAG_KEYS) || !diskTag.contains(TAG_AMOUNTS)) {
+                // Every ExpansionAE backing format since the first DISK implementation
+                // writes both authoritative fields, including for empty records.
+                // Missing either side is therefore corruption, not a legacy encoding.
                 invalidStructure = true;
             }
             if (diskTag.contains(TAG_KEYS) && !diskTag.contains(TAG_KEYS, 9)) {
@@ -154,26 +154,70 @@ public final class DiskStorageData extends WorldSavedData {
             ListNBT rawKeys = diskTag.getList(TAG_KEYS, 10);
             long[] rawAmounts = diskTag.getLongArray(TAG_AMOUNTS);
 
-            int readableEntries = Math.min(rawKeys.size(), rawAmounts.length);
             if (rawKeys.size() != rawAmounts.length) {
-                repaired = true;
+                quarantinedInvalidRecords
+                        .computeIfAbsent(uuid, ignored -> new ArrayList<>())
+                        .add(diskTag.copy());
+                ExpansionAE.LOGGER.error(
+                        "DISK {} backing record has {} keys but {} amounts. "
+                                + "Preserving the raw record in quarantine instead of truncating unmatched entries.",
+                        uuid,
+                        rawKeys.size(),
+                        rawAmounts.length);
+                continue;
+            }
+
+            boolean negativeAmount = false;
+            boolean itemCountOverflow = false;
+            for (long amount : rawAmounts) {
+                if (amount < 0) {
+                    negativeAmount = true;
+                    break;
+                }
+            }
+
+            if (negativeAmount) {
+                quarantinedInvalidRecords
+                        .computeIfAbsent(uuid, ignored -> new ArrayList<>())
+                        .add(diskTag.copy());
+                ExpansionAE.LOGGER.error(
+                        "DISK {} backing record contains a negative item amount. "
+                                + "Preserving the raw record in quarantine instead of discarding the entry.",
+                        uuid);
+                continue;
             }
 
             ListNBT keys = new ListNBT();
-            long[] amounts = new long[readableEntries];
+            long[] amounts = new long[rawAmounts.length];
             int writeIndex = 0;
             long itemCount = 0;
 
-            for (int entryIndex = 0; entryIndex < readableEntries; entryIndex++) {
+            for (int entryIndex = 0; entryIndex < rawAmounts.length; entryIndex++) {
                 long amount = rawAmounts[entryIndex];
-                if (amount <= 0) {
+                if (amount == 0) {
                     repaired = true;
                     continue;
                 }
 
+                if (itemCount > Long.MAX_VALUE - amount) {
+                    itemCountOverflow = true;
+                    break;
+                }
+
                 keys.add(rawKeys.getCompound(entryIndex).copy());
                 amounts[writeIndex++] = amount;
-                itemCount = saturatedAdd(itemCount, amount);
+                itemCount += amount;
+            }
+
+            if (itemCountOverflow) {
+                quarantinedInvalidRecords
+                        .computeIfAbsent(uuid, ignored -> new ArrayList<>())
+                        .add(diskTag.copy());
+                ExpansionAE.LOGGER.error(
+                        "DISK {} backing item amounts overflow long item_count. "
+                                + "Preserving the raw record in quarantine.",
+                        uuid);
+                continue;
             }
 
             if (writeIndex != amounts.length) {
@@ -266,8 +310,10 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord getOrCreate(UUID uuid, long capacity) {
-        requireStorageWritable();
-        requireNotQuarantined(uuid);
+        requireWritableUuid(uuid);
+        if (capacity < 0) {
+            throw new IllegalArgumentException("DISK capacity cannot be negative");
+        }
         DiskRecord existing = disks.get(uuid);
         if (existing != null) {
             return existing.capacity == 0 && capacity > 0
@@ -280,7 +326,7 @@ public final class DiskStorageData extends WorldSavedData {
                         new ListNBT(),
                         new long[0],
                         0,
-                        Math.max(0, capacity),
+                        capacity,
                         nextRevision());
         disks.put(uuid, created);
         setDirty(true);
@@ -288,10 +334,12 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public DiskRecord bindCapacity(UUID uuid, long capacity) {
-        requireStorageWritable();
-        requireNotQuarantined(uuid);
+        requireWritableUuid(uuid);
+        if (capacity < 0) {
+            throw new IllegalArgumentException("DISK capacity cannot be negative");
+        }
         DiskRecord existing = disks.get(uuid);
-        if (existing == null || existing.capacity != 0 || capacity <= 0) {
+        if (existing == null || existing.capacity != 0 || capacity == 0) {
             return existing;
         }
 
@@ -316,8 +364,8 @@ public final class DiskStorageData extends WorldSavedData {
             long[] amounts,
             long itemCount,
             long capacity) {
-        requireStorageWritable();
-        requireNotQuarantined(uuid);
+        requireWritableUuid(uuid);
+        validateRecordForWrite(keys, amounts, itemCount, capacity);
         long revision = nextRevision();
         disks.put(
                 uuid,
@@ -325,18 +373,64 @@ public final class DiskStorageData extends WorldSavedData {
                         (ListNBT) keys.copy(),
                         amounts.clone(),
                         itemCount,
-                        Math.max(0, capacity),
+                        capacity,
                         revision));
         setDirty(true);
         return revision;
     }
 
     public void remove(UUID uuid) {
-        requireStorageWritable();
-        requireNotQuarantined(uuid);
+        requireWritableUuid(uuid);
         if (disks.remove(uuid) != null) {
             nextRevision();
             setDirty(true);
+        }
+    }
+
+    private void requireWritableUuid(UUID uuid) {
+        if (uuid == null) {
+            throw new IllegalArgumentException("DISK UUID cannot be null");
+        }
+        requireStorageWritable();
+        requireNotQuarantined(uuid);
+    }
+
+    private static void validateRecordForWrite(
+            ListNBT keys,
+            long[] amounts,
+            long itemCount,
+            long capacity) {
+        if (keys == null || amounts == null) {
+            throw new IllegalArgumentException("DISK keys/amounts cannot be null");
+        }
+        if (capacity < 0) {
+            throw new IllegalArgumentException("DISK capacity cannot be negative");
+        }
+        if (keys.size() != amounts.length) {
+            throw new IllegalArgumentException(
+                    "DISK keys/amounts must have the same number of entries");
+        }
+        if (!keys.isEmpty() && keys.getTagType() != 10) {
+            throw new IllegalArgumentException(
+                    "DISK keys must be compound NBT entries");
+        }
+
+        long computedCount = 0;
+        for (long amount : amounts) {
+            if (amount <= 0) {
+                throw new IllegalArgumentException(
+                        "DISK persisted item amounts must be positive");
+            }
+            if (computedCount > Long.MAX_VALUE - amount) {
+                throw new IllegalArgumentException(
+                        "DISK persisted item amounts overflow item_count");
+            }
+            computedCount += amount;
+        }
+
+        if (itemCount != computedCount) {
+            throw new IllegalArgumentException(
+                    "DISK item_count must equal the sum of persisted amounts");
         }
     }
 
