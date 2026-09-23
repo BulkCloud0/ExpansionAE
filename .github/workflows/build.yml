@@ -61,7 +61,9 @@ jobs:
             "data/expansionae/recipes/4k_disk.json"
             "data/expansionae/recipes/16k_disk.json"
             "data/expansionae/recipes/64k_disk.json"
+            "expansionae.mixins.json"
             "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
+            "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
           )
 
           for entry in "${required_entries[@]}"; do
@@ -82,6 +84,13 @@ jobs:
           fi
 
           unzip -p "$jar_file" META-INF/mods.toml > build/packaged-mods.toml
+          unzip -p "$jar_file" META-INF/MANIFEST.MF > build/packaged-manifest.mf
+          if ! grep -Fq "MixinConfigs: expansionae.mixins.json" build/packaged-manifest.mf; then
+            echo "Packaged JAR is missing the ExpansionAE MixinConfigs manifest attribute."
+            cat build/packaged-manifest.mf
+            exit 1
+          fi
+
           if grep -q '\${' build/packaged-mods.toml; then
             echo "Unexpanded Gradle placeholders remain in packaged mods.toml."
             cat build/packaged-mods.toml
