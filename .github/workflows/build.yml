@@ -41,9 +41,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          jar_file="$(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' -print -quit)"
-          if [ -z "$jar_file" ]; then
-            echo "No distributable ExpansionAE JAR was produced."
+          mapfile -t jar_files < <(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' -print | sort)
+          if [ "${#jar_files[@]}" -ne 1 ]; then
+            echo "Expected exactly one distributable ExpansionAE JAR, found ${#jar_files[@]}."
+            printf '  %s\n' "${jar_files[@]}"
+            exit 1
+          fi
+          jar_file="${jar_files[0]}"
+
+          mod_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          if [ -z "$mod_version" ]; then
+            echo "Could not resolve mod_version from gradle.properties."
             exit 1
           fi
 
@@ -85,6 +93,25 @@ jobs:
 
           unzip -p "$jar_file" META-INF/mods.toml > build/packaged-mods.toml
           unzip -p "$jar_file" META-INF/MANIFEST.MF > build/packaged-manifest.mf
+
+          if ! grep -Fq "version=\"$mod_version\"" build/packaged-mods.toml; then
+            echo "Packaged mods.toml version does not match gradle.properties mod_version=$mod_version."
+            cat build/packaged-mods.toml
+            exit 1
+          fi
+
+          if ! grep -Fq "Implementation-Version: $mod_version" build/packaged-manifest.mf; then
+            echo "Packaged manifest Implementation-Version does not match mod_version=$mod_version."
+            cat build/packaged-manifest.mf
+            exit 1
+          fi
+
+          expected_jar_name="expansionae-$mod_version.jar"
+          if [ "$(basename "$jar_file")" != "$expected_jar_name" ]; then
+            echo "Unexpected distributable JAR name: $(basename "$jar_file"); expected $expected_jar_name."
+            exit 1
+          fi
+
           if ! grep -Fq "MixinConfigs: expansionae.mixins.json" build/packaged-manifest.mf; then
             echo "Packaged JAR is missing the ExpansionAE MixinConfigs manifest attribute."
             cat build/packaged-manifest.mf
