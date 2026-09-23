@@ -39,6 +39,9 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     private long loadedRevision = NO_RECORD_REVISION;
     private boolean dirty;
     private boolean invalidRecordWarningLogged;
+    private UUID validatedUuid;
+    private long validatedRevision = NO_RECORD_REVISION;
+    private boolean validatedRecordInvalid;
 
     public DiskCellInventory(DiskStorageCellItem cellType, ItemStack cellStack, ISaveProvider saveProvider) {
         this.cellType = cellType;
@@ -524,7 +527,76 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return true;
         }
 
+        if (hasInvalidBackingPayload(uuid, record, expectedCapacity)) {
+            return true;
+        }
+
         invalidRecordWarningLogged = false;
+        return false;
+    }
+
+    private boolean hasInvalidBackingPayload(
+            UUID uuid,
+            DiskStorageData.DiskRecord record,
+            long expectedCapacity) {
+        long revision = record.getRevision();
+        if (uuid.equals(validatedUuid) && validatedRevision == revision) {
+            return validatedRecordInvalid;
+        }
+
+        ListNBT keys = record.getKeys();
+        long[] amounts = record.getAmounts();
+        boolean invalid = keys.size() != amounts.length;
+        long total = 0;
+        IItemList<IAEItemStack> decodedContents = channel.createList();
+
+        if (!invalid) {
+            for (int i = 0; i < amounts.length; i++) {
+                long amount = amounts[i];
+                if (amount <= 0 || amount > expectedCapacity - total) {
+                    invalid = true;
+                    break;
+                }
+
+                IAEItemStack decoded;
+                try {
+                    decoded = channel.createFromNBT(keys.getCompound(i));
+                } catch (RuntimeException exception) {
+                    decoded = null;
+                }
+
+                if (decoded == null) {
+                    invalid = true;
+                    break;
+                }
+
+                decoded.setStackSize(amount);
+                decodedContents.add(decoded);
+                total += amount;
+            }
+        }
+
+        if (!invalid && total != record.getItemCount()) {
+            invalid = true;
+        }
+
+        validatedUuid = uuid;
+        validatedRevision = revision;
+        validatedRecordInvalid = invalid;
+
+        if (invalid) {
+            if (!invalidRecordWarningLogged) {
+                ExpansionAE.LOGGER.error(
+                        "DISK {} backing data contains undecodable or inconsistent item entries. Blocking access without rewriting data.",
+                        uuid);
+                invalidRecordWarningLogged = true;
+            }
+            return true;
+        }
+
+        contents = decodedContents;
+        loadedUuid = uuid;
+        loadedRevision = revision;
         return false;
     }
 
