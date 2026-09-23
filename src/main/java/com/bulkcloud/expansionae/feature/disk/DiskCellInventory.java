@@ -487,7 +487,9 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
 
         if (record.getCapacity() == 0) {
             // Migration path for records created before tiers were bound to UUIDs.
-            // Do not bind an over-capacity legacy record to a smaller tier.
+            // Never mutate legacy metadata until the payload itself is known-valid:
+            // binding an undecodable record could permanently attach corrupted data
+            // to whichever tier happened to open it first.
             if (record.getItemCount() > expectedCapacity) {
                 if (!invalidRecordWarningLogged) {
                     ExpansionAE.LOGGER.error(
@@ -497,6 +499,10 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
                             expectedCapacity);
                     invalidRecordWarningLogged = true;
                 }
+                return true;
+            }
+
+            if (hasInvalidBackingPayload(uuid, record, expectedCapacity)) {
                 return true;
             }
 
