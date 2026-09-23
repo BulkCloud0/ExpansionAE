@@ -114,6 +114,12 @@ public final class DiskStorageData extends WorldSavedData {
             }
 
             boolean invalidStructure = false;
+            if (diskTag.contains(TAG_KEYS) != diskTag.contains(TAG_AMOUNTS)) {
+                // keys and amounts form one authoritative pair. If exactly one side
+                // is absent, there is no deterministic way to reconstruct the other
+                // side without discarding potentially recoverable data.
+                invalidStructure = true;
+            }
             if (diskTag.contains(TAG_KEYS) && !diskTag.contains(TAG_KEYS, 9)) {
                 invalidStructure = true;
             }
