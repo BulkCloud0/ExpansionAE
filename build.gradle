@@ -38,6 +38,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
             property 'mixin.env.disableRefMap', 'true'
+            args '--mixin.config', 'expansionae.mixins.json'
 
             mods {
                 expansionae {
@@ -51,6 +52,7 @@ minecraft {
             property 'forge.logging.console.level', 'info'
             property 'mixin.env.disableRefMap', 'true'
             property 'expansionae.validateDevRuntime', 'true'
+            args '--mixin.config', 'expansionae.mixins.json'
 
             mods {
                 expansionae {
@@ -63,6 +65,7 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.console.level', 'info'
             property 'mixin.env.disableRefMap', 'true'
+            args '--mixin.config', 'expansionae.mixins.json'
             args '--mod', project.mod_id, '--all',
                     '--output', file('src/generated/resources/'),
                     '--existing', file('src/main/resources/')
