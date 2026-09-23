@@ -466,7 +466,20 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     private boolean hasInvalidBackingRecord() {
         UUID uuid = getUuid();
         DiskStorageData storage = DiskStorageService.getCurrent();
-        if (uuid == null || storage == null) {
+        if (storage == null) {
+            return false;
+        }
+
+        if (storage.isGloballyQuarantined()) {
+            if (!invalidRecordWarningLogged) {
+                ExpansionAE.LOGGER.error(
+                        "DISK storage root is quarantined due to structurally invalid persisted NBT. Blocking all DISK reads/writes until explicit recovery.");
+                invalidRecordWarningLogged = true;
+            }
+            return true;
+        }
+
+        if (uuid == null) {
             return false;
         }
 
@@ -615,7 +628,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     void refreshCachedMetadataFromBacking() {
         UUID uuid = getUuid();
         DiskStorageData storage = DiskStorageService.getCurrent();
-        if (uuid == null || storage == null) {
+        if (uuid == null || storage == null || storage.isGloballyQuarantined()) {
             return;
         }
 
