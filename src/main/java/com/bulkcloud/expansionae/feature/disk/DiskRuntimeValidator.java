@@ -818,6 +818,37 @@ public final class DiskRuntimeValidator {
             throw new IllegalStateException("Rejected DISK self-alias insertion modified the backing record");
         }
 
+        Item ae2CellItem = ForgeRegistries.ITEMS.getValue(
+                new ResourceLocation("appliedenergistics2", "1k_storage_cell"));
+        if (ae2CellItem == null || ae2CellItem == Items.AIR) {
+            throw new IllegalStateException(
+                    "AE2 1k Storage Cell was not available for nested-cell compatibility validation");
+        }
+
+        ItemStack ae2EmptyCellStack = new ItemStack(ae2CellItem);
+        IAEItemStack ae2EmptyCellItem = channel.createStack(ae2EmptyCellStack);
+        if (ae2EmptyCellItem == null) {
+            throw new IllegalStateException(
+                    "AE2 item channel could not create native empty Storage Cell test stack");
+        }
+        ae2EmptyCellItem.setStackSize(1);
+
+        IAEItemStack ae2EmptyRemainder =
+                primary.injectItems(ae2EmptyCellItem, Actionable.MODULATE, null);
+        if (ae2EmptyRemainder != null) {
+            throw new IllegalStateException(
+                    "DISK rejected a healthy empty native AE2 Storage Cell");
+        }
+        requireStoredCount(primary, 1);
+
+        IAEItemStack ae2EmptyExtracted =
+                primary.extractItems(ae2EmptyCellItem, Actionable.MODULATE, null);
+        if (ae2EmptyExtracted == null || ae2EmptyExtracted.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK could not extract the previously accepted native AE2 Storage Cell");
+        }
+        requireStoredCount(primary, 0);
+
         ItemStack emptyNestedDiskStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
         IAEItemStack emptyNestedDiskItem = channel.createStack(emptyNestedDiskStack);
         if (emptyNestedDiskItem == null) {
@@ -912,7 +943,7 @@ public final class DiskRuntimeValidator {
         storage.remove(uuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, self-alias + ExpansionAE/non-empty/fail-closed-cell rejection)");
+                "DISK storage runtime validated (capacity, insert/extract, UUID alias sync, empty backing record, native empty-cell compatibility, self-alias + ExpansionAE/non-empty/fail-closed-cell rejection)");
     }
 
     private static void validateAe2StorageHosts(IItemStorageChannel channel) {
