@@ -36,6 +36,65 @@ jobs:
       - name: Build and test
         run: ./gradlew --no-daemon clean build
 
+      - name: Packaged JAR sanity check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          jar_file="$(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' -print -quit)"
+          if [ -z "$jar_file" ]; then
+            echo "No distributable ExpansionAE JAR was produced."
+            exit 1
+          fi
+
+          jar tf "$jar_file" > build/jar-contents.txt
+
+          required_entries=(
+            "META-INF/mods.toml"
+            "assets/expansionae/lang/en_us.json"
+            "assets/expansionae/lang/pt_br.json"
+            "assets/expansionae/models/item/1k_disk.json"
+            "assets/expansionae/models/item/4k_disk.json"
+            "assets/expansionae/models/item/16k_disk.json"
+            "assets/expansionae/models/item/64k_disk.json"
+            "data/expansionae/recipes/1k_disk.json"
+            "data/expansionae/recipes/4k_disk.json"
+            "data/expansionae/recipes/16k_disk.json"
+            "data/expansionae/recipes/64k_disk.json"
+            "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
+          )
+
+          for entry in "${required_entries[@]}"; do
+            if ! grep -Fxq "$entry" build/jar-contents.txt; then
+              echo "Required packaged entry is missing: $entry"
+              exit 1
+            fi
+          done
+
+          if grep -Eq '(^|/)(DiskLocalizationTest|DiskStorageDataTest)\.class$|^org/junit/' build/jar-contents.txt; then
+            echo "Test/JUnit classes leaked into the distributable JAR."
+            exit 1
+          fi
+
+          if grep -Eq '(^|/)(run|crash-reports)/' build/jar-contents.txt; then
+            echo "Userdev runtime output leaked into the distributable JAR."
+            exit 1
+          fi
+
+          unzip -p "$jar_file" META-INF/mods.toml > build/packaged-mods.toml
+          if grep -q '\${' build/packaged-mods.toml; then
+            echo "Unexpanded Gradle placeholders remain in packaged mods.toml."
+            cat build/packaged-mods.toml
+            exit 1
+          fi
+
+          if zipgrep -q "mixin.env.disableRefMap" "$jar_file"; then
+            echo "Userdev-only mixin.env.disableRefMap leaked into the distributable JAR."
+            exit 1
+          fi
+
+          echo "Packaged JAR sanity check passed: $jar_file"
+
       - name: Dedicated server smoke test
         if: github.event_name == 'pull_request'
         shell: bash
