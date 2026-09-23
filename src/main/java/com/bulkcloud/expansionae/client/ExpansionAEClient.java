@@ -44,19 +44,19 @@ public final class ExpansionAEClient {
         registerDiskModel(
                 cells,
                 ExpansionAEItems.DISK_1K.get(),
-                new ResourceLocation("appliedenergistics2:block/drive/cells/1k_item_cell"));
+                new ResourceLocation(ExpansionAE.MOD_ID, "block/drive/cells/1k_disk"));
         registerDiskModel(
                 cells,
                 ExpansionAEItems.DISK_4K.get(),
-                new ResourceLocation("appliedenergistics2:block/drive/cells/4k_item_cell"));
+                new ResourceLocation(ExpansionAE.MOD_ID, "block/drive/cells/4k_disk"));
         registerDiskModel(
                 cells,
                 ExpansionAEItems.DISK_16K.get(),
-                new ResourceLocation("appliedenergistics2:block/drive/cells/16k_item_cell"));
+                new ResourceLocation(ExpansionAE.MOD_ID, "block/drive/cells/16k_disk"));
         registerDiskModel(
                 cells,
                 ExpansionAEItems.DISK_64K.get(),
-                new ResourceLocation("appliedenergistics2:block/drive/cells/64k_item_cell"));
+                new ResourceLocation(ExpansionAE.MOD_ID, "block/drive/cells/64k_disk"));
 
         ExpansionAE.LOGGER.info(
                 "Registered and queued 1k/4k/16k/64k DISK drive models with the AE2 client cell registry");

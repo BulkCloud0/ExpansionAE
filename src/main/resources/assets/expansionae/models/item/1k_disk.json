@@ -1,3 +1,6 @@
 {
-  "parent": "appliedenergistics2:item/1k_storage_cell"
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "expansionae:item/1k_disk"
+  }
 }
