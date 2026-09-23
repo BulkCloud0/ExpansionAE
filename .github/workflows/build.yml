@@ -50,8 +50,15 @@ jobs:
           jar_file="${jar_files[0]}"
 
           mod_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
-          if [ -z "$mod_version" ]; then
-            echo "Could not resolve mod_version from gradle.properties."
+          minecraft_version_range="$(sed -n 's/^minecraft_version_range=//p' gradle.properties)"
+          forge_version_range="$(sed -n 's/^forge_version_range=//p' gradle.properties)"
+          ae2_version_range="$(sed -n 's/^ae2_version_range=//p' gradle.properties)"
+
+          if [ -z "$mod_version" ] \
+            || [ -z "$minecraft_version_range" ] \
+            || [ -z "$forge_version_range" ] \
+            || [ -z "$ae2_version_range" ]; then
+            echo "Could not resolve release metadata from gradle.properties."
             exit 1
           fi
 
@@ -105,6 +112,17 @@ jobs:
             cat build/packaged-manifest.mf
             exit 1
           fi
+
+          for expected_range in \
+            "$minecraft_version_range" \
+            "$forge_version_range" \
+            "$ae2_version_range"; do
+            if ! grep -Fq "versionRange=\"$expected_range\"" build/packaged-mods.toml; then
+              echo "Packaged mods.toml is missing dependency versionRange=$expected_range."
+              cat build/packaged-mods.toml
+              exit 1
+            fi
+          done
 
           expected_jar_name="expansionae-$mod_version.jar"
           if [ "$(basename "$jar_file")" != "$expected_jar_name" ]; then
