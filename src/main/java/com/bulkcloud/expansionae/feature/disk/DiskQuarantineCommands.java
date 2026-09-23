@@ -3,6 +3,8 @@ package com.bulkcloud.expansionae.feature.disk;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,7 +74,7 @@ public final class DiskQuarantineCommands {
         }
 
         List<DiskStorageData.QuarantineSnapshot> snapshots =
-                data.getQuarantineSnapshots();
+                collectSnapshots(data);
         if (snapshots.isEmpty()) {
             source.sendFeedback(
                     new StringTextComponent("No DISK quarantine diagnostics are present."),
@@ -116,7 +118,7 @@ public final class DiskQuarantineCommands {
         }
 
         List<DiskStorageData.QuarantineSnapshot> snapshots =
-                data.getQuarantineSnapshots(uuid);
+                collectSnapshots(data, uuid);
         if (snapshots.isEmpty()) {
             source.sendFeedback(
                     new StringTextComponent(
@@ -185,7 +187,7 @@ public final class DiskQuarantineCommands {
         }
 
         List<DiskStorageData.QuarantineSnapshot> snapshots =
-                data.getQuarantineSnapshots(uuid);
+                collectSnapshots(data, uuid);
         if (snapshots.isEmpty()) {
             source.sendFeedback(
                     new StringTextComponent(
@@ -262,6 +264,28 @@ public final class DiskQuarantineCommands {
                                     + exception.getMessage()));
             return 0;
         }
+    }
+
+
+    private static List<DiskStorageData.QuarantineSnapshot> collectSnapshots(
+            DiskStorageData data) {
+        List<DiskStorageData.QuarantineSnapshot> snapshots =
+                new ArrayList<>(data.getQuarantineSnapshots());
+        snapshots.addAll(DiskAliasNotifier.snapshotRuntimeDiagnostics());
+        snapshots.sort(Comparator.comparing(
+                DiskStorageData.QuarantineSnapshot::sortKey));
+        return snapshots;
+    }
+
+    private static List<DiskStorageData.QuarantineSnapshot> collectSnapshots(
+            DiskStorageData data,
+            UUID uuid) {
+        List<DiskStorageData.QuarantineSnapshot> snapshots =
+                new ArrayList<>(data.getQuarantineSnapshots(uuid));
+        snapshots.addAll(DiskAliasNotifier.snapshotRuntimeDiagnostics(uuid));
+        snapshots.sort(Comparator.comparing(
+                DiskStorageData.QuarantineSnapshot::sortKey));
+        return snapshots;
     }
 
     private static String formatSnapshot(DiskStorageData.QuarantineSnapshot snapshot) {

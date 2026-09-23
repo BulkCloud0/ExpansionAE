@@ -410,6 +410,17 @@ public final class DiskStorageData extends WorldSavedData {
         return QuarantineReason.INVALID_RECORD_STRUCTURE;
     }
 
+    static QuarantineSnapshot runtimeSnapshot(
+            UUID uuid,
+            QuarantineReason reason,
+            INBT rawPayload) {
+        return new QuarantineSnapshot(uuid, reason, rawPayload, 1);
+    }
+
+    static CompoundNBT snapshotRecordForDiagnostics(UUID uuid, DiskRecord record) {
+        return snapshotRecord(uuid, record);
+    }
+
     private static CompoundNBT snapshotRecord(UUID uuid, DiskRecord record) {
         CompoundNBT tag = new CompoundNBT();
         tag.putUniqueId(TAG_UUID, uuid);
@@ -428,7 +439,13 @@ public final class DiskStorageData extends WorldSavedData {
         INCOMPLETE_KEYS_AMOUNTS,
         INVALID_KEYS_AMOUNTS,
         INVALID_RECORD_STRUCTURE,
-        NEGATIVE_CAPACITY
+        NEGATIVE_CAPACITY,
+        MALFORMED_ITEMSTACK_UUID,
+        MISSING_BACKING,
+        OVER_CAPACITY,
+        TIER_CAPACITY_MISMATCH,
+        UNDECODABLE_ITEM_KEY,
+        INCONSISTENT_ITEM_COUNT
     }
 
     public static final class QuarantineSnapshot {
@@ -478,6 +495,12 @@ public final class DiskStorageData extends WorldSavedData {
             }
             CompoundNBT tag = (CompoundNBT) rawPayload;
             return tag.contains(TAG_ITEM_COUNT, 4) ? tag.getLong(TAG_ITEM_COUNT) : null;
+        }
+
+        String sortKey() {
+            String id = uuid == null ? "~" : uuid.toString();
+            String payload = rawPayload == null ? "" : rawPayload.toString();
+            return id + "|" + reason.name() + "|" + payload;
         }
 
         public Integer getTypeCount() {

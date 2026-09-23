@@ -693,6 +693,105 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         }
     }
 
+
+    DiskStorageData.QuarantineSnapshot snapshotRuntimeDiagnostic() {
+        CompoundNBT tag = cellStack.getTag();
+        if (tag != null && tag.contains(TAG_UUID) && !tag.hasUniqueId(TAG_UUID)) {
+            return DiskStorageData.runtimeSnapshot(
+                    null,
+                    DiskStorageData.QuarantineReason.MALFORMED_ITEMSTACK_UUID,
+                    tag.copy());
+        }
+
+        UUID uuid = getUuid();
+        DiskStorageData storage = DiskStorageService.getCurrent();
+        if (uuid == null || storage == null || storage.isGloballyQuarantined()) {
+            return null;
+        }
+
+        DiskStorageData.DiskRecord record = storage.get(uuid);
+        if (record == null) {
+            if (storage.isQuarantined(uuid)) {
+                return null;
+            }
+            CompoundNBT payload = tag == null ? new CompoundNBT() : tag.copy();
+            return DiskStorageData.runtimeSnapshot(
+                    uuid,
+                    DiskStorageData.QuarantineReason.MISSING_BACKING,
+                    payload);
+        }
+
+        long expectedCapacity = cellType.getCapacity();
+        if (record.getCapacity() < 0) {
+            return null;
+        }
+
+        if (record.getCapacity() > 0
+                && record.getCapacity() != expectedCapacity) {
+            return DiskStorageData.runtimeSnapshot(
+                    uuid,
+                    DiskStorageData.QuarantineReason.TIER_CAPACITY_MISMATCH,
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+        }
+
+        if (record.getItemCount() > expectedCapacity) {
+            return DiskStorageData.runtimeSnapshot(
+                    uuid,
+                    DiskStorageData.QuarantineReason.OVER_CAPACITY,
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+        }
+
+        ListNBT keys = record.getKeys();
+        long[] amounts = record.getAmounts();
+        if (keys.size() != amounts.length) {
+            return DiskStorageData.runtimeSnapshot(
+                    uuid,
+                    DiskStorageData.QuarantineReason.INVALID_KEYS_AMOUNTS,
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+        }
+
+        long total = 0;
+        for (int i = 0; i < amounts.length; i++) {
+            long amount = amounts[i];
+            if (amount <= 0) {
+                return DiskStorageData.runtimeSnapshot(
+                        uuid,
+                        DiskStorageData.QuarantineReason.INVALID_KEYS_AMOUNTS,
+                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+            }
+            if (amount > expectedCapacity - total) {
+                return DiskStorageData.runtimeSnapshot(
+                        uuid,
+                        DiskStorageData.QuarantineReason.OVER_CAPACITY,
+                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+            }
+
+            IAEItemStack decoded;
+            try {
+                decoded = channel.createFromNBT(keys.getCompound(i));
+            } catch (RuntimeException exception) {
+                decoded = null;
+            }
+            if (decoded == null) {
+                return DiskStorageData.runtimeSnapshot(
+                        uuid,
+                        DiskStorageData.QuarantineReason.UNDECODABLE_ITEM_KEY,
+                        DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+            }
+
+            total += amount;
+        }
+
+        if (total != record.getItemCount()) {
+            return DiskStorageData.runtimeSnapshot(
+                    uuid,
+                    DiskStorageData.QuarantineReason.INCONSISTENT_ITEM_COUNT,
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+        }
+
+        return null;
+    }
+
     UUID getUuidForAliasSync() {
         return getUuid();
     }

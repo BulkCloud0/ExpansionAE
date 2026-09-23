@@ -94,6 +94,51 @@ final class DiskAliasNotifier {
     }
 
 
+
+    static synchronized List<DiskStorageData.QuarantineSnapshot> snapshotRuntimeDiagnostics() {
+        cleanupCollected();
+
+        List<DiskStorageData.QuarantineSnapshot> snapshots = new ArrayList<>();
+        Set<String> seen = new java.util.HashSet<>();
+
+        for (WeakReference<DiskCellInventory> reference : TRACKED) {
+            DiskCellInventory inventory = reference.get();
+            if (inventory == null) {
+                continue;
+            }
+
+            DiskStorageData.QuarantineSnapshot snapshot =
+                    inventory.snapshotRuntimeDiagnostic();
+            if (snapshot == null) {
+                continue;
+            }
+
+            if (seen.add(snapshot.sortKey())) {
+                snapshots.add(snapshot);
+            }
+        }
+
+        snapshots.sort(Comparator.comparing(
+                DiskStorageData.QuarantineSnapshot::sortKey));
+        return Collections.unmodifiableList(snapshots);
+    }
+
+    static synchronized List<DiskStorageData.QuarantineSnapshot> snapshotRuntimeDiagnostics(
+            UUID uuid) {
+        if (uuid == null) {
+            return Collections.emptyList();
+        }
+
+        List<DiskStorageData.QuarantineSnapshot> matches = new ArrayList<>();
+        for (DiskStorageData.QuarantineSnapshot snapshot
+                : snapshotRuntimeDiagnostics()) {
+            if (uuid.equals(snapshot.getUuid())) {
+                matches.add(snapshot);
+            }
+        }
+        return Collections.unmodifiableList(matches);
+    }
+
     static synchronized List<AliasSnapshot> snapshotLoadedAliases(UUID uuid) {
         if (uuid == null) {
             return Collections.emptyList();
