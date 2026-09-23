@@ -1,5 +1,8 @@
 package com.bulkcloud.expansionae.feature.disk;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,7 +40,19 @@ public final class DiskQuarantineCommands {
                                                                 context.getSource(),
                                                                 context.getArgument(
                                                                         "uuid",
-                                                                        UUID.class))))))));
+                                                                        UUID.class)))))
+                                        .then(Commands.literal("export")
+                                                .requires(source -> source.hasPermissionLevel(3))
+                                                .then(Commands.argument("uuid", new UUIDArgument())
+                                                        .executes(context -> export(
+                                                                context.getSource(),
+                                                                context.getArgument(
+                                                                        "uuid",
+                                                                        UUID.class)))))
+                                        .then(Commands.literal("export-global")
+                                                .requires(source -> source.hasPermissionLevel(3))
+                                                .executes(context -> exportGlobal(
+                                                        context.getSource()))))));
     }
 
     private static int list(CommandSource source, int page) {
@@ -114,6 +129,96 @@ public final class DiskQuarantineCommands {
                     false);
         }
         return snapshots.size();
+    }
+
+
+    private static int export(CommandSource source, UUID uuid) {
+        DiskStorageData data = DiskStorageService.getCurrent();
+        if (data == null) {
+            source.sendFeedback(
+                    new StringTextComponent("ExpansionAE DISK storage is not available."),
+                    false);
+            return 0;
+        }
+
+        List<DiskStorageData.QuarantineSnapshot> snapshots =
+                data.getQuarantineSnapshots(uuid);
+        if (snapshots.isEmpty()) {
+            source.sendFeedback(
+                    new StringTextComponent(
+                            "No DISK quarantine diagnostic exists for UUID " + uuid + "."),
+                    false);
+            return 0;
+        }
+
+        try {
+            Path exportRoot = Paths.get("expansionae-quarantine");
+            List<Path> exported = DiskQuarantineExport.exportSnapshots(
+                    exportRoot,
+                    snapshots,
+                    "disk-" + uuid.toString());
+            for (Path path : exported) {
+                source.sendFeedback(
+                        new StringTextComponent(
+                                "Exported DISK quarantine payload: "
+                                        + path.toAbsolutePath().normalize()),
+                        false);
+            }
+            return exported.size();
+        } catch (IOException exception) {
+            source.sendErrorMessage(
+                    new StringTextComponent(
+                            "Failed to export DISK quarantine payload for "
+                                    + uuid + ": " + exception.getMessage()));
+            return 0;
+        }
+    }
+
+    private static int exportGlobal(CommandSource source) {
+        DiskStorageData data = DiskStorageService.getCurrent();
+        if (data == null) {
+            source.sendFeedback(
+                    new StringTextComponent("ExpansionAE DISK storage is not available."),
+                    false);
+            return 0;
+        }
+
+        DiskStorageData.QuarantineSnapshot global = null;
+        for (DiskStorageData.QuarantineSnapshot snapshot
+                : data.getQuarantineSnapshots()) {
+            if (snapshot.getReason()
+                    == DiskStorageData.QuarantineReason.INVALID_ROOT_DISKS) {
+                global = snapshot;
+                break;
+            }
+        }
+
+        if (global == null) {
+            source.sendFeedback(
+                    new StringTextComponent(
+                            "No global DISK root quarantine payload is present."),
+                    false);
+            return 0;
+        }
+
+        try {
+            Path path = DiskQuarantineExport.exportSnapshot(
+                    Paths.get("expansionae-quarantine"),
+                    global,
+                    "global-disks-root");
+            source.sendFeedback(
+                    new StringTextComponent(
+                            "Exported global DISK quarantine payload: "
+                                    + path.toAbsolutePath().normalize()),
+                    false);
+            return 1;
+        } catch (IOException exception) {
+            source.sendErrorMessage(
+                    new StringTextComponent(
+                            "Failed to export global DISK quarantine payload: "
+                                    + exception.getMessage()));
+            return 0;
+        }
     }
 
     private static String formatSnapshot(DiskStorageData.QuarantineSnapshot snapshot) {
