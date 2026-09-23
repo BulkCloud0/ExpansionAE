@@ -100,6 +100,7 @@ jobs:
             "com/bulkcloud/expansionae/feature/extendedbus/ExpansionExportBusPart.class"
             "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusThroughput.class"
             "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusRuntimeValidator.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusTransferRuntimeValidator.class"
             "expansionae.mixins.json"
             "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
             "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
@@ -323,6 +324,7 @@ jobs:
                 && grep -q "AE2 API available; registered ExpansionAE cell handlers" run/logs/latest.log \
                 && grep -q "DISK workbench contract validated" run/logs/latest.log \
                 && grep -q "8x item bus runtime contract validated" run/logs/latest.log \
+                && grep -q "8x item bus transfer runtime validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
