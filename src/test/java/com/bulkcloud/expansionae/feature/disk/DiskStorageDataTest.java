@@ -61,6 +61,43 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void getOrCreateDoesNotImplicitlyBindLegacyRecord() {
+        DiskStorageData data = new DiskStorageData();
+        UUID id = UUID.randomUUID();
+
+        data.put(id, new ListNBT(), new long[0], 0L);
+        DiskStorageData.DiskRecord lookedUp = data.getOrCreate(id, 1_000L);
+
+        assertNotNull(lookedUp);
+        assertEquals(0L, lookedUp.getCapacity());
+        assertEquals(0L, data.get(id).getCapacity());
+    }
+
+    @Test
+    void bindCapacityRejectsOverCapacityLegacyRecordWithoutMutation() {
+        DiskStorageData data = new DiskStorageData();
+        UUID id = UUID.randomUUID();
+
+        ListNBT keys = new ListNBT();
+        CompoundNBT stone = new CompoundNBT();
+        stone.putString("id", "minecraft:stone");
+        keys.add(stone);
+
+        data.put(id, keys, new long[] { 1_001L }, 1_001L);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> data.bindCapacity(id, 1_000L));
+
+        DiskStorageData.DiskRecord preserved = data.get(id);
+        assertNotNull(preserved);
+        assertEquals(0L, preserved.getCapacity());
+        assertEquals(1_001L, preserved.getItemCount());
+        assertEquals(1_001L, preserved.getAmounts()[0]);
+        assertEquals("minecraft:stone", preserved.getKeys().getCompound(0).getString("id"));
+    }
+
+    @Test
     void everyWriteGetsANewRuntimeRevision() {
         DiskStorageData data = new DiskStorageData();
         UUID id = UUID.randomUUID();
