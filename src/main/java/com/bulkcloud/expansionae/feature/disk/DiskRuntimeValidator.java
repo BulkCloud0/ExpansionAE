@@ -403,8 +403,48 @@ public final class DiskRuntimeValidator {
 
         storage.remove(uuid);
 
+        UUID legacyUuid = UUID.randomUUID();
+        storage.put(
+                legacyUuid,
+                keys,
+                new long[] { 1L },
+                1L);
+
+        ItemStack legacyStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        legacyStack.getOrCreateTag().putUniqueId(DiskCellInventory.TAG_UUID, legacyUuid);
+        legacyStack.getOrCreateTag().putLong(DiskCellInventory.TAG_ITEM_COUNT, 1L);
+        legacyStack.getOrCreateTag().putLong(DiskCellInventory.TAG_TYPE_COUNT, 1L);
+
+        ICellInventoryHandler<IAEItemStack> legacyHandler =
+                open(legacyStack, channel, "legacy undecodable backing validation");
+
+        IAEItemStack legacyRejected =
+                legacyHandler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (legacyRejected == null || legacyRejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Legacy DISK with undecodable backing data accepted an insertion");
+        }
+
+        if (legacyHandler.extractItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "Legacy DISK with undecodable backing data allowed extraction");
+        }
+
+        DiskStorageData.DiskRecord unchangedLegacy = storage.get(legacyUuid);
+        if (unchangedLegacy == null
+                || unchangedLegacy.getCapacity() != 0L
+                || unchangedLegacy.getItemCount() != 1L
+                || unchangedLegacy.getKeys().size() != 1
+                || unchangedLegacy.getAmounts().length != 1
+                || unchangedLegacy.getAmounts()[0] != 1L) {
+            throw new IllegalStateException(
+                    "Legacy undecodable backing was mutated or bound before semantic validation");
+        }
+
+        storage.remove(legacyUuid);
+
         ExpansionAE.LOGGER.info(
-                "DISK undecodable backing rejection validated (data preserved, access blocked)");
+                "DISK undecodable backing rejection validated (bound + legacy data preserved, access blocked)");
     }
 
     private static void validateWorkbenchSemantics(
