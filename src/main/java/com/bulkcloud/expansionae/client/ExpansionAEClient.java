@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -22,6 +22,8 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 
 import appeng.api.client.ICellModelRegistry;
 import appeng.core.Api;
@@ -58,8 +60,11 @@ public final class ExpansionAEClient {
                 ExpansionAEItems.DISK_64K.get(),
                 new ResourceLocation(ExpansionAE.MOD_ID, "block/drive/cells/64k_disk"));
 
+        ModelLoader.addSpecialModel(ExpansionImportBusPart.MODEL_BASE);
+        ModelLoader.addSpecialModel(ExpansionExportBusPart.MODEL_BASE);
+
         ExpansionAE.LOGGER.info(
-                "Registered and queued 1k/4k/16k/64k DISK drive models with the AE2 client cell registry");
+                "Registered and queued 1k/4k/16k/64k DISK drive models and ExpansionAE 8x bus models");
     }
 
     @SubscribeEvent
@@ -75,9 +80,43 @@ public final class ExpansionAEClient {
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_16K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_64K.get());
         validateDiskTooltips();
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.EXTENDED_IMPORT_BUS.get(),
+                ExpansionImportBusPart.MODEL_BASE);
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.EXTENDED_EXPORT_BUS.get(),
+                ExpansionExportBusPart.MODEL_BASE);
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
+        ExpansionAE.LOGGER.info(
+                "8x item bus client model bake validation passed (item inventory + part base models)");
+    }
+
+    private static void validateExtendedBusModels(
+            ModelBakeEvent event,
+            Item item,
+            ResourceLocation partBaseModel) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        IBakedModel bakedPart = event.getModelRegistry().get(partBaseModel);
+        if (bakedPart == null || bakedPart == missing) {
+            throw new IllegalStateException(
+                    "8x bus part base model was not baked for "
+                            + item.getRegistryName() + ": " + partBaseModel);
+        }
+
+        ModelResourceLocation itemModel =
+                new ModelResourceLocation(item.getRegistryName(), "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "8x bus inventory model was not baked for "
+                            + item.getRegistryName() + ": " + itemModel);
+        }
     }
 
     private static void validateDiskTooltips() {
@@ -198,8 +237,6 @@ public final class ExpansionAEClient {
             ICellModelRegistry cells,
             Item item,
             ResourceLocation model) {
-        // AE2 8.4.x explicitly requires addon cell models to be queued for loading.
-        // Registering only the item -> model mapping is not sufficient by API contract.
         ModelLoader.addSpecialModel(model);
         cells.registerModel(item, model);
 
