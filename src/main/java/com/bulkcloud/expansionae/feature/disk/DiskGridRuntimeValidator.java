@@ -244,6 +244,11 @@ public final class DiskGridRuntimeValidator {
                     s.driveA,
                     s.channel,
                     "Drive A after grid operations");
+            ICellInventoryHandler<IAEItemStack> driveBHandler = open(
+                    s.driveB.getInternalInventory().getStackInSlot(0),
+                    s.driveB,
+                    s.channel,
+                    "Drive B after grid operations");
             ICellInventoryHandler<IAEItemStack> driveCHandler = open(
                     s.driveC.getInternalInventory().getStackInSlot(0),
                     s.driveC,
@@ -251,9 +256,38 @@ public final class DiskGridRuntimeValidator {
                     "Drive C after grid operations");
 
             requireCellCount(driveAHandler, finalAmount, "Drive A backing view");
+            requireCellCount(driveBHandler, finalAmount, "Drive B backing view");
             requireCellCount(driveCHandler, finalAmount, "Drive C backing view");
+            requireLoadedAliasLocation(s.uuid, s.driveAPos, "Drive A");
+            requireLoadedAliasLocation(s.uuid, s.driveBPos, "Drive B");
+            requireLoadedAliasLocation(s.uuid, s.driveCPos, "Drive C");
         } catch (GridAccessException e) {
             throw new IllegalStateException("AE2 grid became unavailable during DISK active grid validation", e);
+        }
+    }
+
+
+    private static void requireLoadedAliasLocation(
+            UUID uuid,
+            BlockPos expectedPos,
+            String label) {
+        boolean found = false;
+        for (DiskAliasNotifier.AliasSnapshot alias
+                : DiskAliasNotifier.snapshotLoadedAliases(uuid)) {
+            if (alias.hasLocation()
+                    && World.OVERWORLD.getLocation().toString().equals(alias.getDimension())
+                    && Integer.valueOf(expectedPos.getX()).equals(alias.getX())
+                    && Integer.valueOf(expectedPos.getY()).equals(alias.getY())
+                    && Integer.valueOf(expectedPos.getZ()).equals(alias.getZ())) {
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            throw new IllegalStateException(
+                    "DISK alias diagnostics did not report loaded location for "
+                            + label + " at " + expectedPos);
         }
     }
 

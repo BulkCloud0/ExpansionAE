@@ -41,6 +41,13 @@ public final class DiskQuarantineCommands {
                                                                 context.getArgument(
                                                                         "uuid",
                                                                         UUID.class)))))
+                                        .then(Commands.literal("aliases")
+                                                .then(Commands.argument("uuid", new UUIDArgument())
+                                                        .executes(context -> aliases(
+                                                                context.getSource(),
+                                                                context.getArgument(
+                                                                        "uuid",
+                                                                        UUID.class)))))
                                         .then(Commands.literal("export")
                                                 .requires(source -> source.hasPermissionLevel(3))
                                                 .then(Commands.argument("uuid", new UUIDArgument())
@@ -131,6 +138,42 @@ public final class DiskQuarantineCommands {
         return snapshots.size();
     }
 
+
+
+    private static int aliases(CommandSource source, UUID uuid) {
+        List<DiskAliasNotifier.AliasSnapshot> aliases =
+                DiskAliasNotifier.snapshotLoadedAliases(uuid);
+
+        source.sendFeedback(
+                new StringTextComponent(
+                        "Loaded DISK alias views for " + uuid
+                                + ": " + aliases.size()
+                                + " (loaded/in-memory only; no chunks were loaded)"),
+                false);
+
+        if (aliases.isEmpty()) {
+            return 1;
+        }
+
+        for (DiskAliasNotifier.AliasSnapshot alias : aliases) {
+            String location = alias.hasLocation()
+                    ? alias.getDimension()
+                            + " @ "
+                            + alias.getX() + ","
+                            + alias.getY() + ","
+                            + alias.getZ()
+                    : "<location unavailable>";
+            source.sendFeedback(
+                    new StringTextComponent(
+                            alias.getHostType()
+                                    + " | active=" + value(alias.isActive())
+                                    + " | " + location
+                                    + " | slot=?"),
+                    false);
+        }
+
+        return aliases.size();
+    }
 
     private static int export(CommandSource source, UUID uuid) {
         DiskStorageData data = DiskStorageService.getCurrent();
