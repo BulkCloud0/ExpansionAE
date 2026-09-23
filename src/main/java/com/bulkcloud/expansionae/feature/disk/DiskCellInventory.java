@@ -12,6 +12,7 @@ import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FuzzyMode;
+import appeng.api.implementations.items.IStorageCell;
 import appeng.api.networking.security.IActionSource;
 import appeng.api.storage.IStorageChannel;
 import appeng.api.storage.cells.CellState;
@@ -108,7 +109,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return input;
         }
 
-        if (isSelfAlias(input) || isNonEmptyStorageCell(input)) {
+        if (isSelfAlias(input) || isUnsafeNestedStorageCell(input)) {
             return input;
         }
 
@@ -158,7 +159,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         return ownUuid.equals(nestedStack.getTag().getUniqueId(TAG_UUID));
     }
 
-    private boolean isNonEmptyStorageCell(IAEItemStack input) {
+    private boolean isUnsafeNestedStorageCell(IAEItemStack input) {
         ItemStack nestedStack = input.createItemStack();
         if (!ExpansionAEApi.get().registries().cell().isCellHandled(nestedStack)) {
             return false;
@@ -167,7 +168,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         ICellInventoryHandler<IAEItemStack> nested =
                 ExpansionAEApi.get().registries().cell().getCellInventory(nestedStack, null, channel);
         if (nested == null) {
-            return false;
+            // A handled cell that cannot be opened has unknown state. Fail closed.
+            return true;
         }
 
         ICellInventory<IAEItemStack> nestedCell = nested.getCellInv();
@@ -177,6 +179,21 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             // UUID, after it has already been inserted here. Forbid ExpansionAE DISK
             // nesting entirely to avoid that time-of-check/time-of-use capacity bypass.
             return true;
+        }
+
+        if (!(nestedStack.getItem() instanceof IStorageCell)) {
+            // Custom ICellHandler implementations are not guaranteed to keep their
+            // contents in the ItemStack. An apparently empty cell may be backed by an
+            // external identity and gain contents through another alias after nesting.
+            // Unknown custom storage therefore fails closed.
+            return true;
+        }
+
+        IStorageCell<?> nativeCell = (IStorageCell<?>) nestedStack.getItem();
+        if (nativeCell.storableInStorageCell()) {
+            // Match AE2's own BasicCellInventory semantics for special cells that
+            // explicitly opt into being stored inside another storage cell.
+            return false;
         }
 
         return !nested.getAvailableItems(channel.createList()).isEmpty();
