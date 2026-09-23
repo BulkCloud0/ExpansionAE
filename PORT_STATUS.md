@@ -180,6 +180,7 @@ Estado atual:
 - conteúdo completo fica fora do NBT do ItemStack;
 - receitas experimentais disponíveis para 1k/4k/16k/64k e validadas no RecipeManager do servidor com outputs corretos;
 - GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
+- o packaged-JAR sanity exige exatamente um JAR distribuível, versão/filename/manifest coerentes com `mod_version`, ranges de Minecraft/Forge/AE2 coerentes com `gradle.properties`, Mixin config/class presentes e nenhum leakage de recursos userdev/teste;
 - saneamento no load é restrito a casos determinísticos (por exemplo `item_count` derivado ou amount zero); corrupção estrutural/ambígua é preservada em quarentena fail-closed em vez de truncada ou normalizada para vazio;
 - qualquer DISK que já possua UUID e esteja sem backing record é tratado como persistência corrompida/incompleta; leitura e escrita ficam bloqueadas em vez de recriar ou sobrescrever silenciosamente o armazenamento;
 - UUID é a identidade do armazenamento: cópias exatas do ItemStack com o mesmo UUID são aliases do mesmo conteúdo, não discos independentes;
@@ -199,6 +200,8 @@ Estado atual:
 - dois aliases do mesmo UUID no mesmo grid são deduplicados para uma única exposição lógica, evitando contagem dobrada;
 - o mesmo UUID em grids independentes continua compartilhando o backing store, com caches de terminal propagados entre grids (50 → 75 → 45 no self-test);
 - nenhum ExpansionAE DISK pode ser armazenado dentro de outro ExpansionAE DISK, mesmo vazio, porque outro alias pode alterar o backing externo depois do nesting; células AE2 nativas vazias continuam aceitas;
+- cell handlers customizados que não implementam o contrato `IStorageCell` do AE2 são rejeitados por padrão dentro do DISK, pois podem usar backing externo/aliases; o runtime usa a Creative Storage Cell do próprio AE2 como caso real dessa regra fail-closed;
+- implementações `IStorageCell` especiais que optam explicitamente por `storableInStorageCell()==true` continuam seguindo a semântica nativa do AE2;
 - a direção inversa também é bloqueada: um Mixin mínimo em `BasicCellInventory.injectItems()` impede células AE2 nativas de tratarem ExpansionAE DISKs como itens comuns; o runtime valida que Stone continua aceito por uma célula AE2 enquanto o DISK é devolvido integralmente como remainder;
 - `DiskStorageData` valida invariants estruturais também no write-side: UUID não nulo, arrays pareados, keys compound, amounts positivos, soma exata de `item_count` e capacidade não negativa; states ambíguos vindos do save são colocados em quarentena para recovery explícita;
 - a PR executa `runClient` sob Xvfb e exige que o cliente atravesse bootstrap/resource loading até o model bake;
