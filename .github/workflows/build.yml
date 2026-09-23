@@ -88,8 +88,9 @@ jobs:
             fi
           done
 
-          if grep -Eq '(^|/)(DiskLocalizationTest|DiskStorageDataTest)\.class$|^org/junit/' build/jar-contents.txt; then
+          if grep -Eq '(^|/)com/bulkcloud/expansionae/.+Test\.class$|^org/junit/' build/jar-contents.txt; then
             echo "Test/JUnit classes leaked into the distributable JAR."
+            grep -E '(^|/)com/bulkcloud/expansionae/.+Test\.class$|^org/junit/' build/jar-contents.txt || true
             exit 1
           fi
 
@@ -391,6 +392,38 @@ jobs:
             stop_client
             exit 1
           fi
+
+          python3 <<'PY'
+          from pathlib import Path
+
+          log_path = Path("run/logs/latest.log")
+          lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+          findings = []
+
+          for index, line in enumerate(lines):
+              lowered = line.lower()
+              direct_expansionae_error = (
+                  ("error" in lowered or "exception" in lowered)
+                  and ("expansionae" in lowered or "com.bulkcloud.expansionae" in lowered)
+              )
+
+              stack_trace_error = "exception" in lowered or "error" in lowered
+              if stack_trace_error:
+                  following = "\n".join(lines[index:index + 25]).lower()
+                  stack_trace_error = "at com.bulkcloud.expansionae." in following
+
+              if direct_expansionae_error or stack_trace_error:
+                  start = max(0, index - 2)
+                  end = min(len(lines), index + 25)
+                  findings.append("\n".join(lines[start:end]))
+
+          if findings:
+              print("ExpansionAE-related client error/exception detected in run/logs/latest.log:")
+              print("\n\n--- finding ---\n\n".join(findings))
+              raise SystemExit(1)
+
+          print("No ExpansionAE-related client ERROR/Exception was found before GUI interaction.")
+          PY
 
           echo "Client reached model bake with all ExpansionAE DISK item/Drive models and tooltip contracts present."
           stop_client
