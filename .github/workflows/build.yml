@@ -8,9 +8,14 @@ on:
       - 'planning/**'
   pull_request:
 
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
@@ -28,12 +33,434 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
 
-      - name: Build
+      - name: Build and test
         run: ./gradlew --no-daemon clean build
 
-      - name: Upload development JARs
+      - name: Packaged JAR sanity check
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t jar_files < <(find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' -print | sort)
+          if [ "${#jar_files[@]}" -ne 1 ]; then
+            echo "Expected exactly one distributable ExpansionAE JAR, found ${#jar_files[@]}."
+            printf '  %s\n' "${jar_files[@]}"
+            exit 1
+          fi
+          jar_file="${jar_files[0]}"
+
+          mod_version="$(sed -n 's/^mod_version=//p' gradle.properties)"
+          minecraft_version_range="$(sed -n 's/^minecraft_version_range=//p' gradle.properties)"
+          forge_version_range="$(sed -n 's/^forge_version_range=//p' gradle.properties)"
+          ae2_version_range="$(sed -n 's/^ae2_version_range=//p' gradle.properties)"
+
+          if [ -z "$mod_version" ] \
+            || [ -z "$minecraft_version_range" ] \
+            || [ -z "$forge_version_range" ] \
+            || [ -z "$ae2_version_range" ]; then
+            echo "Could not resolve release metadata from gradle.properties."
+            exit 1
+          fi
+
+          jar tf "$jar_file" > build/jar-contents.txt
+
+          required_entries=(
+            "META-INF/mods.toml"
+            "assets/expansionae/lang/en_us.json"
+            "assets/expansionae/lang/pt_br.json"
+            "assets/expansionae/models/item/1k_disk.json"
+            "assets/expansionae/models/item/4k_disk.json"
+            "assets/expansionae/models/item/16k_disk.json"
+            "assets/expansionae/models/item/64k_disk.json"
+            "assets/expansionae/models/block/drive/cells/1k_disk.json"
+            "assets/expansionae/models/block/drive/cells/4k_disk.json"
+            "assets/expansionae/models/block/drive/cells/16k_disk.json"
+            "assets/expansionae/models/block/drive/cells/64k_disk.json"
+            "assets/expansionae/textures/item/1k_disk.png"
+            "assets/expansionae/textures/item/4k_disk.png"
+            "assets/expansionae/textures/item/16k_disk.png"
+            "assets/expansionae/textures/item/64k_disk.png"
+            "assets/expansionae/textures/block/drive/cells/1k_disk.png"
+            "assets/expansionae/textures/block/drive/cells/4k_disk.png"
+            "assets/expansionae/textures/block/drive/cells/16k_disk.png"
+            "assets/expansionae/textures/block/drive/cells/64k_disk.png"
+            "data/expansionae/recipes/1k_disk.json"
+            "data/expansionae/recipes/4k_disk.json"
+            "data/expansionae/recipes/16k_disk.json"
+            "data/expansionae/recipes/64k_disk.json"
+            "expansionae.mixins.json"
+            "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
+            "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
+          )
+
+          for entry in "${required_entries[@]}"; do
+            if ! grep -Fxq "$entry" build/jar-contents.txt; then
+              echo "Required packaged entry is missing: $entry"
+              exit 1
+            fi
+          done
+
+          test_class_leak=0
+          if [ -d build/classes/java/test ]; then
+            while IFS= read -r test_class; do
+              test_entry="${test_class#build/classes/java/test/}"
+              if grep -Fxq "$test_entry" build/jar-contents.txt; then
+                echo "Compiled test class leaked into the distributable JAR: $test_entry"
+                test_class_leak=1
+              fi
+            done < <(find build/classes/java/test -type f -name '*.class' -print | sort)
+          fi
+
+          junit_leak=0
+          if grep -Eq '^org/junit/' build/jar-contents.txt; then
+            echo "JUnit classes leaked into the distributable JAR."
+            grep -E '^org/junit/' build/jar-contents.txt || true
+            junit_leak=1
+          fi
+
+          if [ "$test_class_leak" -ne 0 ] || [ "$junit_leak" -ne 0 ]; then
+            exit 1
+          fi
+
+          if grep -Eq '(^|/)(run|crash-reports)/' build/jar-contents.txt; then
+            echo "Userdev runtime output leaked into the distributable JAR."
+            exit 1
+          fi
+
+          unzip -p "$jar_file" META-INF/mods.toml > build/packaged-mods.toml
+          unzip -p "$jar_file" META-INF/MANIFEST.MF > build/packaged-manifest.mf
+
+          if ! grep -Fq "version=\"$mod_version\"" build/packaged-mods.toml; then
+            echo "Packaged mods.toml version does not match gradle.properties mod_version=$mod_version."
+            cat build/packaged-mods.toml
+            exit 1
+          fi
+
+          if ! grep -Fq "Implementation-Version: $mod_version" build/packaged-manifest.mf; then
+            echo "Packaged manifest Implementation-Version does not match mod_version=$mod_version."
+            cat build/packaged-manifest.mf
+            exit 1
+          fi
+
+          for expected_range in \
+            "$minecraft_version_range" \
+            "$forge_version_range" \
+            "$ae2_version_range"; do
+            if ! grep -Fq "versionRange=\"$expected_range\"" build/packaged-mods.toml; then
+              echo "Packaged mods.toml is missing dependency versionRange=$expected_range."
+              cat build/packaged-mods.toml
+              exit 1
+            fi
+          done
+
+          expected_jar_name="expansionae-$mod_version.jar"
+          if [ "$(basename "$jar_file")" != "$expected_jar_name" ]; then
+            echo "Unexpected distributable JAR name: $(basename "$jar_file"); expected $expected_jar_name."
+            exit 1
+          fi
+
+          if ! grep -Fq "MixinConfigs: expansionae.mixins.json" build/packaged-manifest.mf; then
+            echo "Packaged JAR is missing the ExpansionAE MixinConfigs manifest attribute."
+            cat build/packaged-manifest.mf
+            exit 1
+          fi
+
+          if grep -q '\${' build/packaged-mods.toml; then
+            echo "Unexpanded Gradle placeholders remain in packaged mods.toml."
+            cat build/packaged-mods.toml
+            exit 1
+          fi
+
+          if zipgrep -q "mixin.env.disableRefMap" "$jar_file"; then
+            echo "Userdev-only mixin.env.disableRefMap leaked into the distributable JAR."
+            exit 1
+          fi
+
+          echo "Packaged JAR sanity check passed: $jar_file"
+
+      - name: Dedicated server smoke test
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          mkdir -p run
+          printf 'eula=true\n' > run/eula.txt
+          cat > run/server.properties <<'EOF'
+          enable-rcon=true
+          rcon.password=expansionae-ci
+          rcon.port=25575
+          broadcast-rcon-to-ops=false
+          online-mode=false
+          level-name=world
+          motd=ExpansionAE CI
+          EOF
+
+          dump_server_failure() {
+            local phase="$1"
+            echo "Dedicated server validation failed during phase: $phase"
+            if [ -f run/logs/latest.log ]; then
+              cat run/logs/latest.log
+            elif [ -f "run/server-$phase.out" ]; then
+              cat "run/server-$phase.out"
+            fi
+            for crash in run/crash-reports/*; do
+              [ -f "$crash" ] || continue
+              echo "===== $crash ====="
+              cat "$crash"
+            done
+          }
+
+          send_rcon_stop() {
+            python3 <<'PY'
+          import socket
+          import struct
+
+          HOST = "127.0.0.1"
+          PORT = 25575
+          PASSWORD = "expansionae-ci"
+
+          def recv_exact(sock, count):
+              data = b""
+              while len(data) < count:
+                  chunk = sock.recv(count - len(data))
+                  if not chunk:
+                      raise RuntimeError("RCON connection closed unexpectedly")
+                  data += chunk
+              return data
+
+          def send_packet(sock, request_id, packet_type, payload):
+              body = struct.pack("<ii", request_id, packet_type) + payload.encode("utf-8") + b"\x00\x00"
+              sock.sendall(struct.pack("<i", len(body)) + body)
+
+          def receive_packet(sock):
+              length = struct.unpack("<i", recv_exact(sock, 4))[0]
+              body = recv_exact(sock, length)
+              request_id, packet_type = struct.unpack("<ii", body[:8])
+              return request_id, packet_type, body[8:-2].decode("utf-8", errors="replace")
+
+          with socket.create_connection((HOST, PORT), timeout=5) as sock:
+              send_packet(sock, 1, 3, PASSWORD)
+              request_id, _, _ = receive_packet(sock)
+              if request_id == -1:
+                  raise RuntimeError("RCON authentication failed")
+              send_packet(sock, 2, 2, "stop")
+
+          print("RCON stop command sent")
+          PY
+          }
+
+          stop_server() {
+            local server_pid="$1"
+
+            if ! send_rcon_stop; then
+              echo "Failed to send the RCON stop command."
+              kill -TERM -- "-$server_pid" 2>/dev/null || true
+              wait "$server_pid" 2>/dev/null || true
+              return 1
+            fi
+
+            for _ in $(seq 1 60); do
+              if ! kill -0 "$server_pid" 2>/dev/null; then
+                wait "$server_pid" 2>/dev/null || true
+                return 0
+              fi
+              sleep 1
+            done
+
+            echo "Server did not stop cleanly after the RCON stop command."
+            kill -TERM -- "-$server_pid" 2>/dev/null || true
+            wait "$server_pid" 2>/dev/null || true
+            return 1
+          }
+
+          run_server_phase() {
+            local phase="$1"
+            local phase_marker="$2"
+            local server_pid
+            local ready=0
+            local validated=0
+
+            rm -rf run/logs run/crash-reports
+
+            EXPANSIONAE_PERSISTENCE_PHASE="$phase" \
+              setsid ./gradlew --no-daemon runServer \
+              > "run/server-$phase.out" 2>&1 &
+            server_pid=$!
+
+            for _ in $(seq 1 90); do
+              if [ -f run/logs/latest.log ] && grep -q "Done (" run/logs/latest.log; then
+                ready=1
+                break
+              fi
+
+              if ! kill -0 "$server_pid" 2>/dev/null; then
+                break
+              fi
+
+              sleep 2
+            done
+
+            if [ "$ready" -ne 1 ]; then
+              dump_server_failure "$phase"
+              kill -TERM -- "-$server_pid" 2>/dev/null || true
+              wait "$server_pid" 2>/dev/null || true
+              exit 1
+            fi
+
+            for _ in $(seq 1 20); do
+              if [ -f run/logs/latest.log ] \
+                && grep -q "AE2 API available; registered ExpansionAE cell handlers" run/logs/latest.log \
+                && grep -q "DISK workbench contract validated" run/logs/latest.log \
+                && grep -q "DISK storage runtime validated" run/logs/latest.log \
+                && grep -q "DISK active grid runtime validated" run/logs/latest.log \
+                && grep -q "$phase_marker" run/logs/latest.log; then
+                validated=1
+                break
+              fi
+
+              if ! kill -0 "$server_pid" 2>/dev/null; then
+                break
+              fi
+
+              sleep 1
+            done
+
+            if find run/crash-reports -maxdepth 1 -type f -print -quit 2>/dev/null | grep -q .; then
+              dump_server_failure "$phase"
+              kill -TERM -- "-$server_pid" 2>/dev/null || true
+              wait "$server_pid" 2>/dev/null || true
+              exit 1
+            fi
+
+            if [ "$validated" -ne 1 ]; then
+              echo "Expected runtime validation markers were not observed."
+              dump_server_failure "$phase"
+              kill -TERM -- "-$server_pid" 2>/dev/null || true
+              wait "$server_pid" 2>/dev/null || true
+              exit 1
+            fi
+
+            echo "Dedicated server phase '$phase' reached ready state and passed all runtime assertions."
+
+            if ! stop_server "$server_pid"; then
+              dump_server_failure "$phase"
+              exit 1
+            fi
+          }
+
+          run_server_phase "write" "DISK persistence write phase validated"
+          run_server_phase "read" "DISK persistence read phase validated"
+
+          echo "Dedicated server restart persistence smoke test passed with clean RCON shutdowns."
+
+      - name: Client model smoke test
+        if: github.event_name == 'pull_request'
+        shell: bash
+        run: |
+          if ! command -v xvfb-run >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y xvfb
+          fi
+
+          rm -rf run/logs run/crash-reports
+          mkdir -p run
+
+          setsid xvfb-run -a ./gradlew --no-daemon runClient > run/client.out 2>&1 &
+          client_pid=$!
+          validated=0
+
+          dump_client_failure() {
+            echo "Client model smoke test failed."
+            if [ -f run/logs/latest.log ]; then
+              cat run/logs/latest.log
+            elif [ -f run/client.out ]; then
+              cat run/client.out
+            fi
+            for crash in run/crash-reports/*; do
+              [ -f "$crash" ] || continue
+              echo "===== $crash ====="
+              cat "$crash"
+            done
+          }
+
+          stop_client() {
+            kill -TERM -- "-$client_pid" 2>/dev/null || true
+            for _ in $(seq 1 20); do
+              if ! kill -0 "$client_pid" 2>/dev/null; then
+                wait "$client_pid" 2>/dev/null || true
+                return 0
+              fi
+              sleep 1
+            done
+            kill -KILL -- "-$client_pid" 2>/dev/null || true
+            wait "$client_pid" 2>/dev/null || true
+          }
+
+          for _ in $(seq 1 120); do
+            if [ -f run/logs/latest.log ] \
+              && grep -q "Registered and queued 1k/4k/16k/64k DISK drive models" run/logs/latest.log \
+              && grep -q "DISK client model bake validation passed" run/logs/latest.log \
+              && grep -q "DISK client tooltip validation passed" run/logs/latest.log; then
+              validated=1
+              break
+            fi
+
+            if find run/crash-reports -maxdepth 1 -type f -print -quit 2>/dev/null | grep -q .; then
+              break
+            fi
+
+            if ! kill -0 "$client_pid" 2>/dev/null; then
+              break
+            fi
+
+            sleep 2
+          done
+
+          if [ "$validated" -ne 1 ]; then
+            dump_client_failure
+            stop_client
+            exit 1
+          fi
+
+          python3 <<'PY'
+          from pathlib import Path
+
+          log_path = Path("run/logs/latest.log")
+          lines = log_path.read_text(encoding="utf-8", errors="replace").splitlines()
+          findings = []
+
+          for index, line in enumerate(lines):
+              lowered = line.lower()
+              direct_expansionae_error = (
+                  ("error" in lowered or "exception" in lowered)
+                  and ("expansionae" in lowered or "com.bulkcloud.expansionae" in lowered)
+              )
+
+              stack_trace_error = "exception" in lowered or "error" in lowered
+              if stack_trace_error:
+                  following = "\n".join(lines[index:index + 25]).lower()
+                  stack_trace_error = "at com.bulkcloud.expansionae." in following
+
+              if direct_expansionae_error or stack_trace_error:
+                  start = max(0, index - 2)
+                  end = min(len(lines), index + 25)
+                  findings.append("\n".join(lines[start:end]))
+
+          if findings:
+              print("ExpansionAE-related client error/exception detected in run/logs/latest.log:")
+              print("\n\n--- finding ---\n\n".join(findings))
+              raise SystemExit(1)
+
+          print("No ExpansionAE-related client ERROR/Exception was found before GUI interaction.")
+          PY
+
+          echo "Client reached model bake with all ExpansionAE DISK item/Drive models and tooltip contracts present."
+          stop_client
+
+      - name: Upload development JAR
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ExpansionAE-dev
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
