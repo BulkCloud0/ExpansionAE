@@ -61,6 +61,7 @@ public final class DiskRuntimeValidator {
         validateMoreThanSixtyThreeTypes(storage, channel);
         validateCrossTierUuidRejection(storage, channel);
         validateOverCapacityBackingRejection(storage, channel);
+        validateUndecodableBackingRejection(storage, channel);
         validateWorkbenchSemantics(channel);
         validateRecipes();
         validateTransientStorage(storage, channel);
@@ -347,6 +348,63 @@ public final class DiskRuntimeValidator {
 
         ExpansionAE.LOGGER.info(
                 "DISK over-capacity backing rejection validated (bound + legacy records preserved, access blocked)");
+    }
+
+    private static void validateUndecodableBackingRejection(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        UUID uuid = UUID.randomUUID();
+
+        ListNBT keys = new ListNBT();
+        keys.add(new CompoundNBT());
+
+        storage.put(
+                uuid,
+                keys,
+                new long[] { 1L },
+                1L,
+                1_000L);
+
+        ItemStack stack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        stack.getOrCreateTag().putUniqueId(DiskCellInventory.TAG_UUID, uuid);
+        stack.getOrCreateTag().putLong(DiskCellInventory.TAG_ITEM_COUNT, 1L);
+        stack.getOrCreateTag().putLong(DiskCellInventory.TAG_TYPE_COUNT, 1L);
+
+        ICellInventoryHandler<IAEItemStack> handler =
+                open(stack, channel, "undecodable backing validation");
+
+        IAEItemStack rejected =
+                handler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (rejected == null || rejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK with undecodable backing data accepted an insertion");
+        }
+
+        if (handler.extractItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "DISK with undecodable backing data allowed extraction");
+        }
+
+        if (!handler.getAvailableItems(channel.createList()).isEmpty()) {
+            throw new IllegalStateException(
+                    "DISK with undecodable backing data exposed corrupted contents");
+        }
+
+        DiskStorageData.DiskRecord unchanged = storage.get(uuid);
+        if (unchanged == null
+                || unchanged.getCapacity() != 1_000L
+                || unchanged.getItemCount() != 1L
+                || unchanged.getKeys().size() != 1
+                || unchanged.getAmounts().length != 1
+                || unchanged.getAmounts()[0] != 1L) {
+            throw new IllegalStateException(
+                    "Fail-closed undecodable backing validation mutated authoritative data");
+        }
+
+        storage.remove(uuid);
+
+        ExpansionAE.LOGGER.info(
+                "DISK undecodable backing rejection validated (data preserved, access blocked)");
     }
 
     private static void validateWorkbenchSemantics(
