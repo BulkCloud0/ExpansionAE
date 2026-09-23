@@ -310,10 +310,6 @@ public final class DiskRuntimeValidator {
                     "Fail-closed over-capacity validation mutated authoritative backing data");
         }
 
-        requireRuntimeDiagnostic(
-                uuid,
-                DiskStorageData.QuarantineReason.UNDECODABLE_ITEM_KEY,
-                "bound undecodable backing");
         storage.remove(uuid);
 
         UUID legacyUuid = UUID.randomUUID();
@@ -419,6 +415,10 @@ public final class DiskRuntimeValidator {
                     "Fail-closed undecodable backing validation mutated authoritative data");
         }
 
+        requireRuntimeDiagnostic(
+                uuid,
+                DiskStorageData.QuarantineReason.UNDECODABLE_ITEM_KEY,
+                "bound undecodable backing");
         storage.remove(uuid);
 
         UUID legacyUuid = UUID.randomUUID();
