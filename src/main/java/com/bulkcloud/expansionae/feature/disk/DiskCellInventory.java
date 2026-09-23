@@ -700,7 +700,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return DiskStorageData.runtimeSnapshot(
                     null,
                     DiskStorageData.QuarantineReason.MALFORMED_ITEMSTACK_UUID,
-                    tag.copy());
+                    tag.copy(),
+                    cellType.getCapacity());
         }
 
         UUID uuid = getUuid();
@@ -718,7 +719,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return DiskStorageData.runtimeSnapshot(
                     uuid,
                     DiskStorageData.QuarantineReason.MISSING_BACKING,
-                    payload);
+                    payload,
+                    cellType.getCapacity());
         }
 
         long expectedCapacity = cellType.getCapacity();
@@ -731,14 +733,16 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return DiskStorageData.runtimeSnapshot(
                     uuid,
                     DiskStorageData.QuarantineReason.TIER_CAPACITY_MISMATCH,
-                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                    expectedCapacity);
         }
 
         if (record.getItemCount() > expectedCapacity) {
             return DiskStorageData.runtimeSnapshot(
                     uuid,
                     DiskStorageData.QuarantineReason.OVER_CAPACITY,
-                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                    expectedCapacity);
         }
 
         ListNBT keys = record.getKeys();
@@ -747,7 +751,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return DiskStorageData.runtimeSnapshot(
                     uuid,
                     DiskStorageData.QuarantineReason.INVALID_KEYS_AMOUNTS,
-                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                    expectedCapacity);
         }
 
         long total = 0;
@@ -786,7 +791,8 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             return DiskStorageData.runtimeSnapshot(
                     uuid,
                     DiskStorageData.QuarantineReason.INCONSISTENT_ITEM_COUNT,
-                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record));
+                    DiskStorageData.snapshotRecordForDiagnostics(uuid, record),
+                    expectedCapacity);
         }
 
         return null;

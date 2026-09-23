@@ -83,6 +83,11 @@ final class DiskQuarantineExport {
         contents.append("duplicate_count=")
                 .append(snapshot.getDuplicateCount())
                 .append('\n');
+        contents.append("expected_capacity=")
+                .append(snapshot.getExpectedCapacity() == null
+                        ? "<unknown>"
+                        : snapshot.getExpectedCapacity())
+                .append('\n');
         contents.append("payload_snbt=")
                 .append(payload == null ? "<null>" : payload.toString())
                 .append('\n');

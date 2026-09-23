@@ -293,6 +293,7 @@ public final class DiskQuarantineCommands {
         return id
                 + " | " + snapshot.getReason().name()
                 + " | capacity=" + value(snapshot.getStoredCapacity())
+                + " | expectedCapacity=" + value(snapshot.getExpectedCapacity())
                 + " | itemCount=" + value(snapshot.getItemCount())
                 + " | typeCount=" + value(snapshot.getTypeCount())
                 + " | duplicateCount=" + snapshot.getDuplicateCount();

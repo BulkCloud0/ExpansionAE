@@ -413,8 +413,14 @@ public final class DiskStorageData extends WorldSavedData {
     static QuarantineSnapshot runtimeSnapshot(
             UUID uuid,
             QuarantineReason reason,
-            INBT rawPayload) {
-        return new QuarantineSnapshot(uuid, reason, rawPayload, 1);
+            INBT rawPayload,
+            long expectedCapacity) {
+        return new QuarantineSnapshot(
+                uuid,
+                reason,
+                rawPayload,
+                1,
+                Long.valueOf(expectedCapacity));
     }
 
     static CompoundNBT snapshotRecordForDiagnostics(UUID uuid, DiskRecord record) {
@@ -453,16 +459,27 @@ public final class DiskStorageData extends WorldSavedData {
         private final QuarantineReason reason;
         private final INBT rawPayload;
         private final int duplicateCount;
+        private final Long expectedCapacity;
 
         private QuarantineSnapshot(
                 UUID uuid,
                 QuarantineReason reason,
                 INBT rawPayload,
                 int duplicateCount) {
+            this(uuid, reason, rawPayload, duplicateCount, null);
+        }
+
+        private QuarantineSnapshot(
+                UUID uuid,
+                QuarantineReason reason,
+                INBT rawPayload,
+                int duplicateCount,
+                Long expectedCapacity) {
             this.uuid = uuid;
             this.reason = reason;
             this.rawPayload = rawPayload == null ? null : rawPayload.copy();
             this.duplicateCount = duplicateCount;
+            this.expectedCapacity = expectedCapacity;
         }
 
         public UUID getUuid() {
@@ -479,6 +496,10 @@ public final class DiskStorageData extends WorldSavedData {
 
         public int getDuplicateCount() {
             return duplicateCount;
+        }
+
+        public Long getExpectedCapacity() {
+            return expectedCapacity;
         }
 
         public Long getStoredCapacity() {

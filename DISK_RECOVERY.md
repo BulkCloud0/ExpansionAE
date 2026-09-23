@@ -34,7 +34,7 @@ Lista os diagnostics persistidos conhecidos. A saída é resumida; payload NBT c
 Campos usuais:
 
 ```text
-UUID | reason | capacity | itemCount | typeCount | duplicateCount
+UUID | reason | capacity | expectedCapacity | itemCount | typeCount | duplicateCount
 ```
 
 ### inspect
@@ -92,6 +92,7 @@ Cada arquivo inclui:
 - UUID, ou marcador global/anonymous;
 - reason code;
 - duplicate count;
+- capacidade esperada pelo tier quando o diagnóstico vem de um ItemStack carregado;
 - payload bruto em SNBT.
 
 O export nunca sobrescreve silenciosamente um arquivo existente. Colisões de nome recebem sufixo novo.
