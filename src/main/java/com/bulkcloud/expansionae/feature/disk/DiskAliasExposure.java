@@ -65,7 +65,9 @@ final class DiskAliasExposure {
             return null;
         }
 
-        BlockPos pos = ((TileEntity) host).getPos();
+        TileEntity tile = (TileEntity) host;
+        BlockPos pos = tile.getPos();
+        String dimension = dimensionId(tile);
 
         if (host instanceof DriveTileEntity) {
             IItemHandler inventory = ((DriveTileEntity) host).getInternalInventory();
@@ -75,14 +77,14 @@ final class DiskAliasExposure {
             // Drive elect a single deterministic owner.
             for (int slot = 0; slot < inventory.getSlots(); slot++) {
                 if (inventory.getStackInSlot(slot) == cellStack) {
-                    return new Candidate(pos, slot);
+                    return new Candidate(dimension, pos, slot);
                 }
             }
 
             // Defensive fallback for hosts that return a copy rather than the exact stack.
             for (int slot = 0; slot < inventory.getSlots(); slot++) {
                 if (uuid.equals(getUuid(inventory.getStackInSlot(slot)))) {
-                    return new Candidate(pos, slot);
+                    return new Candidate(dimension, pos, slot);
                 }
             }
             return null;
@@ -91,7 +93,7 @@ final class DiskAliasExposure {
         if (host instanceof ChestTileEntity) {
             ItemStack cell = ((ChestTileEntity) host).getCell();
             if (cell == cellStack || uuid.equals(getUuid(cell))) {
-                return new Candidate(pos, 0);
+                return new Candidate(dimension, pos, 0);
             }
         }
 
@@ -103,14 +105,16 @@ final class DiskAliasExposure {
             return null;
         }
 
-        BlockPos pos = ((TileEntity) host).getPos();
+        TileEntity tile = (TileEntity) host;
+        BlockPos pos = tile.getPos();
+        String dimension = dimensionId(tile);
         Candidate best = null;
 
         if (host instanceof DriveTileEntity) {
             IItemHandler inventory = ((DriveTileEntity) host).getInternalInventory();
             for (int slot = 0; slot < inventory.getSlots(); slot++) {
                 if (uuid.equals(getUuid(inventory.getStackInSlot(slot)))) {
-                    Candidate candidate = new Candidate(pos, slot);
+                    Candidate candidate = new Candidate(dimension, pos, slot);
                     if (best == null || candidate.compareTo(best) < 0) {
                         best = candidate;
                     }
@@ -121,10 +125,20 @@ final class DiskAliasExposure {
 
         if (host instanceof ChestTileEntity
                 && uuid.equals(getUuid(((ChestTileEntity) host).getCell()))) {
-            return new Candidate(pos, 0);
+            return new Candidate(dimension, pos, 0);
         }
 
         return null;
+    }
+
+    private static String dimensionId(TileEntity tile) {
+        // Quantum Network Bridges can join nodes from different dimensions into
+        // one logical AE2 grid. BlockPos + slot is therefore not globally unique
+        // inside IGrid#getNodes(); include the dimension in alias ownership.
+        if (tile.getWorld() == null) {
+            return "<unloaded>";
+        }
+        return tile.getWorld().getDimensionKey().getLocation().toString();
     }
 
     private static UUID getUuid(ItemStack stack) {
@@ -136,17 +150,24 @@ final class DiskAliasExposure {
         return stack.getTag().getUniqueId(DiskCellInventory.TAG_UUID);
     }
 
-    private static final class Candidate implements Comparable<Candidate> {
+    static final class Candidate implements Comparable<Candidate> {
+        private final String dimension;
         private final BlockPos pos;
         private final int slot;
 
-        private Candidate(BlockPos pos, int slot) {
+        Candidate(String dimension, BlockPos pos, int slot) {
+            this.dimension = dimension;
             this.pos = pos.toImmutable();
             this.slot = slot;
         }
 
         @Override
         public int compareTo(Candidate other) {
+            int dimensionOrder = this.dimension.compareTo(other.dimension);
+            if (dimensionOrder != 0) {
+                return dimensionOrder;
+            }
+
             int x = Integer.compare(this.pos.getX(), other.pos.getX());
             if (x != 0) {
                 return x;
@@ -171,12 +192,16 @@ final class DiskAliasExposure {
                 return false;
             }
             Candidate other = (Candidate) obj;
-            return this.slot == other.slot && this.pos.equals(other.pos);
+            return this.slot == other.slot
+                    && this.dimension.equals(other.dimension)
+                    && this.pos.equals(other.pos);
         }
 
         @Override
         public int hashCode() {
-            return 31 * this.pos.hashCode() + this.slot;
+            int result = this.dimension.hashCode();
+            result = 31 * result + this.pos.hashCode();
+            return 31 * result + this.slot;
         }
     }
 }
