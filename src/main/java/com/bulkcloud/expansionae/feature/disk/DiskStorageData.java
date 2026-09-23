@@ -455,13 +455,6 @@ public final class DiskStorageData extends WorldSavedData {
         return ++revisionCounter;
     }
 
-    private static long saturatedAdd(long left, long right) {
-        if (right > 0 && left > Long.MAX_VALUE - right) {
-            return Long.MAX_VALUE;
-        }
-        return left + right;
-    }
-
     public static final class DiskRecord {
         private final ListNBT keys;
         private final long[] amounts;
