@@ -2,6 +2,7 @@ package com.bulkcloud.expansionae.feature.disk;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -294,6 +295,205 @@ public final class DiskStorageData extends WorldSavedData {
 
     public DiskRecord get(UUID uuid) {
         return disks.get(uuid);
+    }
+
+
+    public List<QuarantineSnapshot> getQuarantineSnapshots() {
+        List<QuarantineSnapshot> snapshots = new ArrayList<>();
+
+        if (quarantinedRootDisksTag != null) {
+            snapshots.add(new QuarantineSnapshot(
+                    null,
+                    QuarantineReason.INVALID_ROOT_DISKS,
+                    quarantinedRootDisksTag,
+                    1));
+            return Collections.unmodifiableList(snapshots);
+        }
+
+        List<UUID> duplicateIds = new ArrayList<>(quarantinedDuplicateRecords.keySet());
+        Collections.sort(duplicateIds);
+        for (UUID uuid : duplicateIds) {
+            List<CompoundNBT> records = quarantinedDuplicateRecords.get(uuid);
+            int duplicateCount = records.size();
+            for (CompoundNBT record : records) {
+                snapshots.add(new QuarantineSnapshot(
+                        uuid,
+                        QuarantineReason.DUPLICATE_PERSISTED_UUID,
+                        record,
+                        duplicateCount));
+            }
+        }
+
+        List<UUID> invalidIds = new ArrayList<>(quarantinedInvalidRecords.keySet());
+        Collections.sort(invalidIds);
+        for (UUID uuid : invalidIds) {
+            for (CompoundNBT record : quarantinedInvalidRecords.get(uuid)) {
+                snapshots.add(new QuarantineSnapshot(
+                        uuid,
+                        classifyInvalidRecord(record),
+                        record,
+                        1));
+            }
+        }
+
+        for (CompoundNBT record : quarantinedMalformedRecords) {
+            snapshots.add(new QuarantineSnapshot(
+                    null,
+                    QuarantineReason.MISSING_PERSISTED_UUID,
+                    record,
+                    1));
+        }
+
+        List<UUID> liveIds = new ArrayList<>(disks.keySet());
+        Collections.sort(liveIds);
+        for (UUID uuid : liveIds) {
+            DiskRecord record = disks.get(uuid);
+            if (record.capacity < 0) {
+                snapshots.add(new QuarantineSnapshot(
+                        uuid,
+                        QuarantineReason.NEGATIVE_CAPACITY,
+                        snapshotRecord(uuid, record),
+                        1));
+            }
+        }
+
+        return Collections.unmodifiableList(snapshots);
+    }
+
+    public List<QuarantineSnapshot> getQuarantineSnapshots(UUID uuid) {
+        if (uuid == null) {
+            return Collections.emptyList();
+        }
+
+        List<QuarantineSnapshot> matches = new ArrayList<>();
+        for (QuarantineSnapshot snapshot : getQuarantineSnapshots()) {
+            if (uuid.equals(snapshot.getUuid())) {
+                matches.add(snapshot);
+            }
+        }
+        return Collections.unmodifiableList(matches);
+    }
+
+    long getRevisionCounterForDiagnostics() {
+        return revisionCounter;
+    }
+
+    private static QuarantineReason classifyInvalidRecord(CompoundNBT record) {
+        if (record.contains(TAG_CAPACITY) && !record.contains(TAG_CAPACITY, 4)) {
+            return QuarantineReason.INVALID_CAPACITY_TAG;
+        }
+        if (!record.contains(TAG_KEYS) || !record.contains(TAG_AMOUNTS)) {
+            return QuarantineReason.INCOMPLETE_KEYS_AMOUNTS;
+        }
+        if (!record.contains(TAG_KEYS, 9) || !record.contains(TAG_AMOUNTS, 12)) {
+            return QuarantineReason.INVALID_KEYS_AMOUNTS;
+        }
+
+        ListNBT keys = (ListNBT) record.get(TAG_KEYS);
+        if (!keys.isEmpty() && keys.getTagType() != 10) {
+            return QuarantineReason.INVALID_KEYS_AMOUNTS;
+        }
+
+        long[] amounts = record.getLongArray(TAG_AMOUNTS);
+        if (keys.size() != amounts.length) {
+            return QuarantineReason.INVALID_KEYS_AMOUNTS;
+        }
+
+        long total = 0;
+        for (long amount : amounts) {
+            if (amount < 0 || total > Long.MAX_VALUE - amount) {
+                return QuarantineReason.INVALID_KEYS_AMOUNTS;
+            }
+            total += amount;
+        }
+
+        return QuarantineReason.INVALID_RECORD_STRUCTURE;
+    }
+
+    private static CompoundNBT snapshotRecord(UUID uuid, DiskRecord record) {
+        CompoundNBT tag = new CompoundNBT();
+        tag.putUniqueId(TAG_UUID, uuid);
+        tag.put(TAG_KEYS, record.getKeys());
+        tag.putLongArray(TAG_AMOUNTS, record.getAmounts());
+        tag.putLong(TAG_ITEM_COUNT, record.getItemCount());
+        tag.putLong(TAG_CAPACITY, record.getCapacity());
+        return tag;
+    }
+
+    public enum QuarantineReason {
+        INVALID_ROOT_DISKS,
+        MISSING_PERSISTED_UUID,
+        DUPLICATE_PERSISTED_UUID,
+        INVALID_CAPACITY_TAG,
+        INCOMPLETE_KEYS_AMOUNTS,
+        INVALID_KEYS_AMOUNTS,
+        INVALID_RECORD_STRUCTURE,
+        NEGATIVE_CAPACITY
+    }
+
+    public static final class QuarantineSnapshot {
+        private final UUID uuid;
+        private final QuarantineReason reason;
+        private final INBT rawPayload;
+        private final int duplicateCount;
+
+        private QuarantineSnapshot(
+                UUID uuid,
+                QuarantineReason reason,
+                INBT rawPayload,
+                int duplicateCount) {
+            this.uuid = uuid;
+            this.reason = reason;
+            this.rawPayload = rawPayload == null ? null : rawPayload.copy();
+            this.duplicateCount = duplicateCount;
+        }
+
+        public UUID getUuid() {
+            return uuid;
+        }
+
+        public QuarantineReason getReason() {
+            return reason;
+        }
+
+        public INBT getRawPayload() {
+            return rawPayload == null ? null : rawPayload.copy();
+        }
+
+        public int getDuplicateCount() {
+            return duplicateCount;
+        }
+
+        public Long getStoredCapacity() {
+            if (!(rawPayload instanceof CompoundNBT)) {
+                return null;
+            }
+            CompoundNBT tag = (CompoundNBT) rawPayload;
+            return tag.contains(TAG_CAPACITY, 4) ? tag.getLong(TAG_CAPACITY) : null;
+        }
+
+        public Long getItemCount() {
+            if (!(rawPayload instanceof CompoundNBT)) {
+                return null;
+            }
+            CompoundNBT tag = (CompoundNBT) rawPayload;
+            return tag.contains(TAG_ITEM_COUNT, 4) ? tag.getLong(TAG_ITEM_COUNT) : null;
+        }
+
+        public Integer getTypeCount() {
+            if (!(rawPayload instanceof CompoundNBT)) {
+                return null;
+            }
+            CompoundNBT tag = (CompoundNBT) rawPayload;
+            if (!tag.contains(TAG_KEYS, 9)) {
+                return null;
+            }
+            ListNBT keys = (ListNBT) tag.get(TAG_KEYS);
+            if (!keys.isEmpty() && keys.getTagType() != 10) {
+                return null;
+            }
+            return keys.size();
+        }
     }
 
     boolean isGloballyQuarantined() {
