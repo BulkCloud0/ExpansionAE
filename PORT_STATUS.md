@@ -34,7 +34,7 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 | Origem | Funcionalidades candidatas | Dependência extra | Complexidade | Situação |
 | --- | --- | --- | --- | --- |
 | ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Candidato P1 |
-| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | 1k/4k/16k/64k validados em runtime + client smoke; resta passagem manual de UX e decisão final de recipe/visual |
+| AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | 1k/4k/16k/64k validados em runtime + client smoke; recipe/progressão e identidade visual técnica concluídas; resta passagem manual de UX/visual da #8 |
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
 | AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
@@ -155,15 +155,17 @@ Uma feature só entra na implementação quando:
 
 O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
 
-1. fazer a passagem manual final pela GUI do Cell Workbench/ME Terminal para validar UX cliente;
-2. decidir recipe/progressão e identidade visual finais do DISK;
-3. retirar a PR #4 de draft quando a checklist manual estiver verde e integrar o DISK;
-4. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
-5. depois iniciar a próxima feature P1.
+1. fazer a passagem manual final pela GUI do Cell Workbench/ME Terminal e validar visual dos quatro tiers (#8);
+2. retirar a PR #4 de draft quando a checklist manual estiver verde;
+3. integrar o DISK somente após solicitação explícita de merge;
+4. fechar #9 com o mesmo PASS visual, sem novo commit;
+5. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
+6. após a integração da #4, reconciliar a manutenção de CI da #11/#13 preservando o workflow enriquecido;
+7. depois iniciar a próxima feature P1.
 
 As branches antigas `feature/disk-tiers` e `feat/disk-storage` ficaram redundantes em relação a `feature/disk-storage`; não devem ser usadas como base para trabalho novo antes da integração da PR #4.
 
-Canais customizados de mana/XP/químicos/EMC continuam bloqueados até essa camada de persistência estar comprovada em runtime.
+Canais customizados de mana/XP/químicos/EMC continuam adiados até a integração do primeiro vertical slice, embora a camada de persistência do DISK já esteja comprovada em runtime.
 
 
 ## Validação em andamento — DISK
@@ -178,7 +180,7 @@ Estado atual:
 - sem limite artificial de tipos; o runtime armazena 70 tipos distintos em um único 1k DISK para provar que o limite clássico de 63 tipos não se aplica;
 - persistência externa via `WorldSavedData` indexada por UUID;
 - conteúdo completo fica fora do NBT do ItemStack;
-- receitas experimentais disponíveis para 1k/4k/16k/64k e validadas no RecipeManager do servidor com outputs corretos;
+- recipes definidas para o primeiro backport (shapeless: `empty_storage_cell` + componente AE2 do tier + `minecraft:chest`) para 1k/4k/16k/64k, validadas no RecipeManager do servidor com outputs corretos;
 - GitHub Actions compila, executa os testes JUnit e empacota a feature com sucesso;
 - o packaged-JAR sanity exige exatamente um JAR distribuível, versão/filename/manifest coerentes com `mod_version`, ranges de Minecraft/Forge/AE2 coerentes com `gradle.properties`, Mixin config/class presentes e nenhum leakage de recursos userdev/teste;
 - saneamento no load é restrito a casos determinísticos (por exemplo `item_count` derivado ou amount zero); corrupção estrutural/ambígua é preservada em quarentena fail-closed em vez de truncada ou normalizada para vazio;
@@ -209,4 +211,4 @@ Estado atual:
 - o contrato do tooltip é validado no cliente para os quatro tiers (cached item count, type count, capacidade do tier e linha de ausência de limite de tipos);
 - o acesso antecipado à API do AE2 durante model loading usa `appeng.core.Api.instance()` somente nesse lifecycle, pois `@AEAddon#onAPIAvailable` ainda não ocorreu nesse estágio no AE2 8.4.x.
 
-Antes de promover a feature para concluída restam apenas a passagem manual de UX/visual no cliente (GUI do Cell Workbench/ME Terminal) e as decisões finais de recipe/progressão/identidade visual. O core de storage, persistência, recipe loading, host/chunk lifecycle, grid, aliases, modelos e contrato de tooltip já possui gates automatizados.
+Antes de promover a feature para concluída resta apenas a passagem manual de UX/visual no cliente (GUI do Cell Workbench/ME Terminal/ME Drive e tooltips) da #8. Recipe/progressão e identidade visual técnica já foram concluídas na #9. O core de storage, persistência, recipe loading, host/chunk lifecycle, grid, aliases, modelos e contrato de tooltip já possui gates automatizados.

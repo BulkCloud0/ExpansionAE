@@ -25,7 +25,7 @@ O primeiro módulo funcional em validação é a família de armazenamento DISK 
 - suporte a FUZZY e INVERTER; CAPACITY não é suportado;
 - validação automatizada de restart, chunk/Drive lifecycle, aliases entre grids, receitas, modelos e tooltips.
 
-As receitas e a identidade visual ainda são tratadas como conteúdo experimental até o balanceamento final. Consulte `PORT_STATUS.md` e `DEVELOPMENT.md` para o estado técnico detalhado.
+Para este primeiro backport, recipe/progressão e identidade visual técnica dos quatro tiers já estão definidas e implementadas. A PR permanece em validação apenas pela passagem manual de UX/visual no cliente. Consulte `PORT_STATUS.md` e `DEVELOPMENT.md` para o estado técnico detalhado.
 
 ## Compilar no Windows
 
