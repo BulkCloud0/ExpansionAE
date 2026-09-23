@@ -23,6 +23,7 @@ final class DiskQuarantineDiagnosticsTest {
         disk.putDouble("capacity", 1000.75D);
 
         DiskStorageData data = loadSingle(disk);
+        assertFalse(data.isDirty());
         long revisionBefore = data.getRevisionCounterForDiagnostics();
         CompoundNBT persistedBefore = data.write(new CompoundNBT());
 
@@ -47,7 +48,9 @@ final class DiskQuarantineDiagnosticsTest {
                         .contains("diagnostic_mutation"));
 
         assertEquals(revisionBefore, data.getRevisionCounterForDiagnostics());
+        assertFalse(data.isDirty());
         assertEquals(persistedBefore, data.write(new CompoundNBT()));
+        assertFalse(data.isDirty());
     }
 
     @Test

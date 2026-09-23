@@ -33,6 +33,7 @@ final class DiskQuarantineExportTest {
         disk.putString("custom_debug_payload", "preserve-me");
 
         DiskStorageData data = loadSingle(disk);
+        assertFalse(data.isDirty());
         long revisionBefore = data.getRevisionCounterForDiagnostics();
         CompoundNBT persistedBefore = data.write(new CompoundNBT());
 
@@ -54,7 +55,9 @@ final class DiskQuarantineExportTest {
         assertTrue(text.contains("payload_snbt="));
 
         assertEquals(revisionBefore, data.getRevisionCounterForDiagnostics());
+        assertFalse(data.isDirty());
         assertEquals(persistedBefore, data.write(new CompoundNBT()));
+        assertFalse(data.isDirty());
     }
 
     @Test
