@@ -464,6 +464,16 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     }
 
     private boolean hasInvalidBackingRecord() {
+        CompoundNBT tag = cellStack.getTag();
+        if (tag != null && tag.contains(TAG_UUID) && !tag.hasUniqueId(TAG_UUID)) {
+            if (!invalidRecordWarningLogged) {
+                ExpansionAE.LOGGER.error(
+                        "DISK ItemStack contains malformed UUID metadata. Blocking reads/writes without replacing the identity tag.");
+                invalidRecordWarningLogged = true;
+            }
+            return true;
+        }
+
         UUID uuid = getUuid();
         DiskStorageData storage = DiskStorageService.getCurrent();
         if (storage == null) {
@@ -674,6 +684,12 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
     }
 
     private UUID ensureUuid() {
+        CompoundNBT tag = cellStack.getTag();
+        if (tag != null && tag.contains(TAG_UUID) && !tag.hasUniqueId(TAG_UUID)) {
+            throw new IllegalStateException(
+                    "Cannot allocate a new DISK UUID over malformed persisted identity metadata");
+        }
+
         UUID uuid = getUuid();
         if (uuid != null) {
             return uuid;
