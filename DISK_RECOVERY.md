@@ -127,7 +127,7 @@ Estes reason codes são derivados somente de `DiskCellInventory` já carregados/
 - `OVER_CAPACITY`
 - `TIER_CAPACITY_MISMATCH`
 - `UNDECODABLE_ITEM_KEY`
-- `INCONSISTENT_ITEM_COUNT`
+- `INCONSISTENT_ITEM_COUNT` — defesa runtime; divergências persistidas normais já são recalculadas deterministicamente por `DiskStorageData.read()` e não exigem comando de recovery.
 
 Os reason codes runtime são observacionais. Eles não fazem bind, normalização, recriação de backing ou repair automático.
 
@@ -156,3 +156,5 @@ Não existe atualmente comando que:
 - faça repair automático de NBT.
 
 Qualquer futura operação mutável deve ser permission level 4, criar/exportar backup antes da mutação e falhar sem modificar dados caso a validação pós-repair não passe.
+
+No estado atual, nenhum repair mutável genérico é recomendado: a fase read-only é suficiente até surgir um caso operacional real com transformação inequivocamente segura.
