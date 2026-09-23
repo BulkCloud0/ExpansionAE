@@ -301,8 +301,52 @@ public final class DiskRuntimeValidator {
 
         storage.remove(uuid);
 
+        UUID legacyUuid = UUID.randomUUID();
+        storage.put(
+                legacyUuid,
+                keys,
+                new long[] { 1_001L },
+                1_001L);
+
+        ItemStack legacyStack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        legacyStack.getOrCreateTag().putUniqueId(DiskCellInventory.TAG_UUID, legacyUuid);
+        legacyStack.getOrCreateTag().putLong(DiskCellInventory.TAG_ITEM_COUNT, 1_001L);
+        legacyStack.getOrCreateTag().putLong(DiskCellInventory.TAG_TYPE_COUNT, 1L);
+
+        ICellInventoryHandler<IAEItemStack> legacyHandler =
+                open(legacyStack, channel, "legacy over-capacity backing validation");
+
+        IAEItemStack legacyRejected =
+                legacyHandler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (legacyRejected == null || legacyRejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "Legacy over-capacity 1k DISK backing record accepted an insertion");
+        }
+
+        if (legacyHandler.extractItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "Legacy over-capacity 1k DISK backing record allowed extraction");
+        }
+
+        if (!legacyHandler.getAvailableItems(channel.createList()).isEmpty()) {
+            throw new IllegalStateException(
+                    "Legacy over-capacity 1k DISK backing record exposed corrupted contents");
+        }
+
+        DiskStorageData.DiskRecord unchangedLegacy = storage.get(legacyUuid);
+        if (unchangedLegacy == null
+                || unchangedLegacy.getCapacity() != 0L
+                || unchangedLegacy.getItemCount() != 1_001L
+                || unchangedLegacy.getAmounts().length != 1
+                || unchangedLegacy.getAmounts()[0] != 1_001L) {
+            throw new IllegalStateException(
+                    "Legacy fail-closed over-capacity validation mutated or bound authoritative data");
+        }
+
+        storage.remove(legacyUuid);
+
         ExpansionAE.LOGGER.info(
-                "DISK over-capacity backing rejection validated (data preserved, access blocked)");
+                "DISK over-capacity backing rejection validated (bound + legacy records preserved, access blocked)");
     }
 
     private static void validateWorkbenchSemantics(
