@@ -124,6 +124,70 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void malformedRecordWithoutUuidIsQuarantinedAndPreservedDuringOtherWrites() {
+        UUID validId = UUID.randomUUID();
+
+        CompoundNBT malformed = new CompoundNBT();
+        ListNBT malformedKeys = new ListNBT();
+        CompoundNBT rawKey = new CompoundNBT();
+        rawKey.putString("opaque", "preserve-me");
+        malformedKeys.add(rawKey);
+        malformed.put("keys", malformedKeys);
+        malformed.putLongArray("amounts", new long[] { 99L });
+        malformed.putLong("item_count", 99L);
+        malformed.putLong("capacity", 1234L);
+        malformed.putString("custom_debug_payload", "untouched");
+
+        CompoundNBT valid = new CompoundNBT();
+        valid.putUniqueId("uuid", validId);
+        valid.put("keys", new ListNBT());
+        valid.putLongArray("amounts", new long[0]);
+        valid.putLong("item_count", 0L);
+        valid.putLong("capacity", 1_000L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(malformed);
+        disks.add(valid);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        DiskStorageData.DiskRecord validRecord = loaded.get(validId);
+        assertNotNull(validRecord);
+        assertEquals(1_000L, validRecord.getCapacity());
+
+        UUID unrelatedId = UUID.randomUUID();
+        loaded.put(unrelatedId, new ListNBT(), new long[0], 0L, 4_000L);
+
+        CompoundNBT saved = loaded.write(new CompoundNBT());
+        ListNBT savedDisks = saved.getList("disks", 10);
+
+        CompoundNBT preservedMalformed = null;
+        for (int i = 0; i < savedDisks.size(); i++) {
+            CompoundNBT candidate = savedDisks.getCompound(i);
+            if (!candidate.hasUniqueId("uuid")
+                    && "untouched".equals(candidate.getString("custom_debug_payload"))) {
+                preservedMalformed = candidate;
+                break;
+            }
+        }
+
+        assertNotNull(preservedMalformed);
+        assertEquals(99L, preservedMalformed.getLong("item_count"));
+        assertEquals(1234L, preservedMalformed.getLong("capacity"));
+        assertEquals(99L, preservedMalformed.getLongArray("amounts")[0]);
+        assertEquals(
+                "preserve-me",
+                preservedMalformed
+                        .getList("keys", 10)
+                        .getCompound(0)
+                        .getString("opaque"));
+    }
+
+    @Test
     void negativePersistedCapacityRemainsInvalidInsteadOfBecomingLegacy() {
         UUID id = UUID.randomUUID();
 
@@ -197,16 +261,23 @@ final class DiskStorageDataTest {
                 IllegalStateException.class,
                 () -> loaded.remove(id));
 
+        UUID unrelatedId = UUID.randomUUID();
+        loaded.put(unrelatedId, new ListNBT(), new long[0], 0L, 16_000L);
+
         CompoundNBT preserved = loaded.write(new CompoundNBT());
         ListNBT preservedDisks = preserved.getList("disks", 10);
-        assertEquals(2, preservedDisks.size());
+        assertEquals(3, preservedDisks.size());
 
         long itemCountTotal = 0L;
+        int duplicateCount = 0;
         for (int i = 0; i < preservedDisks.size(); i++) {
             CompoundNBT disk = preservedDisks.getCompound(i);
-            assertEquals(id, disk.getUniqueId("uuid"));
-            itemCountTotal += disk.getLong("item_count");
+            if (disk.hasUniqueId("uuid") && id.equals(disk.getUniqueId("uuid"))) {
+                duplicateCount++;
+                itemCountTotal += disk.getLong("item_count");
+            }
         }
+        assertEquals(2, duplicateCount);
         assertEquals(33L, itemCountTotal);
     }
 
