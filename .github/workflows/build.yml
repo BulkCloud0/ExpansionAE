@@ -341,9 +341,11 @@ jobs:
           echo "Client reached model bake with all ExpansionAE DISK item/Drive models and tooltip contracts present."
           stop_client
 
-      - name: Upload development JARs
+      - name: Upload development JAR
         if: success()
         uses: actions/upload-artifact@v4
         with:
           name: ExpansionAE-dev
-          path: build/libs/*.jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
