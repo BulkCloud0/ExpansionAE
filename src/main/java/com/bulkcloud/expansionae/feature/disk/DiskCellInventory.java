@@ -477,7 +477,7 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
             if (!invalidRecordWarningLogged) {
                 if (storage.isQuarantined(uuid)) {
                     ExpansionAE.LOGGER.error(
-                            "DISK {} has duplicate persisted backing records and is quarantined. Blocking reads/writes without choosing or deleting either record.",
+                            "DISK {} has quarantined persisted backing data. Blocking reads/writes without normalizing, choosing or deleting the quarantined record(s).",
                             uuid);
                 } else {
                     ExpansionAE.LOGGER.error(
