@@ -493,7 +493,7 @@ final class DiskStorageDataTest {
     }
 
     @Test
-    void loadRepairsMismatchedAndInvalidAmounts() {
+    void mismatchedKeyAmountArraysAreQuarantinedWithoutTruncation() {
         UUID id = UUID.randomUUID();
 
         ListNBT keys = new ListNBT();
@@ -508,7 +508,80 @@ final class DiskStorageDataTest {
         CompoundNBT disk = new CompoundNBT();
         disk.putUniqueId("uuid", id);
         disk.put("keys", keys);
-        disk.putLongArray("amounts", new long[] { 5L, -3L, 99L });
+        disk.putLongArray("amounts", new long[] { 5L, 7L, 99L });
+        disk.putLong("item_count", 111L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        CompoundNBT preservedDisk = preserved.getList("disks", 10).getCompound(0);
+        assertEquals(2, preservedDisk.getList("keys", 10).size());
+        assertEquals(3, preservedDisk.getLongArray("amounts").length);
+        assertEquals(99L, preservedDisk.getLongArray("amounts")[2]);
+        assertEquals(111L, preservedDisk.getLong("item_count"));
+    }
+
+    @Test
+    void negativeAmountsAreQuarantinedWithoutDroppingTheirKeys() {
+        UUID id = UUID.randomUUID();
+
+        ListNBT keys = new ListNBT();
+        CompoundNBT stone = new CompoundNBT();
+        stone.putString("id", "minecraft:stone");
+        keys.add(stone);
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUniqueId("uuid", id);
+        disk.put("keys", keys);
+        disk.putLongArray("amounts", new long[] { -3L });
+        disk.putLong("item_count", -3L);
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        CompoundNBT preservedDisk = preserved.getList("disks", 10).getCompound(0);
+        assertEquals("minecraft:stone",
+                preservedDisk.getList("keys", 10).getCompound(0).getString("id"));
+        assertEquals(-3L, preservedDisk.getLongArray("amounts")[0]);
+    }
+
+    @Test
+    void loadRepairsZeroAmountsAndDerivedItemCount() {
+        UUID id = UUID.randomUUID();
+
+        ListNBT keys = new ListNBT();
+        CompoundNBT stone = new CompoundNBT();
+        stone.putString("id", "minecraft:stone");
+        keys.add(stone);
+
+        CompoundNBT dirt = new CompoundNBT();
+        dirt.putString("id", "minecraft:dirt");
+        keys.add(dirt);
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUniqueId("uuid", id);
+        disk.put("keys", keys);
+        disk.putLongArray("amounts", new long[] { 5L, 0L });
         disk.putLong("item_count", 12345L);
 
         ListNBT disks = new ListNBT();
@@ -534,4 +607,44 @@ final class DiskStorageDataTest {
         assertEquals(1, normalizedDisk.getList("keys", 10).size());
         assertEquals(1, normalizedDisk.getLongArray("amounts").length);
     }
+
+    @Test
+    void mutationApiRejectsStructurallyInvalidRecordsBeforeTheyEnterMemory() {
+        DiskStorageData data = new DiskStorageData();
+
+        ListNBT oneKey = new ListNBT();
+        oneKey.add(new CompoundNBT());
+
+        UUID mismatchId = UUID.randomUUID();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> data.put(mismatchId, oneKey, new long[0], 0L, 1_000L));
+        assertNull(data.get(mismatchId));
+
+        UUID negativeAmountId = UUID.randomUUID();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> data.put(negativeAmountId, oneKey, new long[] { -1L }, -1L, 1_000L));
+        assertNull(data.get(negativeAmountId));
+
+        UUID mismatchCountId = UUID.randomUUID();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> data.put(mismatchCountId, oneKey, new long[] { 5L }, 4L, 1_000L));
+        assertNull(data.get(mismatchCountId));
+
+        UUID negativeCapacityId = UUID.randomUUID();
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> data.put(negativeCapacityId, new ListNBT(), new long[0], 0L, -1L));
+        assertNull(data.get(negativeCapacityId));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> data.getOrCreate(UUID.randomUUID(), -1L));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> data.bindCapacity(UUID.randomUUID(), -1L));
+    }
+}
 }
