@@ -9,6 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.items.IItemHandler;
 
 import com.bulkcloud.expansionae.ExpansionAE;
@@ -41,6 +42,10 @@ public final class DiskGridRuntimeValidator {
     }
 
     public static void begin() {
+        if (FMLEnvironment.production) {
+            return;
+        }
+
         if (session != null) {
             throw new IllegalStateException("DISK grid validation is already active");
         }
@@ -122,6 +127,10 @@ public final class DiskGridRuntimeValidator {
     }
 
     public static void tick() {
+        if (FMLEnvironment.production) {
+            return;
+        }
+
         Session current = session;
         if (current == null) {
             return;
