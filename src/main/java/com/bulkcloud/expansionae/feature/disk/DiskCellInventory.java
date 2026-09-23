@@ -171,11 +171,11 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         }
 
         ICellInventory<IAEItemStack> nestedCell = nested.getCellInv();
-        if (nestedCell instanceof DiskCellInventory
-                && !((DiskCellInventory) nestedCell).isSafeForNestedStorage()) {
-            // A fail-closed ExpansionAE DISK can expose an empty item list even when
-            // its backing identity/data is invalid. Never reinterpret that state as
-            // a legitimately empty storage cell that is safe to nest.
+        if (nestedCell instanceof DiskCellInventory) {
+            // ExpansionAE DISKs use an external UUID-backed store. Even a currently
+            // empty DISK can gain contents later through another alias with the same
+            // UUID, after it has already been inserted here. Forbid ExpansionAE DISK
+            // nesting entirely to avoid that time-of-check/time-of-use capacity bypass.
             return true;
         }
 
@@ -470,10 +470,6 @@ public final class DiskCellInventory implements ICellInventory<IAEItemStack> {
         if (saveProvider != null) {
             saveProvider.saveChanges(this);
         }
-    }
-
-    boolean isSafeForNestedStorage() {
-        return !hasInvalidBackingRecord();
     }
 
     private boolean hasInvalidBackingRecord() {
