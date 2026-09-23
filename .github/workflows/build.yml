@@ -90,6 +90,9 @@ jobs:
             "data/expansionae/recipes/64k_disk.json"
             "expansionae.mixins.json"
             "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
+            "com/bulkcloud/expansionae/feature/disk/DiskQuarantineCommands.class"
+            "com/bulkcloud/expansionae/feature/disk/DiskQuarantineExport.class"
+            "com/bulkcloud/expansionae/feature/disk/DiskQuarantinePermissions.class"
             "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
           )
 

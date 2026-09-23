@@ -63,6 +63,7 @@ public final class DiskRuntimeValidator {
         validateOverCapacityBackingRejection(storage, channel);
         validateUndecodableBackingRejection(storage, channel);
         validateMalformedItemStackUuidRejection(channel);
+        validateMissingBackingDiagnostic(storage, channel);
         validateWorkbenchSemantics(channel);
         validateRecipes();
         validateTransientStorage(storage, channel);
@@ -217,6 +218,10 @@ public final class DiskRuntimeValidator {
 
         ICellInventoryHandler<IAEItemStack> forgedHandler =
                 open(forgedFourK, channel, "cross-tier forged alias");
+        requireRuntimeDiagnostic(
+                uuid,
+                DiskStorageData.QuarantineReason.TIER_CAPACITY_MISMATCH,
+                "cross-tier forged alias");
 
         IAEItemStack rejected =
                 forgedHandler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
@@ -273,6 +278,10 @@ public final class DiskRuntimeValidator {
 
         ICellInventoryHandler<IAEItemStack> handler =
                 open(stack, channel, "over-capacity backing validation");
+        requireRuntimeDiagnostic(
+                uuid,
+                DiskStorageData.QuarantineReason.OVER_CAPACITY,
+                "bound over-capacity backing");
 
         IAEItemStack rejected =
                 handler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
@@ -317,6 +326,10 @@ public final class DiskRuntimeValidator {
 
         ICellInventoryHandler<IAEItemStack> legacyHandler =
                 open(legacyStack, channel, "legacy over-capacity backing validation");
+        requireRuntimeDiagnostic(
+                legacyUuid,
+                DiskStorageData.QuarantineReason.OVER_CAPACITY,
+                "legacy over-capacity backing");
 
         IAEItemStack legacyRejected =
                 legacyHandler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
@@ -402,6 +415,10 @@ public final class DiskRuntimeValidator {
                     "Fail-closed undecodable backing validation mutated authoritative data");
         }
 
+        requireRuntimeDiagnostic(
+                uuid,
+                DiskStorageData.QuarantineReason.UNDECODABLE_ITEM_KEY,
+                "bound undecodable backing");
         storage.remove(uuid);
 
         UUID legacyUuid = UUID.randomUUID();
@@ -442,10 +459,14 @@ public final class DiskRuntimeValidator {
                     "Legacy undecodable backing was mutated or bound before semantic validation");
         }
 
+        requireRuntimeDiagnostic(
+                legacyUuid,
+                DiskStorageData.QuarantineReason.UNDECODABLE_ITEM_KEY,
+                "legacy undecodable backing");
         storage.remove(legacyUuid);
 
         ExpansionAE.LOGGER.info(
-                "DISK undecodable backing rejection validated (bound + legacy data preserved, access blocked)");
+                "DISK undecodable backing rejection validated (bound + legacy data preserved, access blocked + diagnostic reason)");
     }
 
     private static void validateMalformedItemStackUuidRejection(
@@ -486,8 +507,63 @@ public final class DiskRuntimeValidator {
                     "Malformed DISK ItemStack UUID metadata was replaced or rewritten");
         }
 
+        requireAnonymousRuntimeDiagnostic(
+                DiskStorageData.QuarantineReason.MALFORMED_ITEMSTACK_UUID,
+                "malformed ItemStack UUID");
+
         ExpansionAE.LOGGER.info(
-                "DISK malformed ItemStack UUID rejection validated (metadata preserved, access blocked)");
+                "DISK malformed ItemStack UUID rejection validated (metadata preserved, access blocked + diagnostic reason)");
+    }
+
+
+    private static void validateMissingBackingDiagnostic(
+            DiskStorageData storage,
+            IItemStorageChannel channel) {
+        UUID uuid = UUID.randomUUID();
+        if (storage.get(uuid) != null || storage.isQuarantined(uuid)) {
+            throw new IllegalStateException(
+                    "Missing-backing diagnostic UUID unexpectedly already exists");
+        }
+
+        ItemStack stack = new ItemStack(ExpansionAEItems.DISK_1K.get());
+        stack.getOrCreateTag().putUniqueId(DiskCellInventory.TAG_UUID, uuid);
+        stack.getOrCreateTag().putLong(DiskCellInventory.TAG_ITEM_COUNT, 23L);
+        stack.getOrCreateTag().putLong(DiskCellInventory.TAG_TYPE_COUNT, 1L);
+
+        ICellInventoryHandler<IAEItemStack> handler =
+                open(stack, channel, "missing backing diagnostic validation");
+
+        IAEItemStack rejected =
+                handler.injectItems(stone(channel, 1), Actionable.MODULATE, null);
+        if (rejected == null || rejected.getStackSize() != 1) {
+            throw new IllegalStateException(
+                    "DISK with missing backing accepted an insertion");
+        }
+        if (handler.extractItems(stone(channel, 1), Actionable.MODULATE, null) != null) {
+            throw new IllegalStateException(
+                    "DISK with missing backing allowed extraction");
+        }
+        if (storage.get(uuid) != null) {
+            throw new IllegalStateException(
+                    "Missing-backing diagnostic recreated authoritative storage");
+        }
+
+        requireRuntimeDiagnostic(
+                uuid,
+                DiskStorageData.QuarantineReason.MISSING_BACKING,
+                "missing backing");
+
+        if (!stack.hasTag()
+                || !stack.getTag().hasUniqueId(DiskCellInventory.TAG_UUID)
+                || !uuid.equals(stack.getTag().getUniqueId(DiskCellInventory.TAG_UUID))
+                || stack.getTag().getLong(DiskCellInventory.TAG_ITEM_COUNT) != 23L
+                || stack.getTag().getLong(DiskCellInventory.TAG_TYPE_COUNT) != 1L) {
+            throw new IllegalStateException(
+                    "Missing-backing diagnostic mutated ItemStack metadata");
+        }
+
+        ExpansionAE.LOGGER.info(
+                "DISK missing backing rejection validated (no recreation + diagnostic reason)");
     }
 
     private static void validateWorkbenchSemantics(
@@ -1392,6 +1468,37 @@ public final class DiskRuntimeValidator {
         }
         stack.setStackSize(amount);
         return stack;
+    }
+
+
+    private static void requireRuntimeDiagnostic(
+            UUID uuid,
+            DiskStorageData.QuarantineReason expectedReason,
+            String stage) {
+        for (DiskStorageData.QuarantineSnapshot snapshot
+                : DiskAliasNotifier.snapshotRuntimeDiagnostics(uuid)) {
+            if (snapshot.getReason() == expectedReason) {
+                return;
+            }
+        }
+        throw new IllegalStateException(
+                "DISK runtime diagnostics did not report "
+                        + expectedReason + " during " + stage);
+    }
+
+    private static void requireAnonymousRuntimeDiagnostic(
+            DiskStorageData.QuarantineReason expectedReason,
+            String stage) {
+        for (DiskStorageData.QuarantineSnapshot snapshot
+                : DiskAliasNotifier.snapshotRuntimeDiagnostics()) {
+            if (snapshot.getUuid() == null
+                    && snapshot.getReason() == expectedReason) {
+                return;
+            }
+        }
+        throw new IllegalStateException(
+                "DISK runtime diagnostics did not report anonymous "
+                        + expectedReason + " during " + stage);
     }
 
     private static void requireStoredCount(

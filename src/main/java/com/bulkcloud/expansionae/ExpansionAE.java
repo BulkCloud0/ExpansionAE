@@ -8,6 +8,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -17,6 +18,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
+import com.bulkcloud.expansionae.feature.disk.DiskQuarantineCommands;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
 
@@ -73,6 +75,11 @@ public final class ExpansionAE {
                 && DEV_RUNTIME_VALIDATION) {
             DiskGridRuntimeValidator.tick();
         }
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        DiskQuarantineCommands.register(event.getDispatcher());
     }
 
     @SubscribeEvent
