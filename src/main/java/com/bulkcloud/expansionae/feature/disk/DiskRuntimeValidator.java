@@ -17,6 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
@@ -44,6 +45,10 @@ public final class DiskRuntimeValidator {
     }
 
     public static void validate() {
+        if (FMLEnvironment.production) {
+            return;
+        }
+
         DiskStorageData storage = DiskStorageService.getCurrent();
         if (storage == null) {
             throw new IllegalStateException("DISK runtime validation requires loaded overworld storage");
