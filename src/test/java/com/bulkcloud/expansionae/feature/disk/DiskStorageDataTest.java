@@ -124,6 +124,60 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void structurallyInvalidRecordWithUuidIsQuarantinedInsteadOfBecomingEmpty() {
+        UUID id = UUID.randomUUID();
+
+        CompoundNBT invalid = new CompoundNBT();
+        invalid.putUniqueId("uuid", id);
+        invalid.putString("keys", "wrong-nbt-type");
+        invalid.putLongArray("amounts", new long[] { 42L });
+        invalid.putLong("item_count", 42L);
+        invalid.putLong("capacity", 1_000L);
+        invalid.putString("custom_debug_payload", "preserve-structure");
+
+        ListNBT disks = new ListNBT();
+        disks.add(invalid);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.put(id, new ListNBT(), new long[0], 0L, 1_000L));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.remove(id));
+
+        UUID unrelatedId = UUID.randomUUID();
+        loaded.put(unrelatedId, new ListNBT(), new long[0], 0L, 4_000L);
+
+        CompoundNBT saved = loaded.write(new CompoundNBT());
+        ListNBT savedDisks = saved.getList("disks", 10);
+
+        CompoundNBT preserved = null;
+        for (int i = 0; i < savedDisks.size(); i++) {
+            CompoundNBT candidate = savedDisks.getCompound(i);
+            if (candidate.hasUniqueId("uuid")
+                    && id.equals(candidate.getUniqueId("uuid"))) {
+                preserved = candidate;
+                break;
+            }
+        }
+
+        assertNotNull(preserved);
+        assertEquals("wrong-nbt-type", preserved.getString("keys"));
+        assertEquals(42L, preserved.getLongArray("amounts")[0]);
+        assertEquals(42L, preserved.getLong("item_count"));
+        assertEquals(1_000L, preserved.getLong("capacity"));
+        assertEquals("preserve-structure", preserved.getString("custom_debug_payload"));
+    }
+
+    @Test
     void malformedRecordWithoutUuidIsQuarantinedAndPreservedDuringOtherWrites() {
         UUID validId = UUID.randomUUID();
 
