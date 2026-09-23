@@ -336,6 +336,38 @@ final class DiskStorageDataTest {
     }
 
     @Test
+    void floatingPointCapacityTagIsQuarantinedInsteadOfBeingTruncated() {
+        UUID id = UUID.randomUUID();
+
+        CompoundNBT disk = new CompoundNBT();
+        disk.putUniqueId("uuid", id);
+        disk.put("keys", new ListNBT());
+        disk.putLongArray("amounts", new long[0]);
+        disk.putLong("item_count", 0L);
+        disk.putDouble("capacity", 1000.75D);
+
+        ListNBT disks = new ListNBT();
+        disks.add(disk);
+
+        CompoundNBT root = new CompoundNBT();
+        root.put("disks", disks);
+
+        DiskStorageData loaded = new DiskStorageData();
+        loaded.read(root);
+
+        assertNull(loaded.get(id));
+        assertTrue(loaded.isQuarantined(id));
+        assertThrows(
+                IllegalStateException.class,
+                () -> loaded.bindCapacity(id, 1_000L));
+
+        CompoundNBT preserved = loaded.write(new CompoundNBT());
+        CompoundNBT preservedDisk = preserved.getList("disks", 10).getCompound(0);
+        assertEquals(1000.75D, preservedDisk.getDouble("capacity"));
+        assertEquals(6, preservedDisk.getTagId("capacity"));
+    }
+
+    @Test
     void nonNumericCapacityTagIsQuarantinedInsteadOfBecomingLegacy() {
         UUID id = UUID.randomUUID();
 
