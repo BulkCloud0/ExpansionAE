@@ -163,6 +163,10 @@ public final class DiskStorageData extends WorldSavedData {
         return disks.get(uuid);
     }
 
+    boolean isQuarantined(UUID uuid) {
+        return quarantinedDuplicateRecords.containsKey(uuid);
+    }
+
     public DiskRecord getOrCreate(UUID uuid) {
         return getOrCreate(uuid, 0);
     }
@@ -231,9 +235,8 @@ public final class DiskStorageData extends WorldSavedData {
     }
 
     public void remove(UUID uuid) {
-        boolean removed = disks.remove(uuid) != null;
-        removed |= quarantinedDuplicateRecords.remove(uuid) != null;
-        if (removed) {
+        requireNotQuarantined(uuid);
+        if (disks.remove(uuid) != null) {
             nextRevision();
             setDirty(true);
         }
