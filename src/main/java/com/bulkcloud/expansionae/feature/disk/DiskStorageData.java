@@ -114,8 +114,10 @@ public final class DiskStorageData extends WorldSavedData {
 
             // capacity=0 is the intentional legacy/unbound representation. Records
             // written before tier binding did not contain this tag and are bound once,
-            // on first legitimate access by a DISK ItemStack.
-            long capacity = Math.max(0, diskTag.getLong(TAG_CAPACITY));
+            // on first legitimate access by a DISK ItemStack. Preserve negative values
+            // as invalid metadata so they fail closed instead of being reinterpreted as
+            // a legitimate legacy record.
+            long capacity = diskTag.getLong(TAG_CAPACITY);
 
             disks.put(
                     uuid,
