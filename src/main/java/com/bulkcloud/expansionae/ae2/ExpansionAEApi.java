@@ -2,16 +2,25 @@ package com.bulkcloud.expansionae.ae2;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.disk.DiskCellHandler;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 
 import appeng.api.AEAddon;
 import appeng.api.IAEAddon;
 import appeng.api.IAppEngApi;
+import appeng.core.Api;
 
 @AEAddon
 public final class ExpansionAEApi implements IAEAddon {
     private static IAppEngApi api;
 
     public ExpansionAEApi() {
+    }
+
+    public static void registerPartModelsEarly() {
+        Api.instance().registries().partModels().registerModels(
+                ExpansionImportBusPart.MODEL_BASE,
+                ExpansionExportBusPart.MODEL_BASE);
     }
 
     @Override

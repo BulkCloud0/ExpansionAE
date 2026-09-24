@@ -16,6 +16,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
@@ -36,6 +37,7 @@ public final class ExpansionAE {
     public ExpansionAE() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ExpansionAEApi.registerPartModelsEarly();
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
         modBus.addListener(this::onCommonSetup);

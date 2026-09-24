@@ -41,10 +41,6 @@ public final class ExpansionAEClient {
         // AE2 8.4.x fires Forge model registration before AddonLoader announces
         // IAppEngApi through @AEAddon. Api.instance() explicitly documents this
         // as a supported exceptional case for early API access.
-        Api.instance().registries().partModels().registerModels(
-                ExpansionImportBusPart.MODEL_BASE,
-                ExpansionExportBusPart.MODEL_BASE);
-
         ICellModelRegistry cells = Api.instance().client().cells();
 
         registerDiskModel(
