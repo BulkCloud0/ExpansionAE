@@ -19,5 +19,7 @@
   "gui.expansionae.stock_export_bus.title": "Stock Export Bus",
   "gui.expansionae.stock_export_bus.subtitle": "ExpansionAE | target stock per filter",
   "block.expansionae.boosted_growth_accelerator": "Boosted Growth Accelerator",
-  "item.expansionae.boosted_growth_accelerator": "Boosted Growth Accelerator"
+  "item.expansionae.boosted_growth_accelerator": "Boosted Growth Accelerator",
+  "block.expansionae.cranked_growth_accelerator": "Cranked Growth Accelerator",
+  "item.expansionae.cranked_growth_accelerator": "Cranked Growth Accelerator"
 }

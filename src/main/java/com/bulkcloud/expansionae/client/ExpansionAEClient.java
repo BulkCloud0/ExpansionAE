@@ -135,6 +135,7 @@ public final class ExpansionAEClient {
                 ExpansionAEItems.STOCK_EXPORT_BUS.get(),
                 StockExportBusPart.MODEL_BASE);
         validateBoostedGrowthAcceleratorModels(event);
+        validateCrankedGrowthAcceleratorModels(event);
         validateExpansionAEClientResources();
 
         ExpansionAE.LOGGER.info(
@@ -145,6 +146,8 @@ public final class ExpansionAEClient {
                 "Stock Export Bus client model bake validation passed (item inventory + part base model)");
         ExpansionAE.LOGGER.info(
                 "Boosted Growth Accelerator client model validation passed (off/on + inventory)");
+        ExpansionAE.LOGGER.info(
+                "Cranked Growth Accelerator client model validation passed (off/on + inventory)");
         ExpansionAE.LOGGER.info(
                 "ExpansionAE client resource validation passed (GUI backgrounds + bus/growth textures)");
     }
@@ -207,6 +210,19 @@ public final class ExpansionAEClient {
                 new ResourceLocation(
                         ExpansionAE.MOD_ID,
                         "textures/block/boosted_growth_accelerator_side_on.png")
+,
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_top.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_top_on.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_side.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_side_on.png")
         };
 
         for (ResourceLocation resource : required) {
@@ -214,6 +230,35 @@ public final class ExpansionAEClient {
                 throw new IllegalStateException(
                         "Required ExpansionAE client resource is missing: " + resource);
             }
+        }
+    }
+
+    private static void validateCrankedGrowthAcceleratorModels(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.CRANKED_GROWTH_ACCELERATOR.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "Cranked Growth Accelerator inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get().getRegistryName();
+        ModelResourceLocation off =
+                new ModelResourceLocation(blockId, "powered=false");
+        ModelResourceLocation on =
+                new ModelResourceLocation(blockId, "powered=true");
+
+        if (event.getModelRegistry().get(off) == null
+                || event.getModelRegistry().get(off) == missing
+                || event.getModelRegistry().get(on) == null
+                || event.getModelRegistry().get(on) == missing) {
+            throw new IllegalStateException(
+                    "Cranked Growth Accelerator powered block models are missing");
         }
     }
 

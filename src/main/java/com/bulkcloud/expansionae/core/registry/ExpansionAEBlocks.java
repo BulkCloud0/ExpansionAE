@@ -7,6 +7,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.growth.BoostedGrowthAcceleratorBlock;
+import com.bulkcloud.expansionae.feature.growth.CrankedGrowthAcceleratorBlock;
 
 public final class ExpansionAEBlocks {
     public static final DeferredRegister<Block> BLOCKS =
@@ -16,6 +17,11 @@ public final class ExpansionAEBlocks {
             BLOCKS.register(
                     "boosted_growth_accelerator",
                     BoostedGrowthAcceleratorBlock::new);
+
+    public static final net.minecraftforge.fml.RegistryObject<Block> CRANKED_GROWTH_ACCELERATOR =
+            BLOCKS.register(
+                    "cranked_growth_accelerator",
+                    CrankedGrowthAcceleratorBlock::new);
 
     private ExpansionAEBlocks() {
     }
