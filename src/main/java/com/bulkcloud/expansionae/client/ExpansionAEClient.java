@@ -27,6 +27,7 @@ import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 
 import appeng.api.client.ICellModelRegistry;
 import appeng.client.gui.style.ScreenStyle;
@@ -43,7 +44,7 @@ public final class ExpansionAEClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ScreenManager.registerFactory(
+        event.enqueueWork(() -> ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(
                 ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
                 (container, inventory, title) -> {
                     try {
