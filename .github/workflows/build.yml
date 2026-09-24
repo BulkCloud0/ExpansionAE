@@ -93,6 +93,7 @@ jobs:
             "data/expansionae/recipes/stock_export_bus.json"
             "assets/expansionae/models/item/stock_export_bus.json"
             "assets/expansionae/models/part/stock_export_bus_base.json"
+            "assets/expansionae/textures/part/stock_export_bus.png"
             "com/bulkcloud/expansionae/feature/stockexport/StockExportTargets.class"
             "com/bulkcloud/expansionae/feature/stockexport/StockExportBusPart.class"
             "com/bulkcloud/expansionae/feature/stockexport/StockExportBusContainer.class"

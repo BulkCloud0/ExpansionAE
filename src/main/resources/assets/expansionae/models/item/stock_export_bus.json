@@ -1,6 +1,6 @@
 {
   "parent": "appliedenergistics2:item/export_bus",
   "textures": {
-    "front": "expansionae:part/extended_export_bus"
+    "front": "expansionae:part/stock_export_bus"
   }
 }
