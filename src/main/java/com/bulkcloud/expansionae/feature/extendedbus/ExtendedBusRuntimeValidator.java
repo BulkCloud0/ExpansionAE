@@ -11,6 +11,7 @@ import net.minecraftforge.fml.server.ServerLifecycleHooks;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.config.Upgrades;
 import appeng.api.parts.IPart;
@@ -36,9 +37,11 @@ public final class ExtendedBusRuntimeValidator {
 
         Item importBus = ExpansionAEItems.EXTENDED_IMPORT_BUS.get();
         Item exportBus = ExpansionAEItems.EXTENDED_EXPORT_BUS.get();
+        Item stockExportBus = ExpansionAEItems.STOCK_EXPORT_BUS.get();
 
         requirePart(importBus, ExpansionImportBusPart.class, "import");
         requirePart(exportBus, ExpansionExportBusPart.class, "export");
+        requirePart(stockExportBus, StockExportBusPart.class, "stock export");
 
         if (ExpansionImportBusPart.UPGRADE_SLOTS != 4
                 || ExpansionExportBusPart.UPGRADE_SLOTS != 4) {
@@ -57,6 +60,12 @@ public final class ExtendedBusRuntimeValidator {
         requireUpgrade(exportBus, Upgrades.SPEED, 4, "export");
         requireUpgrade(exportBus, Upgrades.CRAFTING, 1, "export");
 
+        requireUpgrade(stockExportBus, Upgrades.FUZZY, 1, "stock export");
+        requireUpgrade(stockExportBus, Upgrades.REDSTONE, 1, "stock export");
+        requireUpgrade(stockExportBus, Upgrades.CAPACITY, 2, "stock export");
+        requireUpgrade(stockExportBus, Upgrades.SPEED, 4, "stock export");
+        requireUpgrade(stockExportBus, Upgrades.CRAFTING, 0, "stock export");
+
         for (int i = 0; i < NATIVE_BUDGETS.length; i++) {
             int actual = ExtendedBusThroughput.scaleBudget(NATIVE_BUDGETS[i]);
             if (actual != EXPECTED_BUDGETS[i]) {
@@ -69,11 +78,16 @@ public final class ExtendedBusRuntimeValidator {
 
         validateRecipe(server, "extended_import_bus", importBus);
         validateRecipe(server, "extended_export_bus", exportBus);
+        validateRecipe(server, "stock_export_bus", stockExportBus);
 
         ExpansionAE.LOGGER.info(
                 "8x item bus runtime contract validated "
                         + "(part factories, 4 upgrade slots, native upgrade matrix, "
                         + "8/64/256/512/768 budgets, crafting recipes)");
+        ExpansionAE.LOGGER.info(
+                "Stock Export Bus runtime contract validated "
+                        + "(part factory, FUZZY/REDSTONE/CAPACITY/SPEED upgrades, "
+                        + "CRAFTING disabled for MVP, crafting recipe)");
     }
 
     private static void requirePart(

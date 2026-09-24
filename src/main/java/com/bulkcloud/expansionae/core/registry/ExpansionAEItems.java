@@ -17,6 +17,7 @@ import com.bulkcloud.expansionae.core.ExpansionAEItemGroup;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
@@ -48,6 +49,13 @@ public final class ExpansionAEItems {
                     () -> new PartItem<>(
                             new Item.Properties().group(ExpansionAEItemGroup.MAIN),
                             ExpansionExportBusPart::new));
+
+    public static final RegistryObject<Item> STOCK_EXPORT_BUS =
+            ITEMS.register(
+                    "stock_export_bus",
+                    () -> new PartItem<>(
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN),
+                            StockExportBusPart::new));
 
     private static final List<RegistryObject<Item>> DISKS = Arrays.asList(
             DISK_1K,
@@ -83,6 +91,7 @@ public final class ExpansionAEItems {
 
         registerImportBusUpgrades(EXTENDED_IMPORT_BUS.get());
         registerExportBusUpgrades(EXTENDED_EXPORT_BUS.get());
+        registerStockExportBusUpgrades(STOCK_EXPORT_BUS.get());
     }
 
     private static void registerImportBusUpgrades(Item item) {
@@ -95,6 +104,13 @@ public final class ExpansionAEItems {
     private static void registerExportBusUpgrades(Item item) {
         registerImportBusUpgrades(item);
         Upgrades.CRAFTING.registerItem(item, 1);
+    }
+
+    private static void registerStockExportBusUpgrades(Item item) {
+        Upgrades.FUZZY.registerItem(item, 1);
+        Upgrades.REDSTONE.registerItem(item, 1);
+        Upgrades.CAPACITY.registerItem(item, 2);
+        Upgrades.SPEED.registerItem(item, 4);
     }
 
     public static void validateDiskWorkbenchContract() {

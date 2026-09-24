@@ -4,6 +4,7 @@ import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.disk.DiskCellHandler;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.AEAddon;
 import appeng.api.IAEAddon;
@@ -20,7 +21,8 @@ public final class ExpansionAEApi implements IAEAddon {
     public static void registerPartModelsEarly() {
         Api.instance().registries().partModels().registerModels(
                 ExpansionImportBusPart.MODEL_BASE,
-                ExpansionExportBusPart.MODEL_BASE);
+                ExpansionExportBusPart.MODEL_BASE,
+                StockExportBusPart.MODEL_BASE);
     }
 
     @Override

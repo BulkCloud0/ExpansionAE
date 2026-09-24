@@ -16,6 +16,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
 import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
@@ -40,6 +41,7 @@ public final class ExpansionAE {
         ExpansionAEApi.registerPartModelsEarly();
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
+        ExpansionAEContainers.register(modBus);
         modBus.addListener(this::onCommonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "expansionae:extended_export_bus" },
+    { "item": "appliedenergistics2:capacity_card" },
+    { "item": "appliedenergistics2:calculation_processor" }
+  ],
+  "result": {
+    "item": "expansionae:stock_export_bus",
+    "count": 1
+  }
+}
