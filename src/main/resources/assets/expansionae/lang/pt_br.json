@@ -12,10 +12,12 @@
   "gui.expansionae.stock_export.target": "Alvo",
   "gui.expansionae.stock_export.set": "Definir",
   "item.expansionae.stock_export_bus": "Barramento de Exportação de Estoque",
-  "gui.expansionae.extended_import_bus.title": "ExpansionAE - Importação 8x",
-  "gui.expansionae.extended_import_bus.subtitle": "Orçamento 8x - importação de alto desempenho",
-  "gui.expansionae.extended_export_bus.title": "ExpansionAE - Exportação 8x",
-  "gui.expansionae.extended_export_bus.subtitle": "Orçamento 8x - exportação de alto desempenho",
-  "gui.expansionae.stock_export_bus.title": "ExpansionAE - Exportação de Estoque",
-  "gui.expansionae.stock_export_bus.subtitle": "Selecione um filtro e defina a quantidade alvo"
+  "gui.expansionae.extended_import_bus.title": "Importação 8x",
+  "gui.expansionae.extended_import_bus.subtitle": "ExpansionAE | transferência 8x",
+  "gui.expansionae.extended_export_bus.title": "Exportação 8x",
+  "gui.expansionae.extended_export_bus.subtitle": "ExpansionAE | transferência 8x",
+  "gui.expansionae.stock_export_bus.title": "Exportação de Estoque",
+  "gui.expansionae.stock_export_bus.subtitle": "ExpansionAE | alvo por filtro",
+  "block.expansionae.boosted_growth_accelerator": "Acelerador de Crescimento Turbinado",
+  "item.expansionae.boosted_growth_accelerator": "Acelerador de Crescimento Turbinado"
 }

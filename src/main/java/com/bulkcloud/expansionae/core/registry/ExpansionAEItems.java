@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
@@ -56,6 +57,13 @@ public final class ExpansionAEItems {
                     () -> new PartItem<>(
                             new Item.Properties().group(ExpansionAEItemGroup.MAIN),
                             StockExportBusPart::new));
+
+    public static final RegistryObject<Item> BOOSTED_GROWTH_ACCELERATOR =
+            ITEMS.register(
+                    "boosted_growth_accelerator",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.BOOSTED_GROWTH_ACCELERATOR.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
 
     private static final List<RegistryObject<Item>> DISKS = Arrays.asList(
             DISK_1K,

@@ -51,7 +51,7 @@ public final class ExpansionAEScreenStyles {
             int configTop) {
         String json = "{"
                 + "\"palette\":{\"DEFAULT_TEXT_COLOR\":\"#404040\"},"
-                + "\"background\":{\"texture\":\"appliedenergistics2:guis/bus.png\","
+                + "\"background\":{\"texture\":\"appliedenergistics2:textures/guis/bus.png\","
                 + "\"srcRect\":[0,0,176,184]},"
                 + "\"slots\":{"
                 + "\"CONFIG\":{\"left\":80,\"top\":" + configTop + ",\"grid\":\"IO_BUS_CONFIG\"},"
@@ -65,7 +65,7 @@ public final class ExpansionAEScreenStyles {
                 + "\",\"color\":\"#6A6A6A\"},\"position\":{\"left\":8,\"top\":17}},"
                 + "\"player_inventory_title\":{\"text\":{\"translate\":\"container.inventory\"},"
                 + "\"position\":{\"left\":8,\"bottom\":93}}},"
-                + "\"images\":{\"toolbox\":{\"texture\":\"appliedenergistics2:guis/extra_panels.png\","
+                + "\"images\":{\"toolbox\":{\"texture\":\"appliedenergistics2:textures/guis/extra_panels.png\","
                 + "\"textureWidth\":128,\"textureHeight\":128,\"srcRect\":[60,60,68,68]}},"
                 + "\"widgets\":{"
                 + "\"verticalToolbar\":{\"left\":-2,\"top\":6},"

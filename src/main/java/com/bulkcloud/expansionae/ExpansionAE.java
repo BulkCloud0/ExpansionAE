@@ -18,6 +18,7 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
+import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
 import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskQuarantineCommands;
@@ -25,6 +26,7 @@ import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusRuntimeValidator;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusTransferRuntimeValidator;
+import com.bulkcloud.expansionae.feature.growth.GrowthAcceleratorRuntimeValidator;
 
 @Mod(ExpansionAE.MOD_ID)
 public final class ExpansionAE {
@@ -44,6 +46,7 @@ public final class ExpansionAE {
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
         ExpansionAEContainers.register(modBus);
+        ExpansionAETileEntities.register(modBus);
         modBus.addListener(this::onCommonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -72,6 +75,7 @@ public final class ExpansionAE {
     public void onServerStarted(FMLServerStartedEvent event) {
         if (DEV_RUNTIME_VALIDATION) {
             ExtendedBusRuntimeValidator.validate();
+            GrowthAcceleratorRuntimeValidator.validate();
             DiskRuntimeValidator.validate();
             ExtendedBusTransferRuntimeValidator.begin();
         }

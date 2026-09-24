@@ -122,6 +122,22 @@ jobs:
             "com/bulkcloud/expansionae/feature/disk/DiskQuarantineExport.class"
             "com/bulkcloud/expansionae/feature/disk/DiskQuarantinePermissions.class"
             "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
+            "com/bulkcloud/expansionae/mixin/GrowingCrystalEntityMixin.class"
+            "com/bulkcloud/expansionae/feature/growth/WeightedCrystalGrowthAccelerator.class"
+            "com/bulkcloud/expansionae/feature/growth/GrowthAcceleration.class"
+            "com/bulkcloud/expansionae/feature/growth/BoostedGrowthAcceleratorBlock.class"
+            "com/bulkcloud/expansionae/feature/growth/BoostedGrowthAcceleratorTileEntity.class"
+            "com/bulkcloud/expansionae/core/registry/ExpansionAETileEntities.class"
+            "assets/expansionae/blockstates/boosted_growth_accelerator.json"
+            "assets/expansionae/models/block/boosted_growth_accelerator_off.json"
+            "assets/expansionae/models/block/boosted_growth_accelerator_on.json"
+            "assets/expansionae/models/item/boosted_growth_accelerator.json"
+            "assets/expansionae/textures/block/boosted_growth_accelerator_top.png"
+            "assets/expansionae/textures/block/boosted_growth_accelerator_top_on.png"
+            "assets/expansionae/textures/block/boosted_growth_accelerator_side.png"
+            "assets/expansionae/textures/block/boosted_growth_accelerator_side_on.png"
+            "data/expansionae/recipes/boosted_growth_accelerator.json"
+            "data/expansionae/loot_tables/blocks/boosted_growth_accelerator.json"
           )
 
           for entry in "${required_entries[@]}"; do
@@ -350,6 +366,7 @@ jobs:
                 && grep -q "8x item bus transfer runtime validated" run/logs/latest.log \
                 && grep -q "Stock Export Bus runtime contract validated" run/logs/latest.log \
                 && grep -q "Stock Export Bus runtime validated" run/logs/latest.log \
+                && grep -q "Boosted Growth Accelerator runtime contract validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
@@ -442,7 +459,9 @@ jobs:
               && grep -q "DISK client tooltip validation passed" run/logs/latest.log \
               && grep -q "8x item bus client model bake validation passed" run/logs/latest.log \
               && grep -q "Stock Export Bus client model bake validation passed" run/logs/latest.log \
-              && grep -q "ExpansionAE bus UI layout validation passed" run/logs/latest.log; then
+              && grep -q "ExpansionAE bus UI layout validation passed" run/logs/latest.log \
+              && grep -q "Boosted Growth Accelerator client model validation passed" run/logs/latest.log \
+              && grep -q "ExpansionAE client resource validation passed" run/logs/latest.log; then
               validated=1
               break
             fi

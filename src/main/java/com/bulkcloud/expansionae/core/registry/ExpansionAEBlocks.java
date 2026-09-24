@@ -6,10 +6,16 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import com.bulkcloud.expansionae.ExpansionAE;
+import com.bulkcloud.expansionae.feature.growth.BoostedGrowthAcceleratorBlock;
 
 public final class ExpansionAEBlocks {
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, ExpansionAE.MOD_ID);
+
+    public static final net.minecraftforge.fml.RegistryObject<Block> BOOSTED_GROWTH_ACCELERATOR =
+            BLOCKS.register(
+                    "boosted_growth_accelerator",
+                    BoostedGrowthAcceleratorBlock::new);
 
     private ExpansionAEBlocks() {
     }

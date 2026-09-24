@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
@@ -132,6 +134,8 @@ public final class ExpansionAEClient {
                 event,
                 ExpansionAEItems.STOCK_EXPORT_BUS.get(),
                 StockExportBusPart.MODEL_BASE);
+        validateBoostedGrowthAcceleratorModels(event);
+        validateExpansionAEClientResources();
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
@@ -139,6 +143,78 @@ public final class ExpansionAEClient {
                 "8x item bus client model bake validation passed (item inventory + part base models)");
         ExpansionAE.LOGGER.info(
                 "Stock Export Bus client model bake validation passed (item inventory + part base model)");
+        ExpansionAE.LOGGER.info(
+                "Boosted Growth Accelerator client model validation passed (off/on + inventory)");
+        ExpansionAE.LOGGER.info(
+                "ExpansionAE client resource validation passed (GUI backgrounds + bus/growth textures)");
+    }
+
+    private static void validateBoostedGrowthAcceleratorModels(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.BOOSTED_GROWTH_ACCELERATOR.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "Boosted Growth Accelerator inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.BOOSTED_GROWTH_ACCELERATOR.get().getRegistryName();
+        ModelResourceLocation off =
+                new ModelResourceLocation(blockId, "powered=false");
+        ModelResourceLocation on =
+                new ModelResourceLocation(blockId, "powered=true");
+
+        if (event.getModelRegistry().get(off) == null
+                || event.getModelRegistry().get(off) == missing
+                || event.getModelRegistry().get(on) == null
+                || event.getModelRegistry().get(on) == missing) {
+            throw new IllegalStateException(
+                    "Boosted Growth Accelerator powered block models are missing");
+        }
+    }
+
+    private static void validateExpansionAEClientResources() {
+        ResourceLocation[] required = new ResourceLocation[] {
+                new ResourceLocation(
+                        "appliedenergistics2",
+                        "textures/guis/bus.png"),
+                new ResourceLocation(
+                        "appliedenergistics2",
+                        "textures/guis/extra_panels.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/part/extended_import_bus.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/part/extended_export_bus.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/part/stock_export_bus.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_top.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_top_on.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_side.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_side_on.png")
+        };
+
+        for (ResourceLocation resource : required) {
+            if (!Minecraft.getInstance().getResourceManager().hasResource(resource)) {
+                throw new IllegalStateException(
+                        "Required ExpansionAE client resource is missing: " + resource);
+            }
+        }
     }
 
     private static void validateExtendedBusModels(
