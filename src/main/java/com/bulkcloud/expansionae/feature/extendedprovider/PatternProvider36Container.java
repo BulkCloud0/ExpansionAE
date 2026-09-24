@@ -10,13 +10,14 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.network.NetworkHooks;
+import net.minecraftforge.items.SlotItemHandler;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
 
 import appeng.api.config.SecurityPermissions;
 import appeng.container.AEBaseContainer;
 import appeng.container.SlotSemantic;
-import appeng.container.slot.RestrictedInputSlot;
+import appeng.core.Api;
 import appeng.util.Platform;
 
 public final class PatternProvider36Container extends AEBaseContainer {
@@ -30,13 +31,24 @@ public final class PatternProvider36Container extends AEBaseContainer {
         for (int slot = 0; slot < PatternProvider36TileEntity.PATTERN_SLOTS; slot++) {
             int col = slot % 6;
             int row = slot / 6;
-            RestrictedInputSlot patternSlot =
-                    new RestrictedInputSlot(
-                            RestrictedInputSlot.PlacableItemType.ENCODED_PATTERN,
+            final int patternIndex = slot;
+            SlotItemHandler patternSlot =
+                    new SlotItemHandler(
                             host.getPatterns(),
-                            slot);
-            patternSlot.xPos = 35 + col * 18;
-            patternSlot.yPos = 22 + row * 18;
+                            patternIndex,
+                            35 + col * 18,
+                            22 + row * 18) {
+                        @Override
+                        public boolean isItemValid(net.minecraft.item.ItemStack stack) {
+                            return !stack.isEmpty()
+                                    && Api.instance().crafting().isEncodedPattern(stack);
+                        }
+
+                        @Override
+                        public int getSlotStackLimit() {
+                            return 1;
+                        }
+                    };
             this.addSlot(patternSlot, SlotSemantic.ENCODED_PATTERN);
         }
 
