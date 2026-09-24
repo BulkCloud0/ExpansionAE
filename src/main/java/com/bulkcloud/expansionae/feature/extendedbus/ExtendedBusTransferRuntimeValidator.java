@@ -23,6 +23,7 @@ import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageData;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.Upgrades;
@@ -48,6 +49,12 @@ public final class ExtendedBusTransferRuntimeValidator {
     private static final int EXPORT_INITIAL_CHEST = 60;
     private static final int EXPORT_EXPECTED_DISK = 96;
     private static final int EXPORT_EXPECTED_CHEST = 64;
+
+    private static final int STOCK_INITIAL_DISK = 100;
+    private static final int STOCK_INITIAL_CHEST = 40;
+    private static final int STOCK_TARGET = 64;
+    private static final int STOCK_EXPECTED_DISK = 76;
+    private static final int STOCK_EXPECTED_CHEST = 64;
 
     private static final int MIN_TICKS = 20;
     private static final int MAX_TICKS = 200;
@@ -82,6 +89,7 @@ public final class ExtendedBusTransferRuntimeValidator {
 
         BlockPos importBase = world.getSpawnPoint().up(30).east(12);
         BlockPos exportBase = world.getSpawnPoint().up(30).west(12);
+        BlockPos stockBase = world.getSpawnPoint().up(30).south(12);
 
         Network importNetwork = createNetwork(
                 world,
@@ -106,11 +114,28 @@ public final class ExtendedBusTransferRuntimeValidator {
         fillExportChest(exportNetwork.chestInventory);
         configureExportFilter(exportNetwork.bus);
 
-        session = new Session(world, channel, importNetwork, exportNetwork);
+        Network stockNetwork = createNetwork(
+                world,
+                channel,
+                stockBase,
+                ExpansionAEItems.STOCK_EXPORT_BUS.get(),
+                true,
+                STOCK_INITIAL_DISK,
+                "stock");
+
+        fillStockChest(stockNetwork.chestInventory);
+        configureStockFilter(stockNetwork.bus);
+
+        session = new Session(
+                world,
+                channel,
+                importNetwork,
+                exportNetwork,
+                stockNetwork);
 
         ExpansionAE.LOGGER.info(
-                "8x item bus transfer validation scheduled "
-                        + "(1k DISK saturation + partial export remainder)");
+                "8x item bus + Stock Export transfer validation scheduled "
+                        + "(DISK saturation + partial remainder + exact stock target)");
     }
 
     public static void tick() {
@@ -129,7 +154,9 @@ public final class ExtendedBusTransferRuntimeValidator {
             return;
         }
 
-        if (!isActive(current.importNetwork) || !isActive(current.exportNetwork)) {
+        if (!isActive(current.importNetwork)
+                || !isActive(current.exportNetwork)
+                || !isActive(current.stockNetwork)) {
             if (current.ticks < MAX_TICKS) {
                 return;
             }
@@ -150,14 +177,23 @@ public final class ExtendedBusTransferRuntimeValidator {
                 "export DISK");
         int exportChest = countItem(current.exportNetwork.chestInventory, Items.STONE);
 
+        long stockDisk = storedCount(
+                current.stockNetwork.drive,
+                current.channel,
+                "stock DISK");
+        int stockChest = countItem(current.stockNetwork.chestInventory, Items.STONE);
+
         boolean importDone =
                 importDisk == IMPORT_EXPECTED_DISK
                         && importChest == IMPORT_EXPECTED_CHEST;
         boolean exportDone =
                 exportDisk == EXPORT_EXPECTED_DISK
                         && exportChest == EXPORT_EXPECTED_CHEST;
+        boolean stockDone =
+                stockDisk == STOCK_EXPECTED_DISK
+                        && stockChest == STOCK_EXPECTED_CHEST;
 
-        if (!importDone || !exportDone) {
+        if (!importDone || !exportDone || !stockDone) {
             if (current.ticks < MAX_TICKS) {
                 return;
             }
@@ -165,7 +201,8 @@ public final class ExtendedBusTransferRuntimeValidator {
             throw new IllegalStateException(
                     "8x item bus transfer validation timed out: "
                             + "import=" + importDisk + " disk/" + importChest + " chest, "
-                            + "export=" + exportDisk + " disk/" + exportChest + " chest");
+                            + "export=" + exportDisk + " disk/" + exportChest + " chest, "
+                            + "stock=" + stockDisk + " disk/" + stockChest + " chest");
         }
 
         requireConservation(
@@ -178,12 +215,19 @@ public final class ExtendedBusTransferRuntimeValidator {
                 exportChest,
                 EXPORT_INITIAL_DISK + EXPORT_INITIAL_CHEST,
                 "export partial remainder");
+        requireConservation(
+                stockDisk,
+                stockChest,
+                STOCK_INITIAL_DISK + STOCK_INITIAL_CHEST,
+                "stock exact target");
 
         requireSpeedCards(current.importNetwork.bus, "import");
         requireSpeedCards(current.exportNetwork.bus, "export");
+        requireSpeedCards(current.stockNetwork.bus, "stock");
 
         cleanup(current.importNetwork);
         cleanup(current.exportNetwork);
+        cleanup(current.stockNetwork);
         session = null;
 
         ExpansionAE.LOGGER.info(
@@ -191,6 +235,10 @@ public final class ExtendedBusTransferRuntimeValidator {
                         + "(import 1024 -> DISK 1000 + chest 24; "
                         + "export partial target 100+60 -> DISK 96 + chest 64; "
                         + "item counts conserved)");
+        ExpansionAE.LOGGER.info(
+                "Stock Export Bus runtime validated "
+                        + "(target 64; initial DISK/chest 100+40 -> 76+64; "
+                        + "no overshoot; item counts conserved)");
     }
 
     private static Network createNetwork(
@@ -233,7 +281,8 @@ public final class ExtendedBusTransferRuntimeValidator {
 
         IPart rawPart = cable.getPart(AEPartLocation.EAST);
         if (!(rawPart instanceof ExpansionImportBusPart)
-                && !(rawPart instanceof ExpansionExportBusPart)) {
+                && !(rawPart instanceof ExpansionExportBusPart)
+                && !(rawPart instanceof StockExportBusPart)) {
             throw new IllegalStateException(
                     "Unexpected part created for 8x " + label + " bus: "
                             + (rawPart == null ? "null" : rawPart.getClass().getName()));
@@ -283,10 +332,17 @@ public final class ExtendedBusTransferRuntimeValidator {
             throw new IllegalStateException("AE2 speed card item is unavailable");
         }
 
-        IItemHandler upgrades =
-                part instanceof ExpansionImportBusPart
-                        ? ((ExpansionImportBusPart) part).getInventoryByName("upgrades")
-                        : ((ExpansionExportBusPart) part).getInventoryByName("upgrades");
+        IItemHandler upgrades;
+        if (part instanceof ExpansionImportBusPart) {
+            upgrades = ((ExpansionImportBusPart) part).getInventoryByName("upgrades");
+        } else if (part instanceof ExpansionExportBusPart) {
+            upgrades = ((ExpansionExportBusPart) part).getInventoryByName("upgrades");
+        } else if (part instanceof StockExportBusPart) {
+            upgrades = ((StockExportBusPart) part).getInventoryByName("upgrades");
+        } else {
+            throw new IllegalStateException(
+                    "Unexpected part while installing SPEED cards for " + label);
+        }
 
         if (upgrades == null || upgrades.getSlots() != 4) {
             throw new IllegalStateException(
@@ -318,6 +374,33 @@ public final class ExtendedBusTransferRuntimeValidator {
                 config.insertItem(0, new ItemStack(Items.STONE), false);
         if (!rejected.isEmpty()) {
             throw new IllegalStateException("8x export bus rejected its Stone filter");
+        }
+    }
+
+    private static void configureStockFilter(IPart part) {
+        if (!(part instanceof StockExportBusPart)) {
+            throw new IllegalStateException(
+                    "Stock validation part is not StockExportBusPart");
+        }
+
+        StockExportBusPart stock = (StockExportBusPart) part;
+        IItemHandler config = stock.getInventoryByName("config");
+        if (config == null || config.getSlots() < 1) {
+            throw new IllegalStateException(
+                    "Stock Export Bus config inventory is unavailable");
+        }
+
+        ItemStack rejected =
+                config.insertItem(0, new ItemStack(Items.STONE), false);
+        if (!rejected.isEmpty()) {
+            throw new IllegalStateException(
+                    "Stock Export Bus rejected its Stone filter");
+        }
+
+        stock.getTargets().set(0, STOCK_TARGET);
+        if (stock.getTargets().get(0) != STOCK_TARGET) {
+            throw new IllegalStateException(
+                    "Stock Export Bus target did not retain " + STOCK_TARGET);
         }
     }
 
@@ -357,6 +440,28 @@ public final class ExtendedBusTransferRuntimeValidator {
         }
     }
 
+    private static void fillStockChest(IItemHandler chest) {
+        requireChestInsert(
+                chest,
+                0,
+                new ItemStack(Items.STONE, STOCK_INITIAL_CHEST),
+                "stock destination Stone slot");
+
+        for (int slot = 1; slot < chest.getSlots(); slot++) {
+            requireChestInsert(
+                    chest,
+                    slot,
+                    new ItemStack(Items.COBBLESTONE, 64),
+                    "stock destination blocker");
+        }
+
+        if (countItem(chest, Items.STONE) != STOCK_INITIAL_CHEST) {
+            throw new IllegalStateException(
+                    "Stock destination chest was not prepared with exactly "
+                            + STOCK_INITIAL_CHEST + " Stone");
+        }
+    }
+
     private static void requireChestInsert(
             IItemHandler chest,
             int slot,
@@ -376,9 +481,16 @@ public final class ExtendedBusTransferRuntimeValidator {
             return driveActive
                     && ((ExpansionImportBusPart) network.bus).getProxy().isActive();
         }
+        if (network.bus instanceof ExpansionExportBusPart) {
+            return driveActive
+                    && ((ExpansionExportBusPart) network.bus).getProxy().isActive();
+        }
+        if (network.bus instanceof StockExportBusPart) {
+            return driveActive
+                    && ((StockExportBusPart) network.bus).getProxy().isActive();
+        }
 
-        return driveActive
-                && ((ExpansionExportBusPart) network.bus).getProxy().isActive();
+        return false;
     }
 
     private static void requireSpeedCards(IPart part, String label) {
@@ -386,9 +498,15 @@ public final class ExtendedBusTransferRuntimeValidator {
         if (part instanceof ExpansionImportBusPart) {
             installed =
                     ((ExpansionImportBusPart) part).getInstalledUpgrades(Upgrades.SPEED);
-        } else {
+        } else if (part instanceof ExpansionExportBusPart) {
             installed =
                     ((ExpansionExportBusPart) part).getInstalledUpgrades(Upgrades.SPEED);
+        } else if (part instanceof StockExportBusPart) {
+            installed =
+                    ((StockExportBusPart) part).getInstalledUpgrades(Upgrades.SPEED);
+        } else {
+            throw new IllegalStateException(
+                    "Unexpected part while checking SPEED cards for " + label);
         }
 
         if (installed != 4) {
@@ -552,17 +670,20 @@ public final class ExtendedBusTransferRuntimeValidator {
         private final IItemStorageChannel channel;
         private final Network importNetwork;
         private final Network exportNetwork;
+        private final Network stockNetwork;
         private int ticks;
 
         private Session(
                 ServerWorld world,
                 IItemStorageChannel channel,
                 Network importNetwork,
-                Network exportNetwork) {
+                Network exportNetwork,
+                Network stockNetwork) {
             this.world = world;
             this.channel = channel;
             this.importNetwork = importNetwork;
             this.exportNetwork = exportNetwork;
+            this.stockNetwork = stockNetwork;
         }
     }
 

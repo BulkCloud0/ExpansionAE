@@ -332,6 +332,8 @@ jobs:
                 && grep -q "DISK workbench contract validated" run/logs/latest.log \
                 && grep -q "8x item bus runtime contract validated" run/logs/latest.log \
                 && grep -q "8x item bus transfer runtime validated" run/logs/latest.log \
+                && grep -q "Stock Export Bus runtime contract validated" run/logs/latest.log \
+                && grep -q "Stock Export Bus runtime validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
