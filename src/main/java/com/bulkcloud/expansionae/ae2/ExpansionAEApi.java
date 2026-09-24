@@ -2,6 +2,8 @@ package com.bulkcloud.expansionae.ae2;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.disk.DiskCellHandler;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 
 import appeng.api.AEAddon;
 import appeng.api.IAEAddon;
@@ -18,9 +20,13 @@ public final class ExpansionAEApi implements IAEAddon {
     public void onAPIAvailable(IAppEngApi api) {
         ExpansionAEApi.api = api;
         api.registries().cell().addCellHandler(DiskCellHandler.INSTANCE);
+        api.registries().partModels().registerModels(
+                ExpansionImportBusPart.MODEL_BASE,
+                ExpansionExportBusPart.MODEL_BASE);
 
         ExpansionAE.LOGGER.info(
-                "AE2 API available; registered ExpansionAE cell handlers ({} storage channels visible)",
+                "AE2 API available; registered ExpansionAE cell handlers, 8x bus part models "
+                        + "({} storage channels visible)",
                 api.storage().storageChannels().size());
     }
 
