@@ -2,6 +2,9 @@ package com.bulkcloud.expansionae.feature.stockexport;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.items.IItemHandler;
 
@@ -256,6 +259,14 @@ public final class StockExportBusPart extends ExportBusPart {
         }
 
         return offset;
+    }
+
+    @Override
+    public boolean onPartActivate(PlayerEntity player, Hand hand, Vector3d pos) {
+        if (!this.isRemote()) {
+            StockExportBusContainer.open(player, this);
+        }
+        return true;
     }
 
     @Override
