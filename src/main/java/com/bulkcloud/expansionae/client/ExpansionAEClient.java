@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
@@ -18,14 +19,18 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 
 import appeng.api.client.ICellModelRegistry;
+import appeng.client.gui.style.ScreenStyle;
+import appeng.client.gui.style.StyleManager;
 import appeng.core.Api;
 
 @Mod.EventBusSubscriber(
@@ -34,6 +39,22 @@ import appeng.core.Api;
         value = Dist.CLIENT)
 public final class ExpansionAEClient {
     private ExpansionAEClient() {
+    }
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ScreenManager.registerFactory(
+                ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
+                (container, inventory, title) -> {
+                    try {
+                        ScreenStyle style = StyleManager.loadStyleDoc("/screens/export_bus.json");
+                        return new StockExportBusScreen(container, inventory, title, style);
+                    } catch (Exception e) {
+                        throw new IllegalStateException(
+                                "Failed to load AE2 export bus screen style for Stock Export Bus",
+                                e);
+                    }
+                }));
     }
 
     @SubscribeEvent

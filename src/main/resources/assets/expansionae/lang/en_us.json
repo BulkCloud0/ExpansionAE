@@ -8,5 +8,7 @@
   "item.expansionae.extended_export_bus": "8x Export Bus",
   "tooltip.expansionae.disk.items": "%s / %s items",
   "tooltip.expansionae.disk.types": "%s item types",
-  "tooltip.expansionae.disk.no_type_limit": "No item type limit"
+  "tooltip.expansionae.disk.no_type_limit": "No item type limit",
+  "gui.expansionae.stock_export.target": "Target",
+  "gui.expansionae.stock_export.set": "Set"
 }
