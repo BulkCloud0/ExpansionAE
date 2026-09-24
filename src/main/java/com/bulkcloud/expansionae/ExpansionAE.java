@@ -17,10 +17,13 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskQuarantineCommands;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
+import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusRuntimeValidator;
+import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusTransferRuntimeValidator;
 
 @Mod(ExpansionAE.MOD_ID)
 public final class ExpansionAE {
@@ -36,6 +39,7 @@ public final class ExpansionAE {
     public ExpansionAE() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ExpansionAEApi.registerPartModelsEarly();
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
         modBus.addListener(this::onCommonSetup);
@@ -65,7 +69,9 @@ public final class ExpansionAE {
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
         if (DEV_RUNTIME_VALIDATION) {
+            ExtendedBusRuntimeValidator.validate();
             DiskRuntimeValidator.validate();
+            ExtendedBusTransferRuntimeValidator.begin();
         }
     }
 
@@ -74,6 +80,7 @@ public final class ExpansionAE {
         if (event.phase == TickEvent.Phase.END
                 && DEV_RUNTIME_VALIDATION) {
             DiskGridRuntimeValidator.tick();
+            ExtendedBusTransferRuntimeValidator.tick();
         }
     }
 

@@ -4,6 +4,8 @@
   "item.expansionae.4k_disk": "DISK de Itens 4k",
   "item.expansionae.16k_disk": "DISK de Itens 16k",
   "item.expansionae.64k_disk": "DISK de Itens 64k",
+  "item.expansionae.extended_import_bus": "Barramento de Importação 8x",
+  "item.expansionae.extended_export_bus": "Barramento de Exportação 8x",
   "tooltip.expansionae.disk.items": "%s / %s itens",
   "tooltip.expansionae.disk.types": "%s tipos de item",
   "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item"
