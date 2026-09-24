@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "PPP",
+    "PIP",
+    "PPP"
+  ],
+  "key": {
+    "P": { "item": "appliedenergistics2:blank_pattern" },
+    "I": { "item": "appliedenergistics2:interface" }
+  },
+  "result": {
+    "item": "expansionae:pattern_provider_36",
+    "count": 1
+  }
+}

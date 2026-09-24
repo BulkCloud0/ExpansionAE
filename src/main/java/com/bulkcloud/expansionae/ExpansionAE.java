@@ -27,6 +27,7 @@ import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusRuntimeValidator;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusTransferRuntimeValidator;
 import com.bulkcloud.expansionae.feature.growth.GrowthAcceleratorRuntimeValidator;
+import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36RuntimeValidator;
 
 @Mod(ExpansionAE.MOD_ID)
 public final class ExpansionAE {
@@ -76,6 +77,7 @@ public final class ExpansionAE {
         if (DEV_RUNTIME_VALIDATION) {
             ExtendedBusRuntimeValidator.validate();
             GrowthAcceleratorRuntimeValidator.validate();
+            PatternProvider36RuntimeValidator.validate();
             DiskRuntimeValidator.validate();
             ExtendedBusTransferRuntimeValidator.begin();
         }

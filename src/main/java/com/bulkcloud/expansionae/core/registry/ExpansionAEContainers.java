@@ -10,6 +10,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusContainer;
+import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36Container;
 
 public final class ExpansionAEContainers {
     public static final DeferredRegister<ContainerType<?>> CONTAINERS =
@@ -24,6 +25,11 @@ public final class ExpansionAEContainers {
             CONTAINERS.register(
                     "extended_export_bus",
                     () -> IForgeContainerType.create(ExtendedBusContainer::fromExportNetwork));
+
+    public static final RegistryObject<ContainerType<PatternProvider36Container>> PATTERN_PROVIDER_36 =
+            CONTAINERS.register(
+                    "pattern_provider_36",
+                    () -> IForgeContainerType.create(PatternProvider36Container::fromNetwork));
 
     public static final RegistryObject<ContainerType<StockExportBusContainer>> STOCK_EXPORT_BUS =
             CONTAINERS.register(

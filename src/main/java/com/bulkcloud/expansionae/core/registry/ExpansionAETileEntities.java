@@ -9,6 +9,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.growth.BoostedGrowthAcceleratorTileEntity;
 import com.bulkcloud.expansionae.feature.growth.CrankedGrowthAcceleratorTileEntity;
+import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36TileEntity;
 
 public final class ExpansionAETileEntities {
     public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES =
@@ -30,6 +31,15 @@ public final class ExpansionAETileEntities {
                     () -> TileEntityType.Builder.create(
                             CrankedGrowthAcceleratorTileEntity::new,
                             ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get())
+                            .build(null));
+
+    public static final RegistryObject<TileEntityType<PatternProvider36TileEntity>>
+            PATTERN_PROVIDER_36 =
+            TILE_ENTITIES.register(
+                    "pattern_provider_36",
+                    () -> TileEntityType.Builder.create(
+                            PatternProvider36TileEntity::new,
+                            ExpansionAEBlocks.PATTERN_PROVIDER_36.get())
                             .build(null));
 
     private ExpansionAETileEntities() {

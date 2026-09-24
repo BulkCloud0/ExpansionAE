@@ -72,6 +72,13 @@ public final class ExpansionAEItems {
                             ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get(),
                             new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
 
+    public static final RegistryObject<Item> PATTERN_PROVIDER_36 =
+            ITEMS.register(
+                    "pattern_provider_36",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.PATTERN_PROVIDER_36.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
+
     private static final List<RegistryObject<Item>> DISKS = Arrays.asList(
             DISK_1K,
             DISK_4K,

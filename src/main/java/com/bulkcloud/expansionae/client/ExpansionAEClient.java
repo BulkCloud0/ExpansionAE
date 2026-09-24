@@ -30,6 +30,7 @@ import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusContainer;
+import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36Container;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
@@ -70,6 +71,10 @@ public final class ExpansionAEClient {
                     ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
                     (container, inventory, title) -> new StockExportBusScreen(
                             container, inventory, title, stockStyle));
+
+            ScreenManager.<PatternProvider36Container, PatternProvider36Screen>registerFactory(
+                    ExpansionAEContainers.PATTERN_PROVIDER_36.get(),
+                    PatternProvider36Screen::new);
 
             ExpansionAE.LOGGER.info(
                     "ExpansionAE bus UI layout validation passed "
@@ -136,6 +141,7 @@ public final class ExpansionAEClient {
                 StockExportBusPart.MODEL_BASE);
         validateBoostedGrowthAcceleratorModels(event);
         validateCrankedGrowthAcceleratorModels(event);
+        validatePatternProvider36Models(event);
         validateExpansionAEClientResources();
 
         ExpansionAE.LOGGER.info(
@@ -148,6 +154,8 @@ public final class ExpansionAEClient {
                 "Boosted Growth Accelerator client model validation passed (off/on + inventory)");
         ExpansionAE.LOGGER.info(
                 "Cranked Growth Accelerator client model validation passed (off/on + inventory)");
+        ExpansionAE.LOGGER.info(
+                "36-slot Pattern Provider client model validation passed (block + inventory)");
         ExpansionAE.LOGGER.info(
                 "ExpansionAE client resource validation passed (GUI backgrounds + bus/growth textures)");
     }
@@ -259,6 +267,29 @@ public final class ExpansionAEClient {
                 || event.getModelRegistry().get(on) == missing) {
             throw new IllegalStateException(
                     "Cranked Growth Accelerator powered block models are missing");
+        }
+    }
+
+    private static void validatePatternProvider36Models(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.PATTERN_PROVIDER_36.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "36-slot Pattern Provider inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.PATTERN_PROVIDER_36.get().getRegistryName();
+        ModelResourceLocation blockModel =
+                new ModelResourceLocation(blockId, "");
+        if (event.getModelRegistry().get(blockModel) == null) {
+            throw new IllegalStateException(
+                    "36-slot Pattern Provider block model is missing");
         }
     }
 

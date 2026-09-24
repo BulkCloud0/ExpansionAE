@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "expansionae:block/pattern_provider_36"
+  }
+}

@@ -150,6 +150,16 @@ jobs:
             "assets/expansionae/textures/block/cranked_growth_accelerator_side_on.png"
             "data/expansionae/recipes/cranked_growth_accelerator.json"
             "data/expansionae/loot_tables/blocks/cranked_growth_accelerator.json"
+            "com/bulkcloud/expansionae/feature/extendedprovider/PatternProvider36Block.class"
+            "com/bulkcloud/expansionae/feature/extendedprovider/PatternProvider36TileEntity.class"
+            "com/bulkcloud/expansionae/feature/extendedprovider/PatternProvider36Container.class"
+            "com/bulkcloud/expansionae/client/PatternProvider36Screen.class"
+            "assets/expansionae/blockstates/pattern_provider_36.json"
+            "assets/expansionae/models/block/pattern_provider_36.json"
+            "assets/expansionae/models/item/pattern_provider_36.json"
+            "assets/expansionae/textures/block/pattern_provider_36.png"
+            "data/expansionae/recipes/pattern_provider_36.json"
+            "data/expansionae/loot_tables/blocks/pattern_provider_36.json"
           )
 
           for entry in "${required_entries[@]}"; do
@@ -380,6 +390,7 @@ jobs:
                 && grep -q "Stock Export Bus runtime validated" run/logs/latest.log \
                 && grep -q "Boosted Growth Accelerator runtime contract validated" run/logs/latest.log \
                 && grep -q "Cranked Growth Accelerator runtime contract validated" run/logs/latest.log \
+                && grep -q "36-slot Pattern Provider runtime contract validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
@@ -475,6 +486,7 @@ jobs:
               && grep -q "ExpansionAE bus UI layout validation passed" run/logs/latest.log \
               && grep -q "Boosted Growth Accelerator client model validation passed" run/logs/latest.log \
               && grep -q "Cranked Growth Accelerator client model validation passed" run/logs/latest.log \
+              && grep -q "36-slot Pattern Provider client model validation passed" run/logs/latest.log \
               && grep -q "ExpansionAE client resource validation passed" run/logs/latest.log; then
               validated=1
               break
