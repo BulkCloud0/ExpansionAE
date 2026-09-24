@@ -47,23 +47,27 @@ public final class ExpansionAEClient {
         event.enqueueWork(() -> {
             ExpansionAEScreenStyles.validateContracts();
 
+            appeng.client.gui.style.ScreenStyle importStyle =
+                    ExpansionAEScreenStyles.extendedImportBus();
+            appeng.client.gui.style.ScreenStyle exportStyle =
+                    ExpansionAEScreenStyles.extendedExportBus();
+            appeng.client.gui.style.ScreenStyle stockStyle =
+                    ExpansionAEScreenStyles.stockExportBus();
+
             ScreenManager.<ExtendedBusContainer, ExtendedBusScreen>registerFactory(
                     ExpansionAEContainers.EXTENDED_IMPORT_BUS.get(),
                     (container, inventory, title) -> new ExtendedBusScreen(
-                            container, inventory, title,
-                            ExpansionAEScreenStyles.extendedImportBus()));
+                            container, inventory, title, importStyle));
 
             ScreenManager.<ExtendedBusContainer, ExtendedBusScreen>registerFactory(
                     ExpansionAEContainers.EXTENDED_EXPORT_BUS.get(),
                     (container, inventory, title) -> new ExtendedBusScreen(
-                            container, inventory, title,
-                            ExpansionAEScreenStyles.extendedExportBus()));
+                            container, inventory, title, exportStyle));
 
             ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(
                     ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
                     (container, inventory, title) -> new StockExportBusScreen(
-                            container, inventory, title,
-                            ExpansionAEScreenStyles.stockExportBus()));
+                            container, inventory, title, stockStyle));
 
             ExpansionAE.LOGGER.info(
                     "ExpansionAE bus UI layout validation passed "
