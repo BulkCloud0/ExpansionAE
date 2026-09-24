@@ -125,6 +125,18 @@ tasks.withType(JavaCompile) {
 }
 
 jar {
+    from('NOTICE.md') {
+        into 'META-INF'
+        rename { 'NOTICE' }
+    }
+
+    if (file('LICENSE').exists()) {
+        from('LICENSE') {
+            into 'META-INF'
+            rename { 'LICENSE' }
+        }
+    }
+
     manifest {
         attributes([
                 'Specification-Title': project.mod_name,

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.renderer.model.IBakedModel;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
@@ -18,14 +19,20 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.client.ICellModelRegistry;
+import appeng.client.gui.style.ScreenStyle;
+import appeng.client.gui.style.StyleManager;
 import appeng.core.Api;
 
 @Mod.EventBusSubscriber(
@@ -34,6 +41,22 @@ import appeng.core.Api;
         value = Dist.CLIENT)
 public final class ExpansionAEClient {
     private ExpansionAEClient() {
+    }
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(
+                ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
+                (container, inventory, title) -> {
+                    try {
+                        ScreenStyle style = StyleManager.loadStyleDoc("/screens/export_bus.json");
+                        return new StockExportBusScreen(container, inventory, title, style);
+                    } catch (Exception e) {
+                        throw new IllegalStateException(
+                                "Failed to load AE2 export bus screen style for Stock Export Bus",
+                                e);
+                    }
+                }));
     }
 
     @SubscribeEvent
@@ -62,9 +85,10 @@ public final class ExpansionAEClient {
 
         ModelLoader.addSpecialModel(ExpansionImportBusPart.MODEL_BASE);
         ModelLoader.addSpecialModel(ExpansionExportBusPart.MODEL_BASE);
+        ModelLoader.addSpecialModel(StockExportBusPart.MODEL_BASE);
 
         ExpansionAE.LOGGER.info(
-                "Registered and queued 1k/4k/16k/64k DISK drive models and ExpansionAE 8x bus models");
+                "Registered and queued 1k/4k/16k/64k DISK drive models, 8x buses and Stock Export Bus models");
     }
 
     @SubscribeEvent
@@ -88,11 +112,17 @@ public final class ExpansionAEClient {
                 event,
                 ExpansionAEItems.EXTENDED_EXPORT_BUS.get(),
                 ExpansionExportBusPart.MODEL_BASE);
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.STOCK_EXPORT_BUS.get(),
+                StockExportBusPart.MODEL_BASE);
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
         ExpansionAE.LOGGER.info(
                 "8x item bus client model bake validation passed (item inventory + part base models)");
+        ExpansionAE.LOGGER.info(
+                "Stock Export Bus client model bake validation passed (item inventory + part base model)");
     }
 
     private static void validateExtendedBusModels(
