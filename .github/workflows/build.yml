@@ -90,6 +90,13 @@ jobs:
             "data/expansionae/recipes/64k_disk.json"
             "data/expansionae/recipes/extended_import_bus.json"
             "data/expansionae/recipes/extended_export_bus.json"
+            "data/expansionae/recipes/stock_export_bus.json"
+            "assets/expansionae/models/item/stock_export_bus.json"
+            "assets/expansionae/models/part/stock_export_bus_base.json"
+            "com/bulkcloud/expansionae/feature/stockexport/StockExportTargets.class"
+            "com/bulkcloud/expansionae/feature/stockexport/StockExportBusPart.class"
+            "com/bulkcloud/expansionae/feature/stockexport/StockExportBusContainer.class"
+            "com/bulkcloud/expansionae/client/StockExportBusScreen.class"
             "assets/expansionae/models/item/extended_import_bus.json"
             "assets/expansionae/models/item/extended_export_bus.json"
             "assets/expansionae/models/part/extended_import_bus_base.json"
@@ -415,7 +422,8 @@ jobs:
               && grep -q "Registered and queued 1k/4k/16k/64k DISK drive models" run/logs/latest.log \
               && grep -q "DISK client model bake validation passed" run/logs/latest.log \
               && grep -q "DISK client tooltip validation passed" run/logs/latest.log \
-              && grep -q "8x item bus client model bake validation passed" run/logs/latest.log; then
+              && grep -q "8x item bus client model bake validation passed" run/logs/latest.log \
+              && grep -q "Stock Export Bus client model bake validation passed" run/logs/latest.log; then
               validated=1
               break
             fi

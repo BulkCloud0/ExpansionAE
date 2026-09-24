@@ -28,6 +28,7 @@ import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.client.ICellModelRegistry;
 import appeng.client.gui.style.ScreenStyle;
@@ -84,9 +85,10 @@ public final class ExpansionAEClient {
 
         ModelLoader.addSpecialModel(ExpansionImportBusPart.MODEL_BASE);
         ModelLoader.addSpecialModel(ExpansionExportBusPart.MODEL_BASE);
+        ModelLoader.addSpecialModel(StockExportBusPart.MODEL_BASE);
 
         ExpansionAE.LOGGER.info(
-                "Registered and queued 1k/4k/16k/64k DISK drive models and ExpansionAE 8x bus models");
+                "Registered and queued 1k/4k/16k/64k DISK drive models, 8x buses and Stock Export Bus models");
     }
 
     @SubscribeEvent
@@ -110,11 +112,17 @@ public final class ExpansionAEClient {
                 event,
                 ExpansionAEItems.EXTENDED_EXPORT_BUS.get(),
                 ExpansionExportBusPart.MODEL_BASE);
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.STOCK_EXPORT_BUS.get(),
+                StockExportBusPart.MODEL_BASE);
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
         ExpansionAE.LOGGER.info(
                 "8x item bus client model bake validation passed (item inventory + part base models)");
+        ExpansionAE.LOGGER.info(
+                "Stock Export Bus client model bake validation passed (item inventory + part base model)");
     }
 
     private static void validateExtendedBusModels(

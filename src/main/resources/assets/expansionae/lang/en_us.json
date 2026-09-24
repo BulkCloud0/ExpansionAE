@@ -10,5 +10,6 @@
   "tooltip.expansionae.disk.types": "%s item types",
   "tooltip.expansionae.disk.no_type_limit": "No item type limit",
   "gui.expansionae.stock_export.target": "Target",
-  "gui.expansionae.stock_export.set": "Set"
+  "gui.expansionae.stock_export.set": "Set",
+  "item.expansionae.stock_export_bus": "Stock Export Bus"
 }

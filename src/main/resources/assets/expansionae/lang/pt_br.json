@@ -10,5 +10,6 @@
   "tooltip.expansionae.disk.types": "%s tipos de item",
   "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item",
   "gui.expansionae.stock_export.target": "Alvo",
-  "gui.expansionae.stock_export.set": "Definir"
+  "gui.expansionae.stock_export.set": "Definir",
+  "item.expansionae.stock_export_bus": "Barramento de Exportação de Estoque"
 }
