@@ -31,6 +31,33 @@ public final class ExpansionAEScreenStyles {
                 STOCK_CONFIG_CENTER_TOP);
     }
 
+    public static ScreenStyle interface36() {
+        String json = "{"
+                + "\"palette\":{\"DEFAULT_TEXT_COLOR\":\"#404040\"},"
+                + "\"slots\":{"
+                + "\"PLAYER_INVENTORY\":{\"left\":8,\"bottom\":82,"
+                + "\"grid\":\"BREAK_AFTER_9COLS\"},"
+                + "\"PLAYER_HOTBAR\":{\"left\":8,\"bottom\":24,"
+                + "\"grid\":\"HORIZONTAL\"},"
+                + "\"TOOLBOX\":{\"bottom\":82,\"right\":-10,"
+                + "\"grid\":\"BREAK_AFTER_3COLS\"}},"
+                + "\"images\":{\"toolbox\":{"
+                + "\"texture\":\"appliedenergistics2:textures/guis/extra_panels.png\","
+                + "\"textureWidth\":128,\"textureHeight\":128,"
+                + "\"srcRect\":[60,60,68,68]}},"
+                + "\"widgets\":{"
+                + "\"verticalToolbar\":{\"left\":-2,\"top\":6},"
+                + "\"upgrades\":{\"right\":-2,\"top\":0},"
+                + "\"openPriority\":{\"left\":154,\"top\":0},"
+                + "\"toolbox\":{\"right\":-2,\"bottom\":90,"
+                + "\"width\":68,\"height\":68}}"
+                + "}";
+
+        ScreenStyle style = ScreenStyle.GSON.fromJson(json, ScreenStyle.class);
+        style.validate();
+        return style;
+    }
+
     public static int stockTargetTop() {
         return TARGET_TOP;
     }

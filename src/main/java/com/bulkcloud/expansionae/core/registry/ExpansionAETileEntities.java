@@ -10,6 +10,7 @@ import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.growth.BoostedGrowthAcceleratorTileEntity;
 import com.bulkcloud.expansionae.feature.growth.CrankedGrowthAcceleratorTileEntity;
 import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36TileEntity;
+import com.bulkcloud.expansionae.feature.extendedprovider.Interface36TileEntity;
 
 public final class ExpansionAETileEntities {
     public static final DeferredRegister<TileEntityType<?>> TILE_ENTITIES =
@@ -31,6 +32,15 @@ public final class ExpansionAETileEntities {
                     () -> TileEntityType.Builder.create(
                             CrankedGrowthAcceleratorTileEntity::new,
                             ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get())
+                            .build(null));
+
+    public static final RegistryObject<TileEntityType<Interface36TileEntity>>
+            INTERFACE_36 =
+            TILE_ENTITIES.register(
+                    "interface_36",
+                    () -> TileEntityType.Builder.create(
+                            Interface36TileEntity::new,
+                            ExpansionAEBlocks.INTERFACE_36.get())
                             .build(null));
 
     public static final RegistryObject<TileEntityType<PatternProvider36TileEntity>>

@@ -11,6 +11,7 @@ import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusContainer;
 import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36Container;
+import com.bulkcloud.expansionae.feature.extendedprovider.Interface36Container;
 
 public final class ExpansionAEContainers {
     public static final DeferredRegister<ContainerType<?>> CONTAINERS =
@@ -25,6 +26,11 @@ public final class ExpansionAEContainers {
             CONTAINERS.register(
                     "extended_export_bus",
                     () -> IForgeContainerType.create(ExtendedBusContainer::fromExportNetwork));
+
+    public static final RegistryObject<ContainerType<Interface36Container>> INTERFACE_36 =
+            CONTAINERS.register(
+                    "interface_36",
+                    () -> IForgeContainerType.create(Interface36Container::fromNetwork));
 
     public static final RegistryObject<ContainerType<PatternProvider36Container>> PATTERN_PROVIDER_36 =
             CONTAINERS.register(

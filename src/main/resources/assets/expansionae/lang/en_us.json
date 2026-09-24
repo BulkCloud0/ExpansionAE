@@ -23,5 +23,8 @@
   "block.expansionae.cranked_growth_accelerator": "Cranked Growth Accelerator",
   "item.expansionae.cranked_growth_accelerator": "Cranked Growth Accelerator",
   "block.expansionae.pattern_provider_36": "36-Slot Pattern Provider",
-  "item.expansionae.pattern_provider_36": "36-Slot Pattern Provider"
+  "item.expansionae.pattern_provider_36": "36-Slot Pattern Provider",
+  "block.expansionae.interface_36": "36-Slot ME Interface",
+  "item.expansionae.interface_36": "36-Slot ME Interface",
+  "gui.expansionae.interface_36": "36-Slot ME Interface"
 }

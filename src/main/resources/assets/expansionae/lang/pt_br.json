@@ -23,5 +23,8 @@
   "block.expansionae.cranked_growth_accelerator": "Acelerador de Crescimento a Manivela",
   "item.expansionae.cranked_growth_accelerator": "Acelerador de Crescimento a Manivela",
   "block.expansionae.pattern_provider_36": "Provedor de Padrões 36 Slots",
-  "item.expansionae.pattern_provider_36": "Provedor de Padrões 36 Slots"
+  "item.expansionae.pattern_provider_36": "Provedor de Padrões 36 Slots",
+  "block.expansionae.interface_36": "Interface ME de 36 Slots",
+  "item.expansionae.interface_36": "Interface ME de 36 Slots",
+  "gui.expansionae.interface_36": "Interface ME de 36 Slots"
 }

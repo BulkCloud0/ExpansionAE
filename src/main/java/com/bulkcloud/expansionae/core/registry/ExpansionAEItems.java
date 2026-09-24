@@ -72,6 +72,13 @@ public final class ExpansionAEItems {
                             ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get(),
                             new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
 
+    public static final RegistryObject<Item> INTERFACE_36 =
+            ITEMS.register(
+                    "interface_36",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.INTERFACE_36.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
+
     public static final RegistryObject<Item> PATTERN_PROVIDER_36 =
             ITEMS.register(
                     "pattern_provider_36",

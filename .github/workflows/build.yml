@@ -160,6 +160,21 @@ jobs:
             "assets/expansionae/textures/block/pattern_provider_36.png"
             "data/expansionae/recipes/pattern_provider_36.json"
             "data/expansionae/loot_tables/blocks/pattern_provider_36.json"
+            "com/bulkcloud/expansionae/feature/extendedprovider/Interface36Block.class"
+            "com/bulkcloud/expansionae/feature/extendedprovider/Interface36TileEntity.class"
+            "com/bulkcloud/expansionae/feature/extendedprovider/Interface36Container.class"
+            "com/bulkcloud/expansionae/feature/extendedprovider/Interface36RuntimeValidator.class"
+            "com/bulkcloud/expansionae/client/Interface36Screen.class"
+            "com/bulkcloud/expansionae/mixin/DualityInterfaceMixin.class"
+            "com/bulkcloud/expansionae/mixin/InterfaceTileEntityMixin.class"
+            "assets/expansionae/blockstates/interface_36.json"
+            "assets/expansionae/models/block/interface_36.json"
+            "assets/expansionae/models/block/interface_36_oriented.json"
+            "assets/expansionae/models/item/interface_36.json"
+            "assets/expansionae/textures/block/interface_36.png"
+            "assets/expansionae/textures/block/interface_36_arrow.png"
+            "data/expansionae/recipes/interface_36.json"
+            "data/expansionae/loot_tables/blocks/interface_36.json"
           )
 
           for entry in "${required_entries[@]}"; do
@@ -391,6 +406,7 @@ jobs:
                 && grep -q "Boosted Growth Accelerator runtime contract validated" run/logs/latest.log \
                 && grep -q "Cranked Growth Accelerator runtime contract validated" run/logs/latest.log \
                 && grep -q "36-slot Pattern Provider runtime contract validated" run/logs/latest.log \
+                && grep -q "36-slot Interface runtime contract validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
@@ -487,6 +503,7 @@ jobs:
               && grep -q "Boosted Growth Accelerator client model validation passed" run/logs/latest.log \
               && grep -q "Cranked Growth Accelerator client model validation passed" run/logs/latest.log \
               && grep -q "36-slot Pattern Provider client model validation passed" run/logs/latest.log \
+              && grep -q "36-slot Interface client model validation passed" run/logs/latest.log \
               && grep -q "ExpansionAE client resource validation passed" run/logs/latest.log; then
               validated=1
               break

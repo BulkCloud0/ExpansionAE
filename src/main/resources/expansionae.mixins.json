@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [
     "BasicCellInventoryMixin",
-    "GrowingCrystalEntityMixin"
+    "GrowingCrystalEntityMixin",
+    "DualityInterfaceMixin",
+    "InterfaceTileEntityMixin"
   ],
   "client": [],
   "server": [],

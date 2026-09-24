@@ -31,6 +31,7 @@ import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusContainer;
 import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36Container;
+import com.bulkcloud.expansionae.feature.extendedprovider.Interface36Container;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
@@ -75,6 +76,14 @@ public final class ExpansionAEClient {
             ScreenManager.<PatternProvider36Container, PatternProvider36Screen>registerFactory(
                     ExpansionAEContainers.PATTERN_PROVIDER_36.get(),
                     PatternProvider36Screen::new);
+
+            ScreenManager.<Interface36Container, Interface36Screen>registerFactory(
+                    ExpansionAEContainers.INTERFACE_36.get(),
+                    (container, inventory, title) -> new Interface36Screen(
+                            container,
+                            inventory,
+                            title,
+                            ExpansionAEScreenStyles.interface36()));
 
             ExpansionAE.LOGGER.info(
                     "ExpansionAE bus UI layout validation passed "
@@ -142,6 +151,7 @@ public final class ExpansionAEClient {
         validateBoostedGrowthAcceleratorModels(event);
         validateCrankedGrowthAcceleratorModels(event);
         validatePatternProvider36Models(event);
+        validateInterface36Models(event);
         validateExpansionAEClientResources();
 
         ExpansionAE.LOGGER.info(
@@ -156,6 +166,8 @@ public final class ExpansionAEClient {
                 "Cranked Growth Accelerator client model validation passed (off/on + inventory)");
         ExpansionAE.LOGGER.info(
                 "36-slot Pattern Provider client model validation passed (block + inventory)");
+        ExpansionAE.LOGGER.info(
+                "36-slot Interface client model validation passed (omni/oriented + inventory)");
         ExpansionAE.LOGGER.info(
                 "ExpansionAE client resource validation passed (GUI backgrounds + bus/growth textures)");
     }
@@ -267,6 +279,35 @@ public final class ExpansionAEClient {
                 || event.getModelRegistry().get(on) == missing) {
             throw new IllegalStateException(
                     "Cranked Growth Accelerator powered block models are missing");
+        }
+    }
+
+    private static void validateInterface36Models(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.INTERFACE_36.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "36-slot Interface inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.INTERFACE_36.get().getRegistryName();
+        ModelResourceLocation omni =
+                new ModelResourceLocation(blockId, "omnidirectional=true");
+        ModelResourceLocation oriented =
+                new ModelResourceLocation(blockId, "omnidirectional=false");
+
+        if (event.getModelRegistry().get(omni) == null
+                || event.getModelRegistry().get(omni) == missing
+                || event.getModelRegistry().get(oriented) == null
+                || event.getModelRegistry().get(oriented) == missing) {
+            throw new IllegalStateException(
+                    "36-slot Interface block models are missing");
         }
     }
 
