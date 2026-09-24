@@ -25,12 +25,13 @@ import appeng.container.SlotSemantic;
 
 public final class StockExportBusScreen
         extends UpgradeableScreen<StockExportBusContainer> {
+    private static final int STOCK_ACCENT = 0xFF7BF174;
     private final SettingToggleButton<RedstoneMode> redstoneMode;
     private final SettingToggleButton<FuzzyMode> fuzzyMode;
     private final SettingToggleButton<SchedulingMode> schedulingMode;
 
     private TextFieldWidget targetField;
-    private int selectedConfigSlot = -1;
+    private int selectedConfigSlot = 0;
 
     public StockExportBusScreen(
             StockExportBusContainer container,
@@ -62,18 +63,18 @@ public final class StockExportBusScreen
         this.targetField = new TextFieldWidget(
                 this.font,
                 this.guiLeft + 8,
-                this.guiTop + 24,
-                50,
+                this.guiTop + ExpansionAEScreenStyles.stockTargetTop(),
+                52,
                 18,
                 new TranslationTextComponent("gui.expansionae.stock_export.target"));
         this.targetField.setMaxStringLength(10);
-        this.targetField.setText("64");
+        this.targetField.setText(Integer.toString(this.container.getTarget(0)));
         this.addButton(this.targetField);
 
         this.addButton(new Button(
-                this.guiLeft + 60,
-                this.guiTop + 24,
-                34,
+                this.guiLeft + 62,
+                this.guiTop + ExpansionAEScreenStyles.stockTargetTop(),
+                42,
                 18,
                 new TranslationTextComponent("gui.expansionae.stock_export.set"),
                 button -> this.applyTarget()));
@@ -91,6 +92,18 @@ public final class StockExportBusScreen
 
         this.schedulingMode.set(this.container.getSchedulingMode());
         this.schedulingMode.setVisibility(this.container.hasUpgrade(Upgrades.CAPACITY));
+    }
+
+    @Override
+    public void drawBG(
+            com.mojang.blaze3d.matrix.MatrixStack matrixStack,
+            int offsetX,
+            int offsetY,
+            int mouseX,
+            int mouseY,
+            float partialTicks) {
+        super.drawBG(matrixStack, offsetX, offsetY, mouseX, mouseY, partialTicks);
+        fill(matrixStack, offsetX + 6, offsetY + 47, offsetX + 170, offsetY + 49, STOCK_ACCENT);
     }
 
     @Override

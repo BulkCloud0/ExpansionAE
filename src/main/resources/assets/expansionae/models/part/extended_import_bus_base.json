@@ -1,6 +1,7 @@
 {
   "parent": "appliedenergistics2:part/import_bus_base",
   "textures": {
-    "front": "expansionae:part/extended_import_bus"
+    "front": "expansionae:part/extended_import_bus",
+    "sides": "expansionae:part/extended_import_bus_sides"
   }
 }

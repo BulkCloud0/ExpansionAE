@@ -1,6 +1,9 @@
 package com.bulkcloud.expansionae.feature.extendedbus;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.Hand;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.ResourceLocation;
 
 import com.bulkcloud.expansionae.ExpansionAE;
@@ -42,6 +45,14 @@ public final class ExpansionExportBusPart extends ExportBusPart {
     @Override
     protected int calculateItemsToSend() {
         return ExtendedBusThroughput.scaleBudget(super.calculateItemsToSend());
+    }
+
+    @Override
+    public boolean onPartActivate(PlayerEntity player, Hand hand, Vector3d pos) {
+        if (!this.isRemote()) {
+            ExtendedBusContainer.openExport(player, this);
+        }
+        return true;
     }
 
     @Override

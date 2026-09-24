@@ -95,6 +95,12 @@ jobs:
             "assets/expansionae/models/item/stock_export_bus.json"
             "assets/expansionae/models/part/stock_export_bus_base.json"
             "assets/expansionae/textures/part/stock_export_bus.png"
+            "assets/expansionae/textures/part/stock_export_bus_sides.png"
+            "assets/expansionae/textures/part/extended_import_bus_sides.png"
+            "assets/expansionae/textures/part/extended_export_bus_sides.png"
+            "com/bulkcloud/expansionae/client/ExpansionAEScreenStyles.class"
+            "com/bulkcloud/expansionae/client/ExtendedBusScreen.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusContainer.class"
             "com/bulkcloud/expansionae/feature/stockexport/StockExportTargets.class"
             "com/bulkcloud/expansionae/feature/stockexport/StockExportBusPart.class"
             "com/bulkcloud/expansionae/feature/stockexport/StockExportBusContainer.class"
@@ -435,7 +441,8 @@ jobs:
               && grep -q "DISK client model bake validation passed" run/logs/latest.log \
               && grep -q "DISK client tooltip validation passed" run/logs/latest.log \
               && grep -q "8x item bus client model bake validation passed" run/logs/latest.log \
-              && grep -q "Stock Export Bus client model bake validation passed" run/logs/latest.log; then
+              && grep -q "Stock Export Bus client model bake validation passed" run/logs/latest.log \
+              && grep -q "ExpansionAE bus UI layout validation passed" run/logs/latest.log; then
               validated=1
               break
             fi

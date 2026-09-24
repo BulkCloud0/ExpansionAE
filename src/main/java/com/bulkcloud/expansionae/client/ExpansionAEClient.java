@@ -27,12 +27,11 @@ import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
 import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusContainer;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.client.ICellModelRegistry;
-import appeng.client.gui.style.ScreenStyle;
-import appeng.client.gui.style.StyleManager;
 import appeng.core.Api;
 
 @Mod.EventBusSubscriber(
@@ -45,18 +44,31 @@ public final class ExpansionAEClient {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        event.enqueueWork(() -> ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(
-                ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
-                (container, inventory, title) -> {
-                    try {
-                        ScreenStyle style = StyleManager.loadStyleDoc("/screens/export_bus.json");
-                        return new StockExportBusScreen(container, inventory, title, style);
-                    } catch (Exception e) {
-                        throw new IllegalStateException(
-                                "Failed to load AE2 export bus screen style for Stock Export Bus",
-                                e);
-                    }
-                }));
+        event.enqueueWork(() -> {
+            ExpansionAEScreenStyles.validateContracts();
+
+            ScreenManager.<ExtendedBusContainer, ExtendedBusScreen>registerFactory(
+                    ExpansionAEContainers.EXTENDED_IMPORT_BUS.get(),
+                    (container, inventory, title) -> new ExtendedBusScreen(
+                            container, inventory, title,
+                            ExpansionAEScreenStyles.extendedImportBus()));
+
+            ScreenManager.<ExtendedBusContainer, ExtendedBusScreen>registerFactory(
+                    ExpansionAEContainers.EXTENDED_EXPORT_BUS.get(),
+                    (container, inventory, title) -> new ExtendedBusScreen(
+                            container, inventory, title,
+                            ExpansionAEScreenStyles.extendedExportBus()));
+
+            ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(
+                    ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
+                    (container, inventory, title) -> new StockExportBusScreen(
+                            container, inventory, title,
+                            ExpansionAEScreenStyles.stockExportBus()));
+
+            ExpansionAE.LOGGER.info(
+                    "ExpansionAE bus UI layout validation passed "
+                            + "(custom 8x screens + non-overlapping Stock Export editor)");
+        });
     }
 
     @SubscribeEvent

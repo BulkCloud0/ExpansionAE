@@ -11,5 +11,11 @@
   "tooltip.expansionae.disk.no_type_limit": "Sem limite de tipos de item",
   "gui.expansionae.stock_export.target": "Alvo",
   "gui.expansionae.stock_export.set": "Definir",
-  "item.expansionae.stock_export_bus": "Barramento de Exportação de Estoque"
+  "item.expansionae.stock_export_bus": "Barramento de Exportação de Estoque",
+  "gui.expansionae.extended_import_bus.title": "ExpansionAE - Importação 8x",
+  "gui.expansionae.extended_import_bus.subtitle": "Orçamento 8x - importação de alto desempenho",
+  "gui.expansionae.extended_export_bus.title": "ExpansionAE - Exportação 8x",
+  "gui.expansionae.extended_export_bus.subtitle": "Orçamento 8x - exportação de alto desempenho",
+  "gui.expansionae.stock_export_bus.title": "ExpansionAE - Exportação de Estoque",
+  "gui.expansionae.stock_export_bus.subtitle": "Selecione um filtro e defina a quantidade alvo"
 }

@@ -11,5 +11,11 @@
   "tooltip.expansionae.disk.no_type_limit": "No item type limit",
   "gui.expansionae.stock_export.target": "Target",
   "gui.expansionae.stock_export.set": "Set",
-  "item.expansionae.stock_export_bus": "Stock Export Bus"
+  "item.expansionae.stock_export_bus": "Stock Export Bus",
+  "gui.expansionae.extended_import_bus.title": "ExpansionAE 8x Import Bus",
+  "gui.expansionae.extended_import_bus.subtitle": "8x transfer budget - high-throughput import",
+  "gui.expansionae.extended_export_bus.title": "ExpansionAE 8x Export Bus",
+  "gui.expansionae.extended_export_bus.subtitle": "8x transfer budget - high-throughput export",
+  "gui.expansionae.stock_export_bus.title": "ExpansionAE Stock Export Bus",
+  "gui.expansionae.stock_export_bus.subtitle": "Select a filter, then set its target amount"
 }
