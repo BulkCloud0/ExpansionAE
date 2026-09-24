@@ -88,6 +88,19 @@ jobs:
             "data/expansionae/recipes/4k_disk.json"
             "data/expansionae/recipes/16k_disk.json"
             "data/expansionae/recipes/64k_disk.json"
+            "data/expansionae/recipes/extended_import_bus.json"
+            "data/expansionae/recipes/extended_export_bus.json"
+            "assets/expansionae/models/item/extended_import_bus.json"
+            "assets/expansionae/models/item/extended_export_bus.json"
+            "assets/expansionae/models/part/extended_import_bus_base.json"
+            "assets/expansionae/models/part/extended_export_bus_base.json"
+            "assets/expansionae/textures/part/extended_import_bus.png"
+            "assets/expansionae/textures/part/extended_export_bus.png"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExpansionImportBusPart.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExpansionExportBusPart.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusThroughput.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusRuntimeValidator.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusTransferRuntimeValidator.class"
             "expansionae.mixins.json"
             "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
             "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
@@ -310,6 +323,8 @@ jobs:
               if [ -f run/logs/latest.log ] \
                 && grep -q "AE2 API available; registered ExpansionAE cell handlers" run/logs/latest.log \
                 && grep -q "DISK workbench contract validated" run/logs/latest.log \
+                && grep -q "8x item bus runtime contract validated" run/logs/latest.log \
+                && grep -q "8x item bus transfer runtime validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
@@ -399,7 +414,8 @@ jobs:
             if [ -f run/logs/latest.log ] \
               && grep -q "Registered and queued 1k/4k/16k/64k DISK drive models" run/logs/latest.log \
               && grep -q "DISK client model bake validation passed" run/logs/latest.log \
-              && grep -q "DISK client tooltip validation passed" run/logs/latest.log; then
+              && grep -q "DISK client tooltip validation passed" run/logs/latest.log \
+              && grep -q "8x item bus client model bake validation passed" run/logs/latest.log; then
               validated=1
               break
             fi
