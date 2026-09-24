@@ -11,12 +11,23 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
 
-import appeng.client.gui.implementations.IOBusScreen;
+import appeng.api.config.FuzzyMode;
+import appeng.api.config.RedstoneMode;
+import appeng.api.config.SchedulingMode;
+import appeng.api.config.Settings;
+import appeng.api.config.Upgrades;
+import appeng.api.config.YesNo;
+import appeng.client.gui.implementations.UpgradeableScreen;
 import appeng.client.gui.style.ScreenStyle;
+import appeng.client.gui.widgets.ServerSettingToggleButton;
+import appeng.client.gui.widgets.SettingToggleButton;
 import appeng.container.SlotSemantic;
 
-public final class StockExportBusScreen extends IOBusScreen {
-    private final StockExportBusContainer stockContainer;
+public final class StockExportBusScreen
+        extends UpgradeableScreen<StockExportBusContainer> {
+    private final SettingToggleButton<RedstoneMode> redstoneMode;
+    private final SettingToggleButton<FuzzyMode> fuzzyMode;
+    private final SettingToggleButton<SchedulingMode> schedulingMode;
 
     private TextFieldWidget targetField;
     private int selectedConfigSlot = -1;
@@ -27,7 +38,21 @@ public final class StockExportBusScreen extends IOBusScreen {
             ITextComponent title,
             ScreenStyle style) {
         super(container, playerInventory, title, style);
-        this.stockContainer = container;
+
+        this.redstoneMode = new ServerSettingToggleButton<>(
+                Settings.REDSTONE_CONTROLLED,
+                RedstoneMode.IGNORE);
+        this.addToLeftToolbar(this.redstoneMode);
+
+        this.fuzzyMode = new ServerSettingToggleButton<>(
+                Settings.FUZZY_MODE,
+                FuzzyMode.IGNORE_ALL);
+        this.addToLeftToolbar(this.fuzzyMode);
+
+        this.schedulingMode = new ServerSettingToggleButton<>(
+                Settings.SCHEDULING_MODE,
+                SchedulingMode.DEFAULT);
+        this.addToLeftToolbar(this.schedulingMode);
     }
 
     @Override
@@ -55,8 +80,22 @@ public final class StockExportBusScreen extends IOBusScreen {
     }
 
     @Override
+    protected void updateBeforeRender() {
+        super.updateBeforeRender();
+
+        this.redstoneMode.set(this.container.getRedStoneMode());
+        this.redstoneMode.setVisibility(this.container.hasUpgrade(Upgrades.REDSTONE));
+
+        this.fuzzyMode.set(this.container.getFuzzyMode());
+        this.fuzzyMode.setVisibility(this.container.hasUpgrade(Upgrades.FUZZY));
+
+        this.schedulingMode.set(this.container.getSchedulingMode());
+        this.schedulingMode.setVisibility(this.container.hasUpgrade(Upgrades.CAPACITY));
+    }
+
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        List<Slot> configSlots = this.stockContainer.getSlots(SlotSemantic.CONFIG);
+        List<Slot> configSlots = this.container.getSlots(SlotSemantic.CONFIG);
 
         for (int i = 0; i < configSlots.size(); i++) {
             Slot slot = configSlots.get(i);
@@ -69,7 +108,7 @@ public final class StockExportBusScreen extends IOBusScreen {
                     && mouseY < top + 16) {
                 this.selectedConfigSlot = i;
                 this.targetField.setText(
-                        Integer.toString(this.stockContainer.getTarget(i)));
+                        Integer.toString(this.container.getTarget(i)));
                 break;
             }
         }
@@ -88,7 +127,7 @@ public final class StockExportBusScreen extends IOBusScreen {
                 return;
             }
 
-            this.stockContainer.setTargetFromClient(this.selectedConfigSlot, amount);
+            this.container.setTargetFromClient(this.selectedConfigSlot, amount);
         } catch (NumberFormatException ignored) {
         }
     }
