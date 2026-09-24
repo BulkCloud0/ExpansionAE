@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "appliedenergistics2:quartz_growth_accelerator" },
+    { "item": "appliedenergistics2:crank" },
+    { "item": "appliedenergistics2:speed_card" },
+    { "item": "appliedenergistics2:speed_card" },
+    { "item": "appliedenergistics2:engineering_processor" }
+  ],
+  "result": {
+    "item": "expansionae:cranked_growth_accelerator",
+    "count": 1
+  }
+}

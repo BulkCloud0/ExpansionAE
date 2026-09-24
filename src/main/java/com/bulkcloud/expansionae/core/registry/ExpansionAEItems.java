@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.item.Item;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.RegistryObject;
@@ -15,10 +16,14 @@ import net.minecraftforge.registries.ForgeRegistries;
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.ExpansionAEItemGroup;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
 import appeng.items.contents.CellUpgrades;
+import appeng.items.parts.PartItem;
 
 public final class ExpansionAEItems {
     public static final DeferredRegister<Item> ITEMS =
@@ -32,6 +37,54 @@ public final class ExpansionAEItems {
             registerDisk("16k_disk", 16_000, 1.5);
     public static final RegistryObject<Item> DISK_64K =
             registerDisk("64k_disk", 64_000, 2.0);
+
+    public static final RegistryObject<Item> EXTENDED_IMPORT_BUS =
+            ITEMS.register(
+                    "extended_import_bus",
+                    () -> new PartItem<>(
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN),
+                            ExpansionImportBusPart::new));
+    public static final RegistryObject<Item> EXTENDED_EXPORT_BUS =
+            ITEMS.register(
+                    "extended_export_bus",
+                    () -> new PartItem<>(
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN),
+                            ExpansionExportBusPart::new));
+
+    public static final RegistryObject<Item> STOCK_EXPORT_BUS =
+            ITEMS.register(
+                    "stock_export_bus",
+                    () -> new PartItem<>(
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN),
+                            StockExportBusPart::new));
+
+    public static final RegistryObject<Item> BOOSTED_GROWTH_ACCELERATOR =
+            ITEMS.register(
+                    "boosted_growth_accelerator",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.BOOSTED_GROWTH_ACCELERATOR.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
+
+    public static final RegistryObject<Item> CRANKED_GROWTH_ACCELERATOR =
+            ITEMS.register(
+                    "cranked_growth_accelerator",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
+
+    public static final RegistryObject<Item> INTERFACE_36 =
+            ITEMS.register(
+                    "interface_36",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.INTERFACE_36.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
+
+    public static final RegistryObject<Item> PATTERN_PROVIDER_36 =
+            ITEMS.register(
+                    "pattern_provider_36",
+                    () -> new BlockItem(
+                            ExpansionAEBlocks.PATTERN_PROVIDER_36.get(),
+                            new Item.Properties().group(ExpansionAEItemGroup.MAIN)));
 
     private static final List<RegistryObject<Item>> DISKS = Arrays.asList(
             DISK_1K,
@@ -64,6 +117,29 @@ public final class ExpansionAEItems {
             Upgrades.FUZZY.registerItem(item, 1);
             Upgrades.INVERTER.registerItem(item, 1);
         }
+
+        registerImportBusUpgrades(EXTENDED_IMPORT_BUS.get());
+        registerExportBusUpgrades(EXTENDED_EXPORT_BUS.get());
+        registerStockExportBusUpgrades(STOCK_EXPORT_BUS.get());
+    }
+
+    private static void registerImportBusUpgrades(Item item) {
+        Upgrades.FUZZY.registerItem(item, 1);
+        Upgrades.REDSTONE.registerItem(item, 1);
+        Upgrades.CAPACITY.registerItem(item, 2);
+        Upgrades.SPEED.registerItem(item, 4);
+    }
+
+    private static void registerExportBusUpgrades(Item item) {
+        registerImportBusUpgrades(item);
+        Upgrades.CRAFTING.registerItem(item, 1);
+    }
+
+    private static void registerStockExportBusUpgrades(Item item) {
+        Upgrades.FUZZY.registerItem(item, 1);
+        Upgrades.REDSTONE.registerItem(item, 1);
+        Upgrades.CAPACITY.registerItem(item, 2);
+        Upgrades.SPEED.registerItem(item, 4);
     }
 
     public static void validateDiskWorkbenchContract() {

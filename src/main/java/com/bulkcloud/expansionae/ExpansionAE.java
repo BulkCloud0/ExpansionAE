@@ -8,6 +8,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
@@ -16,9 +17,18 @@ import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 
 import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
+import com.bulkcloud.expansionae.core.registry.ExpansionAETileEntities;
+import com.bulkcloud.expansionae.ae2.ExpansionAEApi;
 import com.bulkcloud.expansionae.feature.disk.DiskGridRuntimeValidator;
+import com.bulkcloud.expansionae.feature.disk.DiskQuarantineCommands;
 import com.bulkcloud.expansionae.feature.disk.DiskRuntimeValidator;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageService;
+import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusRuntimeValidator;
+import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusTransferRuntimeValidator;
+import com.bulkcloud.expansionae.feature.growth.GrowthAcceleratorRuntimeValidator;
+import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36RuntimeValidator;
+import com.bulkcloud.expansionae.feature.extendedprovider.Interface36RuntimeValidator;
 
 @Mod(ExpansionAE.MOD_ID)
 public final class ExpansionAE {
@@ -34,8 +44,11 @@ public final class ExpansionAE {
     public ExpansionAE() {
         IEventBus modBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        ExpansionAEApi.registerPartModelsEarly();
         ExpansionAEBlocks.register(modBus);
         ExpansionAEItems.register(modBus);
+        ExpansionAEContainers.register(modBus);
+        ExpansionAETileEntities.register(modBus);
         modBus.addListener(this::onCommonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
@@ -63,7 +76,12 @@ public final class ExpansionAE {
     @SubscribeEvent
     public void onServerStarted(FMLServerStartedEvent event) {
         if (DEV_RUNTIME_VALIDATION) {
+            ExtendedBusRuntimeValidator.validate();
+            GrowthAcceleratorRuntimeValidator.validate();
+            PatternProvider36RuntimeValidator.validate();
+            Interface36RuntimeValidator.validate();
             DiskRuntimeValidator.validate();
+            ExtendedBusTransferRuntimeValidator.begin();
         }
     }
 
@@ -72,7 +90,13 @@ public final class ExpansionAE {
         if (event.phase == TickEvent.Phase.END
                 && DEV_RUNTIME_VALIDATION) {
             DiskGridRuntimeValidator.tick();
+            ExtendedBusTransferRuntimeValidator.tick();
         }
+    }
+
+    @SubscribeEvent
+    public void onRegisterCommands(RegisterCommandsEvent event) {
+        DiskQuarantineCommands.register(event.getDispatcher());
     }
 
     @SubscribeEvent

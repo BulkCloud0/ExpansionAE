@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenManager;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -18,10 +20,20 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 import com.bulkcloud.expansionae.ExpansionAE;
 import com.bulkcloud.expansionae.core.registry.ExpansionAEItems;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEContainers;
+import com.bulkcloud.expansionae.core.registry.ExpansionAEBlocks;
 import com.bulkcloud.expansionae.feature.disk.DiskStorageCellItem;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionExportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExpansionImportBusPart;
+import com.bulkcloud.expansionae.feature.extendedbus.ExtendedBusContainer;
+import com.bulkcloud.expansionae.feature.extendedprovider.PatternProvider36Container;
+import com.bulkcloud.expansionae.feature.extendedprovider.Interface36Container;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusContainer;
+import com.bulkcloud.expansionae.feature.stockexport.StockExportBusPart;
 
 import appeng.api.client.ICellModelRegistry;
 import appeng.core.Api;
@@ -32,6 +44,51 @@ import appeng.core.Api;
         value = Dist.CLIENT)
 public final class ExpansionAEClient {
     private ExpansionAEClient() {
+    }
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        event.enqueueWork(() -> {
+            ExpansionAEScreenStyles.validateContracts();
+
+            appeng.client.gui.style.ScreenStyle importStyle =
+                    ExpansionAEScreenStyles.extendedImportBus();
+            appeng.client.gui.style.ScreenStyle exportStyle =
+                    ExpansionAEScreenStyles.extendedExportBus();
+            appeng.client.gui.style.ScreenStyle stockStyle =
+                    ExpansionAEScreenStyles.stockExportBus();
+
+            ScreenManager.<ExtendedBusContainer, ExtendedBusScreen>registerFactory(
+                    ExpansionAEContainers.EXTENDED_IMPORT_BUS.get(),
+                    (container, inventory, title) -> new ExtendedBusScreen(
+                            container, inventory, title, importStyle));
+
+            ScreenManager.<ExtendedBusContainer, ExtendedBusScreen>registerFactory(
+                    ExpansionAEContainers.EXTENDED_EXPORT_BUS.get(),
+                    (container, inventory, title) -> new ExtendedBusScreen(
+                            container, inventory, title, exportStyle));
+
+            ScreenManager.<StockExportBusContainer, StockExportBusScreen>registerFactory(
+                    ExpansionAEContainers.STOCK_EXPORT_BUS.get(),
+                    (container, inventory, title) -> new StockExportBusScreen(
+                            container, inventory, title, stockStyle));
+
+            ScreenManager.<PatternProvider36Container, PatternProvider36Screen>registerFactory(
+                    ExpansionAEContainers.PATTERN_PROVIDER_36.get(),
+                    PatternProvider36Screen::new);
+
+            ScreenManager.<Interface36Container, Interface36Screen>registerFactory(
+                    ExpansionAEContainers.INTERFACE_36.get(),
+                    (container, inventory, title) -> new Interface36Screen(
+                            container,
+                            inventory,
+                            title,
+                            ExpansionAEScreenStyles.interface36()));
+
+            ExpansionAE.LOGGER.info(
+                    "ExpansionAE bus UI layout validation passed "
+                            + "(custom 8x screens + non-overlapping Stock Export editor)");
+        });
     }
 
     @SubscribeEvent
@@ -58,8 +115,12 @@ public final class ExpansionAEClient {
                 ExpansionAEItems.DISK_64K.get(),
                 new ResourceLocation(ExpansionAE.MOD_ID, "block/drive/cells/64k_disk"));
 
+        ModelLoader.addSpecialModel(ExpansionImportBusPart.MODEL_BASE);
+        ModelLoader.addSpecialModel(ExpansionExportBusPart.MODEL_BASE);
+        ModelLoader.addSpecialModel(StockExportBusPart.MODEL_BASE);
+
         ExpansionAE.LOGGER.info(
-                "Registered and queued 1k/4k/16k/64k DISK drive models with the AE2 client cell registry");
+                "Registered and queued 1k/4k/16k/64k DISK drive models, 8x buses and Stock Export Bus models");
     }
 
     @SubscribeEvent
@@ -75,9 +136,226 @@ public final class ExpansionAEClient {
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_16K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_64K.get());
         validateDiskTooltips();
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.EXTENDED_IMPORT_BUS.get(),
+                ExpansionImportBusPart.MODEL_BASE);
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.EXTENDED_EXPORT_BUS.get(),
+                ExpansionExportBusPart.MODEL_BASE);
+        validateExtendedBusModels(
+                event,
+                ExpansionAEItems.STOCK_EXPORT_BUS.get(),
+                StockExportBusPart.MODEL_BASE);
+        validateBoostedGrowthAcceleratorModels(event);
+        validateCrankedGrowthAcceleratorModels(event);
+        validatePatternProvider36Models(event);
+        validateInterface36Models(event);
+        validateExpansionAEClientResources();
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
+        ExpansionAE.LOGGER.info(
+                "8x item bus client model bake validation passed (item inventory + part base models)");
+        ExpansionAE.LOGGER.info(
+                "Stock Export Bus client model bake validation passed (item inventory + part base model)");
+        ExpansionAE.LOGGER.info(
+                "Boosted Growth Accelerator client model validation passed (off/on + inventory)");
+        ExpansionAE.LOGGER.info(
+                "Cranked Growth Accelerator client model validation passed (off/on + inventory)");
+        ExpansionAE.LOGGER.info(
+                "36-slot Pattern Provider client model validation passed (block + inventory)");
+        ExpansionAE.LOGGER.info(
+                "36-slot Interface client model validation passed (omni/oriented + inventory)");
+        ExpansionAE.LOGGER.info(
+                "ExpansionAE client resource validation passed (GUI backgrounds + bus/growth textures)");
+    }
+
+    private static void validateBoostedGrowthAcceleratorModels(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.BOOSTED_GROWTH_ACCELERATOR.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "Boosted Growth Accelerator inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.BOOSTED_GROWTH_ACCELERATOR.get().getRegistryName();
+        ModelResourceLocation off =
+                new ModelResourceLocation(blockId, "powered=false");
+        ModelResourceLocation on =
+                new ModelResourceLocation(blockId, "powered=true");
+
+        if (event.getModelRegistry().get(off) == null
+                || event.getModelRegistry().get(off) == missing
+                || event.getModelRegistry().get(on) == null
+                || event.getModelRegistry().get(on) == missing) {
+            throw new IllegalStateException(
+                    "Boosted Growth Accelerator powered block models are missing");
+        }
+    }
+
+    private static void validateExpansionAEClientResources() {
+        ResourceLocation[] required = new ResourceLocation[] {
+                new ResourceLocation(
+                        "appliedenergistics2",
+                        "textures/guis/bus.png"),
+                new ResourceLocation(
+                        "appliedenergistics2",
+                        "textures/guis/extra_panels.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/part/extended_import_bus.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/part/extended_export_bus.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/part/stock_export_bus.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_top.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_top_on.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_side.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/boosted_growth_accelerator_side_on.png")
+,
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_top.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_top_on.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_side.png"),
+                new ResourceLocation(
+                        ExpansionAE.MOD_ID,
+                        "textures/block/cranked_growth_accelerator_side_on.png")
+        };
+
+        for (ResourceLocation resource : required) {
+            if (!Minecraft.getInstance().getResourceManager().hasResource(resource)) {
+                throw new IllegalStateException(
+                        "Required ExpansionAE client resource is missing: " + resource);
+            }
+        }
+    }
+
+    private static void validateCrankedGrowthAcceleratorModels(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.CRANKED_GROWTH_ACCELERATOR.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "Cranked Growth Accelerator inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.CRANKED_GROWTH_ACCELERATOR.get().getRegistryName();
+        ModelResourceLocation off =
+                new ModelResourceLocation(blockId, "powered=false");
+        ModelResourceLocation on =
+                new ModelResourceLocation(blockId, "powered=true");
+
+        if (event.getModelRegistry().get(off) == null
+                || event.getModelRegistry().get(off) == missing
+                || event.getModelRegistry().get(on) == null
+                || event.getModelRegistry().get(on) == missing) {
+            throw new IllegalStateException(
+                    "Cranked Growth Accelerator powered block models are missing");
+        }
+    }
+
+    private static void validateInterface36Models(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.INTERFACE_36.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "36-slot Interface inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.INTERFACE_36.get().getRegistryName();
+        ModelResourceLocation omni =
+                new ModelResourceLocation(blockId, "omnidirectional=true");
+        ModelResourceLocation oriented =
+                new ModelResourceLocation(blockId, "omnidirectional=false");
+
+        if (event.getModelRegistry().get(omni) == null
+                || event.getModelRegistry().get(omni) == missing
+                || event.getModelRegistry().get(oriented) == null
+                || event.getModelRegistry().get(oriented) == missing) {
+            throw new IllegalStateException(
+                    "36-slot Interface block models are missing");
+        }
+    }
+
+    private static void validatePatternProvider36Models(ModelBakeEvent event) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        ModelResourceLocation itemModel = new ModelResourceLocation(
+                ExpansionAEItems.PATTERN_PROVIDER_36.get().getRegistryName(),
+                "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "36-slot Pattern Provider inventory model is missing: " + itemModel);
+        }
+
+        ResourceLocation blockId =
+                ExpansionAEBlocks.PATTERN_PROVIDER_36.get().getRegistryName();
+        ModelResourceLocation blockModel =
+                new ModelResourceLocation(blockId, "");
+        if (event.getModelRegistry().get(blockModel) == null) {
+            throw new IllegalStateException(
+                    "36-slot Pattern Provider block model is missing");
+        }
+    }
+
+    private static void validateExtendedBusModels(
+            ModelBakeEvent event,
+            Item item,
+            ResourceLocation partBaseModel) {
+        IBakedModel missing = event.getModelManager().getModel(
+                new ResourceLocation(ExpansionAE.MOD_ID, "__missing_model_probe__"));
+
+        IBakedModel bakedPart = event.getModelRegistry().get(partBaseModel);
+        if (bakedPart == null || bakedPart == missing) {
+            throw new IllegalStateException(
+                    "8x bus part base model was not baked for "
+                            + item.getRegistryName() + ": " + partBaseModel);
+        }
+
+        ModelResourceLocation itemModel =
+                new ModelResourceLocation(item.getRegistryName(), "inventory");
+        IBakedModel bakedItem = event.getModelRegistry().get(itemModel);
+        if (bakedItem == null || bakedItem == missing) {
+            throw new IllegalStateException(
+                    "8x bus inventory model was not baked for "
+                            + item.getRegistryName() + ": " + itemModel);
+        }
     }
 
     private static void validateDiskTooltips() {
@@ -198,8 +476,6 @@ public final class ExpansionAEClient {
             ICellModelRegistry cells,
             Item item,
             ResourceLocation model) {
-        // AE2 8.4.x explicitly requires addon cell models to be queued for loading.
-        // Registering only the item -> model mapping is not sufficient by API contract.
         ModelLoader.addSpecialModel(model);
         cells.registerModel(item, model);
 

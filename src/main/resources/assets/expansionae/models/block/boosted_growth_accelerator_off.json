@@ -1,0 +1,8 @@
+{
+  "parent": "block/cube_bottom_top",
+  "textures": {
+    "bottom": "expansionae:block/boosted_growth_accelerator_top",
+    "side": "expansionae:block/boosted_growth_accelerator_side",
+    "top": "expansionae:block/boosted_growth_accelerator_top"
+  }
+}

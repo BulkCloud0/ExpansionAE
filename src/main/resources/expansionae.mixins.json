@@ -4,7 +4,10 @@
   "package": "com.bulkcloud.expansionae.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "BasicCellInventoryMixin"
+    "BasicCellInventoryMixin",
+    "GrowingCrystalEntityMixin",
+    "DualityInterfaceMixin",
+    "InterfaceTileEntityMixin"
   ],
   "client": [],
   "server": [],

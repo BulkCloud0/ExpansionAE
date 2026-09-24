@@ -1,0 +1,12 @@
+{
+  "parent": "block/cube",
+  "textures": {
+    "particle": "expansionae:block/interface_36",
+    "down": "expansionae:block/interface_36",
+    "up": "expansionae:block/interface_36",
+    "north": "expansionae:block/interface_36_arrow",
+    "south": "expansionae:block/interface_36_arrow",
+    "east": "expansionae:block/interface_36_arrow",
+    "west": "expansionae:block/interface_36_arrow"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "variants": {
+    "powered=false": { "model": "expansionae:block/cranked_growth_accelerator_off" },
+    "powered=true": { "model": "expansionae:block/cranked_growth_accelerator_on" }
+  }
+}

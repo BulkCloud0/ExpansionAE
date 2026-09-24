@@ -33,10 +33,10 @@ O AE2 8.4.x não possui a API moderna de `AEKey`, mas já suporta canais de arma
 
 | Origem | Funcionalidades candidatas | Dependência extra | Complexidade | Situação |
 | --- | --- | --- | --- | --- |
-| ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Candidato P1 |
+| ExtendedAE | Pattern Provider 36 slots; Interface 36 slots; buses rápidos; melhorias de Pattern Access | Não | Média | Import/Export Bus 8x implementados e validados; Provider/Interface 36 slots adiado para train seguinte |
 | AE2Things | DISK sem limite de tipos, com modelo próprio de capacidade | Não | Média | 1k/4k/16k/64k validados em runtime + client smoke; recipe/progressão e identidade visual técnica concluídas; resta passagem manual de UX/visual da #8 |
 | ME Requester | Requester de estoque e terminal de gerenciamento | Não | Média/Alta | Candidato P1 |
-| AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Candidato P1 |
+| AdvancedAE | Stock Export Bus; Import/Export Bus; Advanced IO Bus | Não | Média/Alta | Stock Export Bus desenvolvido em Draft para train seguinte; não bloqueia o alpha atual |
 | Create: AE2 Recipes | Receitas Create para componentes AE2 | Create | Baixa/Média | Candidato P1 opcional |
 | Growth Accelerator Tiers | Cranked, Boosted e Directional Growth Accelerator | Não | Média | Candidato P1/P2 |
 
@@ -153,15 +153,20 @@ Uma feature só entra na implementação quando:
 
 ## Próxima etapa
 
-O scaffold já compila e o primeiro vertical slice escolhido foi o DISK. A ordem imediata agora é:
+O projeto está em **release freeze** para fechar o alpha atual. A ordem imediata é serial e não deve ser expandida por novas features:
 
-1. fazer a passagem manual final pela GUI do Cell Workbench/ME Terminal e validar visual dos quatro tiers (#8);
-2. retirar a PR #4 de draft quando a checklist manual estiver verde;
-3. integrar o DISK somente após solicitação explícita de merge;
-4. fechar #9 com o mesmo PASS visual, sem novo commit;
-5. manter 256k fora do primeiro backport, pois o AE2 8.4.7 não possui componente 256k nativo;
-6. após a integração da #4, reconciliar a manutenção de CI da #11/#13 preservando o workflow enriquecido;
-7. depois iniciar a próxima feature P1.
+1. executar a passagem manual final de UX/visual do DISK (#8) no head congelado da PR #4;
+2. com PASS total, fechar #8/#9 e marcar a PR #4 como Ready;
+3. integrar a PR #4 somente após autorização explícita do mantenedor, preferindo merge commit;
+4. retargetar/revalidar e integrar #15 preservando seu delta de diagnostics/quarantine;
+5. reconstruir #13 sobre o workflow final, alterando somente as quatro versões de Actions e rerodar todos os gates;
+6. aplicar #16 exigindo o check `build` e bloqueando force-push/deleção;
+7. reconstruir #19 sobre `main`, preservando o delta dos buses 8x e rerodar servidor/cliente;
+8. reconciliar README/PORT_STATUS no estado integrado;
+9. concluir #10 e reconstruir o hardening legal da #25; nenhuma licença é escolhida automaticamente;
+10. gerar o artifact do alpha com exatamente um JAR distribuível e executar o smoke final.
+
+O ensaio integrado #21 / Build #913 já provou #15 + #13 + #19 em conjunto. A PR #25 / Build #933 provou o packaging neutro de NOTICE/LICENSE. Stock Export Bus (#22/#23), Provider/Interface (#18) e Growth Accelerator (#20) ficam congelados para release trains seguintes.
 
 As branches antigas `feature/disk-tiers` e `feat/disk-storage` ficaram redundantes em relação a `feature/disk-storage`; não devem ser usadas como base para trabalho novo antes da integração da PR #4.
 
