@@ -11,6 +11,7 @@ O repositório está na fase de arquitetura e implementação incremental. O pla
 - [PORT_STATUS.md](PORT_STATUS.md): matriz de funcionalidades, dificuldade e fases propostas.
 - [ARCHITECTURE.md](ARCHITECTURE.md): arquitetura do core, módulos opcionais e storage channels.
 - [NOTICE.md](NOTICE.md): projetos de referência, créditos e licenças observadas.
+- [DISK_RECOVERY.md](DISK_RECOVERY.md): diagnóstico read-only, export e procedimento seguro de backup para DISKs em quarentena.
 
 ### Vertical slice atual: DISK
 

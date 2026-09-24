@@ -19,16 +19,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Java 8
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '8'
 
       - name: Set up Gradle cache
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
       - name: Make Gradle wrapper executable
         run: chmod +x gradlew
@@ -66,6 +66,7 @@ jobs:
 
           required_entries=(
             "META-INF/mods.toml"
+            "META-INF/NOTICE"
             "assets/expansionae/lang/en_us.json"
             "assets/expansionae/lang/pt_br.json"
             "assets/expansionae/models/item/1k_disk.json"
@@ -88,8 +89,32 @@ jobs:
             "data/expansionae/recipes/4k_disk.json"
             "data/expansionae/recipes/16k_disk.json"
             "data/expansionae/recipes/64k_disk.json"
+            "data/expansionae/recipes/extended_import_bus.json"
+            "data/expansionae/recipes/extended_export_bus.json"
+            "data/expansionae/recipes/stock_export_bus.json"
+            "assets/expansionae/models/item/stock_export_bus.json"
+            "assets/expansionae/models/part/stock_export_bus_base.json"
+            "assets/expansionae/textures/part/stock_export_bus.png"
+            "com/bulkcloud/expansionae/feature/stockexport/StockExportTargets.class"
+            "com/bulkcloud/expansionae/feature/stockexport/StockExportBusPart.class"
+            "com/bulkcloud/expansionae/feature/stockexport/StockExportBusContainer.class"
+            "com/bulkcloud/expansionae/client/StockExportBusScreen.class"
+            "assets/expansionae/models/item/extended_import_bus.json"
+            "assets/expansionae/models/item/extended_export_bus.json"
+            "assets/expansionae/models/part/extended_import_bus_base.json"
+            "assets/expansionae/models/part/extended_export_bus_base.json"
+            "assets/expansionae/textures/part/extended_import_bus.png"
+            "assets/expansionae/textures/part/extended_export_bus.png"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExpansionImportBusPart.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExpansionExportBusPart.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusThroughput.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusRuntimeValidator.class"
+            "com/bulkcloud/expansionae/feature/extendedbus/ExtendedBusTransferRuntimeValidator.class"
             "expansionae.mixins.json"
             "com/bulkcloud/expansionae/feature/disk/DiskStorageCellItem.class"
+            "com/bulkcloud/expansionae/feature/disk/DiskQuarantineCommands.class"
+            "com/bulkcloud/expansionae/feature/disk/DiskQuarantineExport.class"
+            "com/bulkcloud/expansionae/feature/disk/DiskQuarantinePermissions.class"
             "com/bulkcloud/expansionae/mixin/BasicCellInventoryMixin.class"
           )
 
@@ -99,6 +124,11 @@ jobs:
               exit 1
             fi
           done
+
+          if [ -f LICENSE ] && ! grep -Fxq "META-INF/LICENSE" build/jar-contents.txt; then
+            echo "Repository LICENSE exists but is missing from the distributable JAR."
+            exit 1
+          fi
 
           test_class_leak=0
           if [ -d build/classes/java/test ]; then
@@ -310,6 +340,10 @@ jobs:
               if [ -f run/logs/latest.log ] \
                 && grep -q "AE2 API available; registered ExpansionAE cell handlers" run/logs/latest.log \
                 && grep -q "DISK workbench contract validated" run/logs/latest.log \
+                && grep -q "8x item bus runtime contract validated" run/logs/latest.log \
+                && grep -q "8x item bus transfer runtime validated" run/logs/latest.log \
+                && grep -q "Stock Export Bus runtime contract validated" run/logs/latest.log \
+                && grep -q "Stock Export Bus runtime validated" run/logs/latest.log \
                 && grep -q "DISK storage runtime validated" run/logs/latest.log \
                 && grep -q "DISK active grid runtime validated" run/logs/latest.log \
                 && grep -q "$phase_marker" run/logs/latest.log; then
@@ -399,7 +433,9 @@ jobs:
             if [ -f run/logs/latest.log ] \
               && grep -q "Registered and queued 1k/4k/16k/64k DISK drive models" run/logs/latest.log \
               && grep -q "DISK client model bake validation passed" run/logs/latest.log \
-              && grep -q "DISK client tooltip validation passed" run/logs/latest.log; then
+              && grep -q "DISK client tooltip validation passed" run/logs/latest.log \
+              && grep -q "8x item bus client model bake validation passed" run/logs/latest.log \
+              && grep -q "Stock Export Bus client model bake validation passed" run/logs/latest.log; then
               validated=1
               break
             fi
@@ -458,7 +494,7 @@ jobs:
 
       - name: Upload development JAR
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ExpansionAE-dev
           path: |
