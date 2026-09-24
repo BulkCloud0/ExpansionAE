@@ -28,6 +28,20 @@ O primeiro módulo funcional em validação é a família de armazenamento DISK 
 
 Para este primeiro backport, recipe/progressão e identidade visual técnica dos quatro tiers já estão definidas e implementadas. A PR permanece em validação apenas pela passagem manual de UX/visual no cliente. Consulte `PORT_STATUS.md` e `DEVELOPMENT.md` para o estado técnico detalhado.
 
+## Alpha atual — fechamento de release
+
+O primeiro release train do ExpansionAE está em fechamento. O escopo do alpha é deliberadamente limitado ao que já possui implementação e validação técnica maduras:
+
+- DISK 1k / 4k / 16k / 64k;
+- diagnostics/quarantine read-only para DISKs;
+- Extended Import/Export Bus 8x;
+- workflow CI atualizado para Actions compatíveis com Node 24;
+- packaging de release preparado para incluir NOTICE e LICENSE quando a decisão legal for formalizada.
+
+Não bloqueiam este alpha: Stock Export Bus, Provider/Interface 36 slots, Growth Accelerator e canais XP/mana/chemical/EMC. Esses itens permanecem no roadmap para release trains seguintes.
+
+Os únicos gates externos ao código já preparado são: PASS manual de UX/visual da issue #8, autorização explícita do mantenedor antes do merge da PR #4 e decisão de licença da issue #10 antes de distribuição pública.
+
 ## Compilar no Windows
 
 1. Instale um **JDK 8 de 64 bits**, como Eclipse Temurin 8. Configure `JAVA_HOME` para a pasta do JDK, não a pasta `bin`.
