@@ -2,12 +2,15 @@ package com.bulkcloud.expansionae.client;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
+import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.IBakedModel;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -74,10 +77,23 @@ public final class ExpansionAEClient {
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_4K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_16K.get());
         validateBakedDiskModels(event, cells, ExpansionAEItems.DISK_64K.get());
+
+        ModelBounds oneKBounds = driveModelBounds(event, cells, ExpansionAEItems.DISK_1K.get());
+        ModelBounds fourKBounds = driveModelBounds(event, cells, ExpansionAEItems.DISK_4K.get());
+        ModelBounds sixteenKBounds = driveModelBounds(event, cells, ExpansionAEItems.DISK_16K.get());
+        ModelBounds sixtyFourKBounds = driveModelBounds(event, cells, ExpansionAEItems.DISK_64K.get());
+
+        requireSameBounds(oneKBounds, fourKBounds, "1k", "4k");
+        requireSameBounds(oneKBounds, sixteenKBounds, "1k", "16k");
+        requireSameBounds(oneKBounds, sixtyFourKBounds, "1k", "64k");
+
         validateDiskTooltips();
 
         ExpansionAE.LOGGER.info(
                 "DISK client model bake validation passed (item inventory + ME Drive models)");
+        ExpansionAE.LOGGER.info(
+                "DISK client visual geometry validation passed "
+                        + "(all Drive tiers share identical in-bounds geometry)");
     }
 
     private static void validateDiskTooltips() {
@@ -161,6 +177,158 @@ public final class ExpansionAEClient {
                                 + " at index "
                                 + i);
             }
+        }
+        String resolved = component.getString();
+        if (resolved == null
+                || resolved.trim().isEmpty()
+                || resolved.contains(expectedKey)
+                || resolved.length() > 120) {
+            throw new IllegalStateException(
+                    "DISK tooltip did not resolve to sane readable text for "
+                            + disk.getRegistryName()
+                            + " / "
+                            + expectedKey
+                            + ": "
+                            + resolved);
+        }
+    }
+
+    private static ModelBounds driveModelBounds(
+            ModelBakeEvent event,
+            ICellModelRegistry cells,
+            Item item) {
+        ResourceLocation driveModel = cells.model(item);
+        if (driveModel == null) {
+            throw new IllegalStateException(
+                    "Cannot inspect Drive geometry without registered model for "
+                            + item.getRegistryName());
+        }
+
+        IBakedModel model = event.getModelRegistry().get(driveModel);
+        if (model == null) {
+            throw new IllegalStateException(
+                    "Cannot inspect missing Drive geometry for " + item.getRegistryName());
+        }
+
+        ModelBounds bounds = new ModelBounds();
+        collectBounds(model.getQuads(null, null, new Random(0L)), bounds);
+        for (Direction direction : Direction.values()) {
+            collectBounds(model.getQuads(null, direction, new Random(0L)), bounds);
+        }
+
+        if (bounds.vertices == 0) {
+            throw new IllegalStateException(
+                    "Drive model contains no baked vertices for " + item.getRegistryName());
+        }
+
+        bounds.requireInsideUnitCube(item);
+        return bounds;
+    }
+
+    private static void collectBounds(List<BakedQuad> quads, ModelBounds bounds) {
+        for (BakedQuad quad : quads) {
+            int[] data = quad.getVertexData();
+            if (data.length == 0 || data.length % 4 != 0) {
+                throw new IllegalStateException(
+                        "Unexpected baked quad vertex-data length: " + data.length);
+            }
+
+            int stride = data.length / 4;
+            if (stride < 3) {
+                throw new IllegalStateException(
+                        "Baked quad vertex stride is too small: " + stride);
+            }
+
+            for (int vertex = 0; vertex < 4; vertex++) {
+                int offset = vertex * stride;
+                bounds.include(
+                        Float.intBitsToFloat(data[offset]),
+                        Float.intBitsToFloat(data[offset + 1]),
+                        Float.intBitsToFloat(data[offset + 2]));
+            }
+        }
+    }
+
+    private static void requireSameBounds(
+            ModelBounds expected,
+            ModelBounds actual,
+            String expectedTier,
+            String actualTier) {
+        if (!expected.sameAs(actual, 0.00001f)) {
+            throw new IllegalStateException(
+                    "Drive model alignment differs between "
+                            + expectedTier
+                            + " and "
+                            + actualTier
+                            + ": "
+                            + expected
+                            + " vs "
+                            + actual);
+        }
+    }
+
+    private static final class ModelBounds {
+        private float minX = Float.POSITIVE_INFINITY;
+        private float minY = Float.POSITIVE_INFINITY;
+        private float minZ = Float.POSITIVE_INFINITY;
+        private float maxX = Float.NEGATIVE_INFINITY;
+        private float maxY = Float.NEGATIVE_INFINITY;
+        private float maxZ = Float.NEGATIVE_INFINITY;
+        private int vertices;
+
+        private void include(float x, float y, float z) {
+            if (Float.isNaN(x) || Float.isInfinite(x)
+                    || Float.isNaN(y) || Float.isInfinite(y)
+                    || Float.isNaN(z) || Float.isInfinite(z)) {
+                throw new IllegalStateException(
+                        "Drive model contains non-finite vertex coordinates");
+            }
+
+            this.minX = Math.min(this.minX, x);
+            this.minY = Math.min(this.minY, y);
+            this.minZ = Math.min(this.minZ, z);
+            this.maxX = Math.max(this.maxX, x);
+            this.maxY = Math.max(this.maxY, y);
+            this.maxZ = Math.max(this.maxZ, z);
+            this.vertices++;
+        }
+
+        private void requireInsideUnitCube(Item item) {
+            float epsilon = 0.001f;
+            if (this.minX < -epsilon
+                    || this.minY < -epsilon
+                    || this.minZ < -epsilon
+                    || this.maxX > 1.0f + epsilon
+                    || this.maxY > 1.0f + epsilon
+                    || this.maxZ > 1.0f + epsilon) {
+                throw new IllegalStateException(
+                        "Drive model geometry exceeds block bounds for "
+                                + item.getRegistryName()
+                                + ": "
+                                + this);
+            }
+        }
+
+        private boolean sameAs(ModelBounds other, float epsilon) {
+            return close(this.minX, other.minX, epsilon)
+                    && close(this.minY, other.minY, epsilon)
+                    && close(this.minZ, other.minZ, epsilon)
+                    && close(this.maxX, other.maxX, epsilon)
+                    && close(this.maxY, other.maxY, epsilon)
+                    && close(this.maxZ, other.maxZ, epsilon);
+        }
+
+        private static boolean close(float left, float right, float epsilon) {
+            return Math.abs(left - right) <= epsilon;
+        }
+
+        @Override
+        public String toString() {
+            return "["
+                    + this.minX + "," + this.minY + "," + this.minZ
+                    + " -> "
+                    + this.maxX + "," + this.maxY + "," + this.maxZ
+                    + "; vertices=" + this.vertices + "]";
         }
     }
 
