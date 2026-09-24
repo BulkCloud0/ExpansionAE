@@ -66,6 +66,7 @@ jobs:
 
           required_entries=(
             "META-INF/mods.toml"
+            "META-INF/NOTICE"
             "assets/expansionae/lang/en_us.json"
             "assets/expansionae/lang/pt_br.json"
             "assets/expansionae/models/item/1k_disk.json"
@@ -112,6 +113,11 @@ jobs:
               exit 1
             fi
           done
+
+          if [ -f LICENSE ] && ! grep -Fxq "META-INF/LICENSE" build/jar-contents.txt; then
+            echo "Repository LICENSE exists but is missing from the distributable JAR."
+            exit 1
+          fi
 
           test_class_leak=0
           if [ -d build/classes/java/test ]; then
